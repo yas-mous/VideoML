@@ -4,9 +4,13 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'videoML/**' 
   pull_request:
     branches:
       - main
+    paths:
+      - 'videoML/**' 
   workflow_dispatch:
 
 jobs:
@@ -21,6 +25,14 @@ jobs:
         with:
           node-version: '14'
         
+      - name: Cache Node.js modules
+        uses: actions/cache@v2
+        with:
+          path: ./videoML/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('./videoML/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
       - name: Install dependencies
         run: npm install
         working-directory: ./videoML 
@@ -34,4 +46,4 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./videoML/dist 
+          publish_dir: ./videoML/dist
