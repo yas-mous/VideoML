@@ -25,7 +25,7 @@
         "test": "vitest run",
         "cli:info": "node ./bin/cli",
         "cli": "node ./bin/cli generate --destination ../demo/generated/",
-        "prepare:package": "npm run build && npm run langium:generate:production && npm run bundle"
+        "prepare:package": "npm run langium:generate:production && npm run build && npm run bundle"
     },
     "dependencies": {
         "langium": "~3.3.0",
