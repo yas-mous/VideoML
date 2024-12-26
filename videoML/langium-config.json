@@ -1,0 +1,15 @@
+{
+    "projectName": "VideoMl",
+    "languages": [{
+        "id": "video-ml",
+        "grammar": "src/language/video-ml.langium",
+        "fileExtensions": [".vml"],
+        "textMate": {
+            "out": "syntaxes/video-ml.tmLanguage.json"
+        },
+        "monarch": {
+            "out": "src/syntaxes/video-ml.monarch.ts"
+        }
+    }],
+    "out": "src/language/generated"
+}
