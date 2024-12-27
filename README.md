@@ -1,5 +1,7 @@
 # VideoML project
 ### Installer les dépendances
+En premier se placer dans le répertoire videoML
+puis :
 ```bash
 npm install
 ```
