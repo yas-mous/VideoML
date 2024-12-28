@@ -1,18 +1,25 @@
-grammar VideoMl
+grammar VideoML
 
-entry Model:
-    (persons+=Person | greetings+=Greeting)*;
+entry TimeLine:
+    'timeline' name=ID '{' NL
+        layers+=Layer*
+    '}';
 
-Person:
-    'person' name=ID;
+Layer:
+    '---'NL 
+    clips+=Clip*;
 
-Greeting:
-    'Hello' person=[Person:ID] '!';
+Clip:
+    sourceFile=STRING (',' properties+=ClipProperty)* NL;
+
+ClipProperty:
+    begin= 'begin:' FLOAT |
+    end= 'end:' FLOAT |
+    backgroundColor=STRING ;
 
 hidden terminal WS: /\s+/;
 terminal ID: /[_a-zA-Z][\w_]*/;
 terminal INT returns number: /[0-9]+/;
-terminal STRING: /"(\\.|[^"\\])*"|'(\\.|[^'\\])*'/;
-
-hidden terminal ML_COMMENT: /\/\*[\s\S]*?\*\//;
-hidden terminal SL_COMMENT: /\/\/[^\n\r]*/;
+terminal NL: /\r?\n/;
+terminal FLOAT returns number: /[0-9]+(\.[0-9]+)?/;
+terminal STRING: /'(\\.|[^'\\])*'|'(\\.|[^'\\])*'/;
