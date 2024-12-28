@@ -1,6 +1,7 @@
 timeline App {
     ---
     |'video1.mp4'
+    |'audio1.mp4'
     ---
     |'video4.mp4'
 }
