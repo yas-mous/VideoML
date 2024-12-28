@@ -63,6 +63,7 @@ function compileLayer(layer: Layer, layerIndex: number, fileNode: CompositeGener
 }
 
 function compileClip(clip: Clip): string {
+    //TOCHANGE : adapted with the different types of clips
     const source = clip.sourceFile;
     return `VideoFileClip("${source}")`;
 }
