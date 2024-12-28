@@ -66,3 +66,41 @@ function compileClip(clip: Clip): string {
     const source = clip.sourceFile;
     return `VideoFileClip("${source}")`;
 }
+
+//MINIMAL FUNCTIONS TO IMPLEMENT (commented because of compilation errors : empty functions)
+/*
+function compileVideoClip(){
+    //TODO
+}
+
+function compileAudioClip(){
+    //TODO
+}
+
+function compileText(){
+    //TODO
+}
+
+function compileTransition(){
+    //TODO
+}
+
+function compileEffect(){
+    //TODO
+}
+
+function compileCropEffect(){
+    //TODO
+}
+
+function compileFreezingEffect(){
+    //TODO
+}
+
+function compileZoomEffect(){
+    //TODO
+}
+
+function compileAdjustmentEffect(){
+    //TODO
+}*/
