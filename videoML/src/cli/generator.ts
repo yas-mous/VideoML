@@ -49,6 +49,26 @@ function compileLayer(layer: Layer, layerIndex: number, fileNode: CompositeGener
         clips.push(clipCode);
     });
 
+    if (clips.length === 1) {
+        return compileSingleClip(clips[0], fileNode);
+    } else {
+        return compileMultipleClip(clips, layerIndex, fileNode);
+    }
+}
+
+function compileClip(clip: Clip): string {
+    const source = clip.sourceFile;
+    const clipCode = `VideoFileClip("${source}")`;
+    return clipCode;
+}
+
+function compileSingleClip(clipCode: string, fileNode: CompositeGeneratorNode): string {
+    fileNode.append(clipCode);
+    fileNode.appendNewLine();
+    return clipCode; 
+}
+
+function compileMultipleClip(clips: string[], layerIndex: number, fileNode: CompositeGeneratorNode): string {
     const layerVar = `layer_${layerIndex}`;
     fileNode.append(`${layerVar} = CompositeVideoClip([`);
     fileNode.appendNewLine();
@@ -58,15 +78,11 @@ function compileLayer(layer: Layer, layerIndex: number, fileNode: CompositeGener
     });
     fileNode.append("])");
     fileNode.appendNewLine();
-
     return layerVar;
 }
 
-function compileClip(clip: Clip): string {
-    //TOCHANGE : adapted with the different types of clips
-    const source = clip.sourceFile;
-    return `VideoFileClip("${source}")`;
-}
+
+
 
 //MINIMAL FUNCTIONS TO IMPLEMENT (commented because of compilation errors : empty functions)
 /*
