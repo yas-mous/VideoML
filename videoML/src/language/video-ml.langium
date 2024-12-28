@@ -10,7 +10,7 @@ Layer:
     clips+=Clip*;
 
 Clip:
-    sourceFile=STRING (',' properties+=ClipProperty)* NL;
+    '|'sourceFile=STRING (',' properties+=ClipProperty)* NL;
 
 ClipProperty:
     begin= 'begin:' FLOAT |
