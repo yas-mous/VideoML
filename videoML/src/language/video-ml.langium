@@ -13,8 +13,8 @@ Clip:
     '|'sourceFile=STRING (',' properties+=ClipProperty)* NL;
 
 ClipProperty:
-    begin= 'begin:' FLOAT |
-    end= 'end:' FLOAT |
+    'begin:' begin=FLOAT |
+    'end:' end=FLOAT |
     backgroundColor=STRING ;
 
 hidden terminal WS: /\s+/;

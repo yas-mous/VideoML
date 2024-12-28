@@ -2,7 +2,7 @@ import { CompositeGeneratorNode, toString } from 'langium/generate';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { extractDestinationAndName } from './cli-util.js';
-import { TimeLine, Clip, Layer } from '../language/generated/ast.js';
+import { TimeLine, Clip } from '../language/generated/ast.js';
 
 export function generatepython(timeline: TimeLine, filePath: string, destination: string | undefined): string {
     const data = extractDestinationAndName(filePath, destination);
@@ -21,10 +21,30 @@ export function generatepython(timeline: TimeLine, filePath: string, destination
 function compileTimeline(timeline: TimeLine, fileNode: CompositeGeneratorNode): void {
     fileNode.append("from moviepy import *");
     fileNode.appendNewLine();
+    fileNode.append("from moviepy.editor import *");
+    fileNode.appendNewLine();
     fileNode.appendNewLine();
 
-    const layers: string[] = [];
-    timeline.layers.forEach((layer, layerIndex) => {
+    const clips: string[] = [];
+    timeline.layers.forEach((layer) => {
+        layer.clips.forEach((clip) => {
+            const clipCode = compileClip(clip);
+            clips.push(clipCode);
+        });
+    });
+
+    fileNode.appendNewLine();
+    fileNode.append("final_video = concatenate_videoclips([");
+    fileNode.appendNewLine();
+    clips.forEach((clip) => {
+        fileNode.append(`    ${clip},`);
+        fileNode.appendNewLine();
+    });
+    fileNode.append("])");
+    fileNode.appendNewLine();
+    fileNode.append('final_video.write_videofile("output.mp4", fps=24)');
+    fileNode.appendNewLine();
+    /*timeline.layers.forEach((layer, layerIndex) => {
         const layerVar = compileLayer(layer, layerIndex, fileNode);
         layers.push(layerVar);
     });
@@ -39,10 +59,10 @@ function compileTimeline(timeline: TimeLine, fileNode: CompositeGeneratorNode): 
     fileNode.append("])");
     fileNode.appendNewLine();
     fileNode.append('final_video.write_videofile("output.mp4", fps=24)');
-    fileNode.appendNewLine();
+    fileNode.appendNewLine();*/
 }
 
-function compileLayer(layer: Layer, layerIndex: number, fileNode: CompositeGeneratorNode): string {
+/*function compileLayer(layer: Layer, layerIndex: number, fileNode: CompositeGeneratorNode): string {
     const clips: string[] = [];
     layer.clips.forEach((clip) => {
         const clipCode = compileClip(clip);
@@ -54,15 +74,37 @@ function compileLayer(layer: Layer, layerIndex: number, fileNode: CompositeGener
     } else {
         return compileMultipleClip(clips, layerIndex, fileNode);
     }
-}
+}*/
 
 function compileClip(clip: Clip): string {
     const source = clip.sourceFile;
-    const clipCode = `VideoFileClip("${source}")`;
-    return clipCode;
+    let begin = undefined;
+    let end = undefined;
+
+
+    clip.properties.forEach(prop => {
+        if (prop.$type === 'ClipProperty') {
+            if (prop.begin !== undefined) {
+                begin = prop.begin;
+            }
+            if (prop.end !== undefined) {
+                end = prop.end;
+            }
+        }
+    });
+
+    if (begin && end) {
+        return `VideoFileClip("${source}").subclip(${begin}, ${end})`;
+    } else if (begin) {
+        return `VideoFileClip("${source}").subclip(${begin})`;
+    } else if (end) {
+        return `VideoFileClip("${source}").subclip(0, ${end})`;
+    } else {
+        return `VideoFileClip("${source}")`;
+    }
 }
 
-function compileSingleClip(clipCode: string, fileNode: CompositeGeneratorNode): string {
+/*function compileSingleClip(clipCode: string, fileNode: CompositeGeneratorNode): string {
     fileNode.append(clipCode);
     fileNode.appendNewLine();
     return clipCode; 
@@ -79,7 +121,7 @@ function compileMultipleClip(clips: string[], layerIndex: number, fileNode: Comp
     fileNode.append("])");
     fileNode.appendNewLine();
     return layerVar;
-}
+}*/
 
 
 
