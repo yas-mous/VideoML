@@ -15,7 +15,19 @@ Clip:
 ClipProperty:
     'begin:' begin=FLOAT |
     'end:' end=FLOAT |
-    backgroundColor=STRING ;
+    backgroundColor=STRING |
+    'subtitle:' subtitle=Subtitle;
+
+
+
+Subtitle:
+    '{'
+        ('text:' text=STRING ',' 
+         'start:' start=FLOAT ',' 
+         'duration:' duration=FLOAT 
+         (',' 'color:' color=STRING)? 
+         (',' 'position:' position=STRING)?)?
+    '}';
 
 hidden terminal WS: /\s+/;
 terminal ID: /[_a-zA-Z][\w_]*/;

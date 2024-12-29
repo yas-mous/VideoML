@@ -2,7 +2,7 @@ import { CompositeGeneratorNode, toString } from 'langium/generate';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { extractDestinationAndName } from './cli-util.js';
-import { TimeLine, Clip } from '../language/generated/ast.js';
+import { TimeLine, Clip, Subtitle } from '../language/generated/ast.js';
 
 export function generatepython(timeline: TimeLine, filePath: string, destination: string | undefined): string {
     const data = extractDestinationAndName(filePath, destination);
@@ -23,7 +23,7 @@ function compileTimeline(timeline: TimeLine, fileNode: CompositeGeneratorNode): 
     fileNode.appendNewLine();
     fileNode.append("from moviepy.editor import *");
     fileNode.appendNewLine();
-    fileNode.appendNewLine();
+
 
     const clips: string[] = [];
     timeline.layers.forEach((layer) => {
@@ -80,7 +80,7 @@ function compileClip(clip: Clip): string {
     const source = clip.sourceFile;
     let begin = undefined;
     let end = undefined;
-
+    let subtitleCode = undefined;
 
     clip.properties.forEach(prop => {
         if (prop.$type === 'ClipProperty') {
@@ -90,10 +90,19 @@ function compileClip(clip: Clip): string {
             if (prop.end !== undefined) {
                 end = prop.end;
             }
+            if (prop.subtitle !== undefined) {
+                subtitleCode = compileSubtitle(prop.subtitle);
+            }
         }
     });
 
-    if (begin && end) {
+    const clipCode = createClipCode(source, begin, end);
+    if (subtitleCode) {
+        return `CompositeVideoClip([${clipCode}, ${subtitleCode}])`;
+    }
+    return clipCode;
+
+    /*if (begin && end) {
         return `VideoFileClip("${source}").subclip(${begin}, ${end})`;
     } else if (begin) {
         return `VideoFileClip("${source}").subclip(${begin})`;
@@ -101,7 +110,7 @@ function compileClip(clip: Clip): string {
         return `VideoFileClip("${source}").subclip(0, ${end})`;
     } else {
         return `VideoFileClip("${source}")`;
-    }
+    }*/
 }
 
 /*function compileSingleClip(clipCode: string, fileNode: CompositeGeneratorNode): string {
@@ -122,6 +131,31 @@ function compileMultipleClip(clips: string[], layerIndex: number, fileNode: Comp
     fileNode.appendNewLine();
     return layerVar;
 }*/
+
+function compileSubtitle(subtitle: Subtitle): string {
+    const text = subtitle.text;
+    const start = subtitle.start;
+    const duration = subtitle.duration;
+    const color = subtitle.color || 'white';
+    const position = subtitle.position || 'bottom';
+
+    return `TextClip("${text}", fontsize=24, color='${color}')
+        .set_position("${position}")
+        .set_duration(${duration})
+        .set_start(${start})`;
+}
+
+function createClipCode(source: string, begin: number | undefined, end: number | undefined): string {
+    if (begin && end) {
+        return `VideoFileClip("${source}").subclip(${begin}, ${end})`;
+    } else if (begin) {
+        return `VideoFileClip("${source}").subclip(${begin})`;
+    } else if (end) {
+        return `VideoFileClip("${source}").subclip(0, ${end})`;
+    } else {
+        return `VideoFileClip("${source}")`;
+    }
+}
 
 
 
