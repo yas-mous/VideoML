@@ -164,6 +164,7 @@ function cutClip(clip : Clip,clipCode:string) : string {
         if (begin !== null && end !== null) {
             clipCode += `.subclipped(${begin}, ${end})`;
         } else if (begin !== null) {
+            //bug a corriger : si pas de end ca le met automatiquement a 0
             clipCode += `.subclipped(${begin})`;
         } else if (end !== null) {
             clipCode += `.subclipped(0, ${end})`;
