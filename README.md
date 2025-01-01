@@ -9,17 +9,13 @@ npm run cli ..\demo\test2.vml
 
 ### Exemple de grammaire possible 
 ```bash
-timeline App {
+timeline myVideo {
     ---
-    |'video1.mp4'
-    |'video2.mp4', begin: 0, end: 10
-    |'video3.mp4', begin: 10, end: 20
+    |Video'videos/video1.mp4',from 5,to 8
     ---
-    |'video4.mp4'
-    |'video5.mp4', begin: 30, end: 40
-    |'video6.mp4', begin: 40, end: 50
+    |Video'videos/video2.mp4',from 13 to 14
     ---
-    |'video7.mp4'
+    |Video'videos/video1.mp4',to 5
 }
 
 ```
