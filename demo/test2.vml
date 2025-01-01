@@ -1,7 +1,6 @@
 timeline myVideo {
     ---
     |Video'videos/video1.mp4'
-    |Video'videos/video2.mp4'
     ---
     |Video'videos/video2.mp4'
 }
