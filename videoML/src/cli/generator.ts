@@ -49,10 +49,10 @@ function compileLayer(layer: Layer, layerIndex: number, fileNode: CompositeGener
     const clips: string[] = [];
     layer.clips.forEach((clip, clipIndex) => {
         const clipVar = `clip_${layerIndex}_${clipIndex}`;
-        const clipCode = compileClip(clip);
-        fileNode.append(`${clipVar} = ${clipCode}`); 
-        fileNode.appendNewLine();
+        generateProgramBody(clipVar,clip,fileNode)
+        
         clips.push(clipVar); 
+
     });
 
     if (clips.length === 1) {
@@ -84,7 +84,6 @@ function compileClip(clip: Clip): string {
     if (isVideoClip(clip)) {
         let clipCode = compileVideoClip(clip);
         clipCode = cutClip(clip, clipCode);
-        clip.effects.forEach(effect => clipCode+=compileEffect(effect));
         return clipCode;
     }
     else{
@@ -113,43 +112,47 @@ function compileTransition(){
     //TODO
 }
 */
-function compileEffect(effect:Effect):string{
+
+
+function compileEffect(effect:Effect,clipVar:string,fileNode: CompositeGeneratorNode):void{
     if(isAdjustmentEffect(effect)){
-        return compileAdjustmentEffect(effect)
+        compileAdjustmentEffect(effect,clipVar,fileNode)
     }
     else if(isCropEffect(effect)){
-        return compileCropEffect(effect)
+        compileCropEffect(effect,clipVar,fileNode)
     }
     else if(isFreezingEffect(effect)){
-        return compileFreezingEffect(effect)
+        compileFreezingEffect(effect,clipVar,fileNode)
     }
     else if(isZoomEffect(effect)){
-        return compileZoomEffect(effect)
+        compileZoomEffect(effect,clipVar,fileNode)
     }
     else{
         throw new Error("Unknown effect type"); 
     }
 }
 
-function compileCropEffect(effect:CropEffect):string{
+function compileCropEffect(effect:CropEffect, clipVar:string,fileNode: CompositeGeneratorNode):string{
     //TODO
     return "TODOCrop"
 }
 
-function compileFreezingEffect(effect:FreezingEffect){
-    //TODO
-    return "TODOFreez"
-}
-
-function compileZoomEffect(effect:ZoomEffect){
-    //TODO
-    return "TODOZoom"
+function compileFreezingEffect(effect:FreezingEffect,clipVar:string,fileNode: CompositeGeneratorNode):void{
+    
+    fileNode.append(`freeze_effect = Freeze(t=${effect.begin}, freeze_duration=${effect.frameSeconds})`)
+    fileNode.appendNewLine()
+    fileNode.append(`${clipVar} = freeze_effect.apply(${clipVar})`)
+    fileNode.appendNewLine()
 
 }
 
-function compileAdjustmentEffect(effect:AdjustmentEffect){
+function compileZoomEffect(effect:ZoomEffect,clipVar:string,fileNode: CompositeGeneratorNode):void{
     //TODO
-    return "TODOAdjust"
+
+}
+
+function compileAdjustmentEffect(effect:AdjustmentEffect,clipVar:string,fileNode: CompositeGeneratorNode):void{
+    //TODO
 
 }
 
@@ -168,4 +171,13 @@ function cutClip(clip : Clip,clipCode:string) : string {
     }
 
     return clipCode;
+}
+
+function generateProgramBody(clipVar: string,clip:Clip, fileNode:CompositeGeneratorNode):void {
+    const clipCode = compileClip(clip);
+    fileNode.append(`${clipVar} = ${clipCode}`); 
+    fileNode.appendNewLine();
+    clip.effects.forEach(effect => {
+        compileEffect(effect,clipVar,fileNode);
+    });
 }
