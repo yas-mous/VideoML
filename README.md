@@ -13,7 +13,7 @@ timeline myVideo {
     ---
     |Video'videos/video1.mp4',from 5,to 8
     ---
-    |Video'videos/video2.mp4',from 13 to 14
+    |Video'videos/video2.mp4',from 13, to 14
     ---
     |Video'videos/video1.mp4',to 5
 }
