@@ -56,11 +56,7 @@ function compileLayer(layer: Layer, layerIndex: number, fileNode: CompositeGener
     }
 }
 
-
-
 function compileSingleClip(clipCode: string, fileNode: CompositeGeneratorNode): string {
-    fileNode.append(clipCode);
-    fileNode.appendNewLine();
     return clipCode; 
 }
 
@@ -88,12 +84,13 @@ function compileClip(clip: Clip): string {
     }
 }
 
-//MINIMAL FUNCTIONS TO IMPLEMENT (commented because of compilation errors : empty functions)
-
 function compileVideoClip(clip: Clip): string {
     const source = clip.sourceFile;
     return `VideoFileClip("${source}")`;
 }
+
+//MINIMAL FUNCTIONS TO IMPLEMENT (commented because of compilation errors : empty functions)
+
 /*
 function compileAudioClip(){
     //TODO
