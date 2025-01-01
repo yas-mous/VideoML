@@ -13,8 +13,8 @@ Clip:
     VideoClip ;
 
 ClipProperty:
-    begin= 'begin:' FLOAT |
-    end= 'end:' FLOAT ;
+    'from'begin=FLOAT |
+    'to'end=FLOAT ;
 
 VideoClip:
     '|Video'sourceFile=STRING (',' properties+=ClipProperty)* NL;

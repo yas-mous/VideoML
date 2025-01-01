@@ -1,8 +1,6 @@
 from moviepy import *
 
 
-
-
 final_video = concatenate_videoclips([
     VideoFileClip("videos/video1.mp4"),
     VideoFileClip("videos/video2.mp4"),
