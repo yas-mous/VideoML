@@ -26,7 +26,7 @@ CropEffect:
     'crop'  x=INT ',' y=INT ',' width=INT ',' height=INT ;
 
 FreezingEffect:
-    'freeze' begin=INT '->' frameSeconds=INT;
+    'freeze' begin=INT '+' frameSeconds=INT;
 
 ZoomEffect:
     'zoom'  x=INT ',' y=INT ',' width=INT ',' height=INT ;
