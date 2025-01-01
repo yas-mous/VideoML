@@ -2,7 +2,7 @@ import { CompositeGeneratorNode, toString } from 'langium/generate';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { extractDestinationAndName } from './cli-util.js';
-import { TimeLine, Clip, Layer, isVideoClip } from '../language/generated/ast.js';
+import { TimeLine, Clip, Layer, isVideoClip, Effect, isAdjustmentEffect, VideoClip, CropEffect, FreezingEffect, ZoomEffect, AdjustmentEffect, isCropEffect, isFreezingEffect, isZoomEffect } from '../language/generated/ast.js';
 import { hasClipProperties } from './utils.js';
 
 export function generatepython(timeline: TimeLine, filePath: string, destination: string | undefined): string {
@@ -21,6 +21,8 @@ export function generatepython(timeline: TimeLine, filePath: string, destination
 
 function compileTimeline(timeline: TimeLine, fileNode: CompositeGeneratorNode): void {
     fileNode.append("from moviepy import *");
+    fileNode.appendNewLine();
+    fileNode.append("from moviepy.video.fx import *");
     fileNode.appendNewLine();
     fileNode.appendNewLine();
 
@@ -45,9 +47,12 @@ function compileTimeline(timeline: TimeLine, fileNode: CompositeGeneratorNode): 
 
 function compileLayer(layer: Layer, layerIndex: number, fileNode: CompositeGeneratorNode): string {
     const clips: string[] = [];
-    layer.clips.forEach((clip) => {
+    layer.clips.forEach((clip, clipIndex) => {
+        const clipVar = `clip_${layerIndex}_${clipIndex}`;
         const clipCode = compileClip(clip);
-        clips.push(clipCode);
+        fileNode.append(`${clipVar} = ${clipCode}`); 
+        fileNode.appendNewLine();
+        clips.push(clipVar); 
     });
 
     if (clips.length === 1) {
@@ -79,6 +84,7 @@ function compileClip(clip: Clip): string {
     if (isVideoClip(clip)) {
         let clipCode = compileVideoClip(clip);
         clipCode = cutClip(clip, clipCode);
+        clip.effects.forEach(effect => clipCode+=compileEffect(effect));
         return clipCode;
     }
     else{
@@ -87,12 +93,12 @@ function compileClip(clip: Clip): string {
     }
 }
 
-function compileVideoClip(clip: Clip): string {
+function compileVideoClip(clip: VideoClip): string {
     const source = clip.sourceFile;
     return `VideoFileClip("${source}")`;
 }
 
-//MINIMAL FUNCTIONS TO IMPLEMENT (commented because of compilation errors : empty functions)
+// FUNCTIONS TO IMPLEMENT (commented because of compilation errors : empty functions)
 
 /*
 function compileAudioClip(){
@@ -106,26 +112,46 @@ function compileText(){
 function compileTransition(){
     //TODO
 }
-
-function compileEffect(){
-    //TODO
+*/
+function compileEffect(effect:Effect):string{
+    if(isAdjustmentEffect(effect)){
+        return compileAdjustmentEffect(effect)
+    }
+    else if(isCropEffect(effect)){
+        return compileCropEffect(effect)
+    }
+    else if(isFreezingEffect(effect)){
+        return compileFreezingEffect(effect)
+    }
+    else if(isZoomEffect(effect)){
+        return compileZoomEffect(effect)
+    }
+    else{
+        throw new Error("Unknown effect type"); 
+    }
 }
 
-function compileCropEffect(){
+function compileCropEffect(effect:CropEffect):string{
     //TODO
+    return "TODOCrop"
 }
 
-function compileFreezingEffect(){
+function compileFreezingEffect(effect:FreezingEffect){
     //TODO
+    return "TODOFreez"
 }
 
-function compileZoomEffect(){
+function compileZoomEffect(effect:ZoomEffect){
     //TODO
+    return "TODOZoom"
+
 }
 
-function compileAdjustmentEffect(){
+function compileAdjustmentEffect(effect:AdjustmentEffect){
     //TODO
-}*/
+    return "TODOAdjust"
+
+}
 
 function cutClip(clip : Clip,clipCode:string) : string {
     if (hasClipProperties(clip)) {

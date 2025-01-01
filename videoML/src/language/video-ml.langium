@@ -13,11 +13,26 @@ Clip:
     VideoClip ;
 
 ClipProperty:
-    'from'begin=FLOAT |
-    'to'end=FLOAT ;
+    'from'begin=INT |
+    'to'end=INT ;
 
 VideoClip:
-    '|Video'sourceFile=STRING (',' properties+=ClipProperty)* NL;
+    '|Video' sourceFile=STRING (',' properties+=ClipProperty)* ('~' effects+=Effect)* NL;
+
+Effect:
+    CropEffect | FreezingEffect | ZoomEffect | AdjustmentEffect;
+
+CropEffect:
+    'crop'  x=INT ',' y=INT ',' width=INT ',' height=INT ;
+
+FreezingEffect:
+    'freeze' begin=INT '->' frameSeconds=INT;
+
+ZoomEffect:
+    'zoom'  x=INT ',' y=INT ',' width=INT ',' height=INT ;
+
+AdjustmentEffect:
+    'adjust' ('brightness:' brightness=FLOAT)? (',' 'saturation:' saturation=FLOAT)? ;
 
 
 hidden terminal WS: /\s+/;
