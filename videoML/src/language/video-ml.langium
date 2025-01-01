@@ -23,7 +23,7 @@ Effect:
     CropEffect | FreezingEffect | ZoomEffect | AdjustmentEffect;
 
 CropEffect:
-    'crop'  x=INT ',' y=INT ',' width=INT ',' height=INT ;
+    'crop'  ('x' x=INT ',' 'y' y=INT ',' | 'x_center' x_center=INT ',' 'y_center' y_center=INT ) 'width' width=INT ',' 'height' height=INT (',' intervall+=Intervall)*;
 
 FreezingEffect:
     'freeze' begin=INT '+' frameSeconds=INT;
@@ -34,6 +34,9 @@ ZoomEffect:
 AdjustmentEffect:
     'adjust' ('brightness:' brightness=FLOAT)? (',' 'saturation:' saturation=FLOAT)? ;
 
+Intervall:
+    'from'begin=INT |
+    'to'end=INT ;
 
 hidden terminal WS: /\s+/;
 terminal ID: /[_a-zA-Z][\w_]*/;
