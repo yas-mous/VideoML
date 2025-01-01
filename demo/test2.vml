@@ -1,7 +1,7 @@
-timeline App {
+timeline myVideo {
     ---
-    |'video1.mp4'
-    |'audio1.mp4'
+    |Video'videos/video1.mp4'
+    |Video'videos/video2.mp4'
     ---
-    |'video4.mp4'
+    |Video'videos/video2.mp4'
 }

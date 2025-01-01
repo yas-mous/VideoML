@@ -10,12 +10,16 @@ Layer:
     clips+=Clip*;
 
 Clip:
-    '|'sourceFile=STRING (',' properties+=ClipProperty)* NL;
+    VideoClip ;
 
 ClipProperty:
     begin= 'begin:' FLOAT |
     end= 'end:' FLOAT |
     backgroundColor=STRING ;
+
+VideoClip:
+    '|Video'sourceFile=STRING (',' properties+=ClipProperty)* NL;
+
 
 hidden terminal WS: /\s+/;
 terminal ID: /[_a-zA-Z][\w_]*/;

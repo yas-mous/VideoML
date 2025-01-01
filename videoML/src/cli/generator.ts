@@ -2,7 +2,7 @@ import { CompositeGeneratorNode, toString } from 'langium/generate';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { extractDestinationAndName } from './cli-util.js';
-import { TimeLine, Clip, Layer } from '../language/generated/ast.js';
+import { TimeLine, Clip, Layer, isVideoClip } from '../language/generated/ast.js';
 
 export function generatepython(timeline: TimeLine, filePath: string, destination: string | undefined): string {
     const data = extractDestinationAndName(filePath, destination);
@@ -38,7 +38,7 @@ function compileTimeline(timeline: TimeLine, fileNode: CompositeGeneratorNode): 
     });
     fileNode.append("])");
     fileNode.appendNewLine();
-    fileNode.append('final_video.write_videofile("output.mp4", fps=24)');
+    fileNode.append(`final_video.write_videofile("${timeline.name}.mp4", fps=24)`);
     fileNode.appendNewLine();
 }
 
@@ -56,11 +56,7 @@ function compileLayer(layer: Layer, layerIndex: number, fileNode: CompositeGener
     }
 }
 
-function compileClip(clip: Clip): string {
-    const source = clip.sourceFile;
-    const clipCode = `VideoFileClip("${source}")`;
-    return clipCode;
-}
+
 
 function compileSingleClip(clipCode: string, fileNode: CompositeGeneratorNode): string {
     fileNode.append(clipCode);
@@ -81,15 +77,24 @@ function compileMultipleClip(clips: string[], layerIndex: number, fileNode: Comp
     return layerVar;
 }
 
-
-
-
-//MINIMAL FUNCTIONS TO IMPLEMENT (commented because of compilation errors : empty functions)
-/*
-function compileVideoClip(){
-    //TODO
+function compileClip(clip: Clip): string {
+    //TOCHANGE : adapted with the different types of clips
+    if (isVideoClip(clip)) {
+        return compileVideoClip(clip);
+    }
+    else{
+        //a ajouter audioClip ....
+        return "TODO ! "
+    }
 }
 
+//MINIMAL FUNCTIONS TO IMPLEMENT (commented because of compilation errors : empty functions)
+
+function compileVideoClip(clip: Clip): string {
+    const source = clip.sourceFile;
+    return `VideoFileClip("${source}")`;
+}
+/*
 function compileAudioClip(){
     //TODO
 }
