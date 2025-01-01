@@ -3,6 +3,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { extractDestinationAndName } from './cli-util.js';
 import { TimeLine, Clip, Layer, isVideoClip } from '../language/generated/ast.js';
+import { hasClipProperties } from './utils.js';
 
 export function generatepython(timeline: TimeLine, filePath: string, destination: string | undefined): string {
     const data = extractDestinationAndName(filePath, destination);
@@ -74,9 +75,11 @@ function compileMultipleClip(clips: string[], layerIndex: number, fileNode: Comp
 }
 
 function compileClip(clip: Clip): string {
-    //TOCHANGE : adapted with the different types of clips
+    //TOADD : different types of clips (video, audio ...)
     if (isVideoClip(clip)) {
-        return compileVideoClip(clip);
+        let clipCode = compileVideoClip(clip);
+        clipCode = cutClip(clip, clipCode);
+        return clipCode;
     }
     else{
         //a ajouter audioClip ....
@@ -123,3 +126,20 @@ function compileZoomEffect(){
 function compileAdjustmentEffect(){
     //TODO
 }*/
+
+function cutClip(clip : Clip,clipCode:string) : string {
+    if (hasClipProperties(clip)) {
+        const begin = clip.properties.find(prop => prop.begin !== undefined)?.begin || 0;
+        const end = clip.properties.find(prop => prop.end !== undefined)?.end || 0;
+
+        if (begin !== null && end !== null) {
+            clipCode += `.subclipped(${begin}, ${end})`;
+        } else if (begin !== null) {
+            clipCode += `.subclipped(${begin})`;
+        } else if (end !== null) {
+            clipCode += `.subclipped(0, ${end})`;
+        }
+    }
+
+    return clipCode;
+}
