@@ -2,7 +2,23 @@ import { CompositeGeneratorNode, toString } from 'langium/generate';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { extractDestinationAndName } from './cli-util.js';
-import { TimeLine, Clip, Layer, isVideoClip, Effect, isAdjustmentEffect, VideoClip, CropEffect, FreezingEffect, ZoomEffect, AdjustmentEffect, isCropEffect, isFreezingEffect, isZoomEffect } from '../language/generated/ast.js';
+import {
+    TimeLine,
+    Clip,
+    Layer,
+    isVideoClip,
+    Effect,
+    isAdjustmentEffect,
+    VideoClip,
+    CropEffect,
+    FreezingEffect,
+    ZoomEffect,
+    AdjustmentEffect,
+    isCropEffect,
+    isFreezingEffect,
+    isZoomEffect,
+    isAudioClip, AudioClip
+} from '../language/generated/ast.js';
 import { hasClipProperties } from './utils.js';
 
 export function generatepython(timeline: TimeLine, filePath: string, destination: string | undefined): string {
@@ -46,19 +62,29 @@ function compileTimeline(timeline: TimeLine, fileNode: CompositeGeneratorNode): 
 }
 
 function compileLayer(layer: Layer, layerIndex: number, fileNode: CompositeGeneratorNode): string {
-    const clips: string[] = [];
+    const videoClips: string[] = [];
+
+    let videoVar = "";
     layer.clips.forEach((clip, clipIndex) => {
         const clipVar = `clip_${layerIndex}_${clipIndex}`;
+         if(isVideoClip(clip)){
+            videoVar = clipVar;
+             videoClips.push(clipVar);
+
+         }
         generateProgramBody(clipVar,clip,fileNode)
-        
-        clips.push(clipVar); 
+         //attach audio to the last video clip
+        if(isAudioClip(clip)){
+            attachAudioToVideo(clipVar, videoVar,fileNode)
+        }
 
     });
 
-    if (clips.length === 1) {
-        return compileSingleClip(clips[0], fileNode);
+
+    if (videoClips.length === 1) {
+        return compileSingleClip(videoClips[0], fileNode);
     } else {
-        return compileMultipleClip(clips, layerIndex, fileNode);
+        return compileMultipleClip(videoClips, layerIndex, fileNode);
     }
 }
 
@@ -87,8 +113,12 @@ function compileClip(clip: Clip): string {
         return clipCode;
     }
     else{
-        //a ajouter audioClip ....
-        return "TODO ! "
+        if(isAudioClip(clip)){
+            let clipCode = compileAudioClip(clip);
+            clipCode = cutClip(clip, clipCode);
+            return clipCode;
+        }
+        return "Invalid clip type";
     }
 }
 
@@ -96,7 +126,10 @@ function compileVideoClip(clip: VideoClip): string {
     const source = clip.sourceFile;
     return `VideoFileClip("${source}")`;
 }
-
+    function compileAudioClip(clip: AudioClip): string {
+        const source = clip.sourceFile;
+        return `AudioFileClip("${source}")`;
+    }
 // FUNCTIONS TO IMPLEMENT (commented because of compilation errors : empty functions)
 
 /*
@@ -181,4 +214,9 @@ function generateProgramBody(clipVar: string,clip:Clip, fileNode:CompositeGenera
     clip.effects.forEach(effect => {
         compileEffect(effect,clipVar,fileNode);
     });
+}
+function attachAudioToVideo(clipVar:string, videoVar:string,fileNode:CompositeGeneratorNode):void{
+    fileNode.append(`${videoVar} = ${videoVar}.set_audio(${clipVar})`);
+    fileNode.appendNewLine();
+
 }

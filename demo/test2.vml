@@ -1,6 +1,7 @@
 timeline myVideo {
     ---
     |Video'videos/video1.mp4',from 5,to 8
+    |Audio'audios/audio1.mp3',from 5,to 8
     ---
     |Video'videos/video2.mp4',from 10, to 14 ~freeze 2->3
     ---

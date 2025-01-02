@@ -10,7 +10,7 @@ Layer:
     clips+=Clip*;
 
 Clip:
-    VideoClip ;
+    VideoClip | AudioClip;
 
 ClipProperty:
     'from'begin=INT |
@@ -18,6 +18,9 @@ ClipProperty:
 
 VideoClip:
     '|Video' sourceFile=STRING (',' properties+=ClipProperty)* ('~' effects+=Effect)* NL;
+
+AudioClip:
+    '|Audio' sourceFile=STRING (',' properties+=ClipProperty)* ('~' effects+=Effect)* NL;
 
 Effect:
     CropEffect | FreezingEffect | ZoomEffect | AdjustmentEffect;
