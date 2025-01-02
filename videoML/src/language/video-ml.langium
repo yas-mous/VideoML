@@ -41,7 +41,7 @@ VideoClip:
     '|Video' sourceFile=STRING (',' properties+=ClipProperty)* ('~' effects+=Effect)* NL;
 
 Effect:
-    CropEffect | FreezingEffect | ZoomEffect | AdjustmentEffect;
+    CropEffect | FreezingEffect | ZoomEffect | AdjustmentEffect | FadeInEffect | FadeOutEffect ;
 
 CropEffect:
     'crop'  ('x' x=INT ',' 'y' y=INT ',' | 'x_center' x_center=INT ',' 'y_center' y_center=INT ) 'width' width=INT ',' 'height' height=INT (',' intervall+=Intervall)*;
@@ -54,6 +54,13 @@ ZoomEffect:
 
 AdjustmentEffect:
     'adjust' ('brightness:' brightness=FLOAT)? (',' 'saturation:' saturation=FLOAT)? ;
+
+
+FadeInEffect:
+    'fadein' ('duration:' duration=INT);
+
+FadeOutEffect:
+    'fadeout' ('duration:' duration=INT);
 
 Intervall:
     'from'begin=INT |

@@ -1,0 +1,5 @@
+timeline my_video {
+    ---
+    |Video 'videos/Video1.mp4' ~fadeout duration: 1
+    |Video 'videos/Video2.mp4'~fadein duration: 1
+}

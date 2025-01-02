@@ -2,7 +2,7 @@ import { CompositeGeneratorNode, toString } from 'langium/generate';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { extractDestinationAndName } from './cli-util.js';
-import { TimeLine, Clip, Layer, isVideoClip, Effect, isAdjustmentEffect, VideoClip, CropEffect, FreezingEffect, ZoomEffect, AdjustmentEffect, isCropEffect, isFreezingEffect, isZoomEffect, Subtitle, Stacking} from '../language/generated/ast.js';
+import { TimeLine, Clip, Layer, isVideoClip, Effect, isAdjustmentEffect, VideoClip, CropEffect, FreezingEffect, ZoomEffect, AdjustmentEffect, isCropEffect, isFreezingEffect, isZoomEffect, Subtitle, Stacking,FadeOutEffect ,FadeInEffect , isFadeOutEffect , isFadeInEffect } from '../language/generated/ast.js';
 import { hasClipProperties } from './utils.js';
 
 export function generatepython(timeline: TimeLine, filePath: string, destination: string | undefined): string {
@@ -154,7 +154,11 @@ function compileEffect(effect:Effect,clipVar:string,fileNode: CompositeGenerator
     else if(isZoomEffect(effect)){
         compileZoomEffect(effect,clipVar,fileNode)
     }
-    else{
+    else if (isFadeOutEffect(effect)) {
+        compileFadeOutEffect(effect, clipVar, fileNode);
+    } else if (isFadeInEffect(effect)) {
+        compileFadeInEffect(effect, clipVar, fileNode);
+    }else{
         throw new Error("Unknown effect type"); 
     }
 }
@@ -265,4 +269,15 @@ function addStackingToClip(clipCode: string, stacking: Stacking): string {
                 ${clipCode},
                 VideoFileClip("${stackClip}").resize(height=${height}).resize(width=${width}).with_position(${positionCode})
             ])`;
+}
+
+
+function compileFadeOutEffect(effect: FadeOutEffect, clipVar: string, fileNode: CompositeGeneratorNode): void {
+    fileNode.append(`${clipVar} = ${clipVar}.with_effects([vfx.CrossFadeOut(${effect.duration})])`);
+    fileNode.appendNewLine();
+}
+
+function compileFadeInEffect(effect: FadeInEffect, clipVar: string, fileNode: CompositeGeneratorNode): void {
+    fileNode.append(`${clipVar} = ${clipVar}.with_effects([vfx.CrossFadeIn(${effect.duration})])`);
+    fileNode.appendNewLine();
 }
