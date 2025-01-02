@@ -14,7 +14,18 @@ Clip:
 
 ClipProperty:
     'from'begin=INT |
-    'to'end=INT ;
+    'to'end=INT |
+    'subtitle:' subtitle=Subtitle;
+
+
+Subtitle:
+    '{'
+        'text:' text=STRING ',' 
+        'start:' start=INT ',' 
+        'duration:' duration=INT 
+        (',' 'color:' color=STRING)? 
+        (',' 'position:' position=STRING)?
+    '}';
 
 VideoClip:
     '|Video' sourceFile=STRING (',' properties+=ClipProperty)* ('~' effects+=Effect)* NL;

@@ -2,7 +2,7 @@ import { CompositeGeneratorNode, toString } from 'langium/generate';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { extractDestinationAndName } from './cli-util.js';
-import { TimeLine, Clip, Layer, isVideoClip, Effect, isAdjustmentEffect, VideoClip, CropEffect, FreezingEffect, ZoomEffect, AdjustmentEffect, isCropEffect, isFreezingEffect, isZoomEffect } from '../language/generated/ast.js';
+import { TimeLine, Clip, Layer, isVideoClip, Effect, isAdjustmentEffect, VideoClip, CropEffect, FreezingEffect, ZoomEffect, AdjustmentEffect, isCropEffect, isFreezingEffect, isZoomEffect, Subtitle } from '../language/generated/ast.js';
 import { hasClipProperties } from './utils.js';
 
 export function generatepython(timeline: TimeLine, filePath: string, destination: string | undefined): string {
@@ -27,9 +27,14 @@ function compileTimeline(timeline: TimeLine, fileNode: CompositeGeneratorNode): 
     fileNode.appendNewLine();
 
     const layers: string[] = [];
+    let requiresComposeMethod = false;
+
     timeline.layers.forEach((layer, layerIndex) => {
         const layerVar = compileLayer(layer, layerIndex, fileNode);
         layers.push(layerVar);
+        if (layer.clips.some(clip => clip.properties.some(prop => prop.subtitle !== undefined))) {
+            requiresComposeMethod = true;
+        }
     });
 
     fileNode.appendNewLine();
@@ -39,7 +44,7 @@ function compileTimeline(timeline: TimeLine, fileNode: CompositeGeneratorNode): 
         fileNode.append(`    ${layer},`);
         fileNode.appendNewLine();
     });
-    fileNode.append("])");
+    fileNode.append(`], method="${requiresComposeMethod ? 'compose' : 'chain'}")`);
     fileNode.appendNewLine();
     fileNode.append(`final_video.write_videofile("${timeline.name}.mp4", fps=24)`);
     fileNode.appendNewLine();
@@ -84,6 +89,12 @@ function compileClip(clip: Clip): string {
     if (isVideoClip(clip)) {
         let clipCode = compileVideoClip(clip);
         clipCode = cutClip(clip, clipCode);
+
+        const subtitle = clip.properties.find(prop => prop.subtitle !== undefined)?.subtitle;
+        if (subtitle) {
+            clipCode = addSubtitleToClip(clipCode, subtitle);
+        }
+
         clip.effects.forEach(effect => clipCode+=compileEffect(effect));
         return clipCode;
     }
@@ -156,11 +167,12 @@ function compileAdjustmentEffect(effect:AdjustmentEffect){
 function cutClip(clip : Clip,clipCode:string) : string {
     if (hasClipProperties(clip)) {
         const begin = clip.properties.find(prop => prop.begin !== undefined)?.begin || 0;
-        const end = clip.properties.find(prop => prop.end !== undefined)?.end || 0;
+        const end = clip.properties.find(prop => prop.end !== undefined)?.end || null;
+
 
         if (begin !== null && end !== null) {
             clipCode += `.subclipped(${begin}, ${end})`;
-        } else if (begin !== null) {
+        } else if (begin !== null && end == null) {
             clipCode += `.subclipped(${begin})`;
         } else if (end !== null) {
             clipCode += `.subclipped(0, ${end})`;
@@ -168,4 +180,28 @@ function cutClip(clip : Clip,clipCode:string) : string {
     }
 
     return clipCode;
+}
+
+
+
+function addSubtitleToClip(clipCode: string, subtitle: Subtitle): string {
+    const text = subtitle.text || "Subtitle";
+    const start = subtitle.start || 0;
+    const duration = subtitle.duration || 5;
+    const color = subtitle.color || "black";
+    const position = subtitle.position || "bottom";
+
+    return `CompositeVideoClip([
+            ${clipCode},
+            TextClip(
+                font="Arial.ttf",
+                text="${text}",
+                font_size=24,
+                color='${color}'
+            )
+            .with_start(${start})
+            .with_duration(${duration})
+            .with_position('${position}')
+        ])
+    `;
 }
