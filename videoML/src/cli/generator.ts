@@ -132,9 +132,18 @@ function compileEffect(effect:Effect,clipVar:string,fileNode: CompositeGenerator
     }
 }
 
-function compileCropEffect(effect:CropEffect, clipVar:string,fileNode: CompositeGeneratorNode):string{
+function compileCropEffect(effect:CropEffect, clipVar:string,fileNode: CompositeGeneratorNode):void{
     //TODO
-    return "TODOCrop"
+    /**
+     * cropeffect = Crop(x1=15,y1=10,width=10,height=10)
+     * cropeffect.apply(clip_2_0.subclipped())
+     */
+    fileNode.append(`crop_effect = Crop(x1=${effect.x}, y1=${effect.y}, width=${effect.width}, height=${effect.height})`)
+    fileNode.appendNewLine()
+    fileNode.append(`crop_effect.apply(${clipVar})`)
+    fileNode.appendNewLine()
+
+   
 }
 
 function compileFreezingEffect(effect:FreezingEffect,clipVar:string,fileNode: CompositeGeneratorNode):void{

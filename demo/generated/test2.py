@@ -1,17 +1,15 @@
 from moviepy import *
 from moviepy.video.fx import *
 
-clip_0_0 = VideoFileClip("videos/video1.mp4").subclipped(5, 8)
-clip_1_0 = VideoFileClip("videos/video2.mp4").subclipped(10, 14)
-freeze_effect = Freeze(t=2, freeze_duration=3)
-clip_1_0 = freeze_effect.apply(clip_1_0)
-clip_2_0 = VideoFileClip("videos/video2.mp4").subclipped(0, 5)
-cropeffect = Crop(x1=15,y1=10,width=10,height=10)
-cropeffect.apply(clip_2_0)
+clip_0_0 = VideoFileClip("videos/video2.mp4").subclipped(0,8)
+crop_effect = Crop(x1=50, y1=50, width=500, height=(500))
+cropp= crop_effect.apply(clip_0_0.subclipped(2,5))
+print(cropp.size)
+print(clip_0_0.size)
+
 final_video = concatenate_videoclips([
-    clip_1_0,
-    clip_2_0
     
-   
+    cropp,
+    clip_0_0
 ])
 final_video.write_videofile("myVideo.mp4", fps=24)
