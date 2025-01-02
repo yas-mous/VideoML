@@ -216,7 +216,7 @@ function generateProgramBody(clipVar: string,clip:Clip, fileNode:CompositeGenera
     });
 }
 function attachAudioToVideo(clipVar:string, videoVar:string,fileNode:CompositeGeneratorNode):void{
-    fileNode.append(`${videoVar} = ${videoVar}.set_audio(${clipVar})`);
+    fileNode.append(`${videoVar} = ${videoVar}.with_audio(${clipVar})`);
     fileNode.appendNewLine();
 
 }
