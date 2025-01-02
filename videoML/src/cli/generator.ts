@@ -27,14 +27,10 @@ function compileTimeline(timeline: TimeLine, fileNode: CompositeGeneratorNode): 
       
 
     const layers: string[] = [];
-    let requiresComposeMethod = false;
 
     timeline.layers.forEach((layer, layerIndex) => {
         const layerVar = compileLayer(layer, layerIndex, fileNode);
         layers.push(layerVar);
-        if (layer.clips.some(clip => clip.properties.some(prop => prop.subtitle !== undefined))) {
-            requiresComposeMethod = true;
-        }
     });
 
     fileNode.appendNewLine();
@@ -57,7 +53,7 @@ function compileMultipleLayer(layers: string[], fileNode: CompositeGeneratorNode
         fileNode.append(`    ${layer},`);
         fileNode.appendNewLine();
     });
-    fileNode.append(`], method="${requiresComposeMethod ? 'compose' : 'chain'}")`);
+    fileNode.append(`])`);
     fileNode.appendNewLine();
 }
 
@@ -84,13 +80,18 @@ function compileSingleClip(clipCode: string, fileNode: CompositeGeneratorNode): 
 
 function compileMultipleClip(clips: string[], layerIndex: number, fileNode: CompositeGeneratorNode): string {
     const layerVar = `layer_${layerIndex}`;
+
     fileNode.append(`${layerVar} = concatenate_videoclips([`);
     fileNode.appendNewLine();
+
     clips.forEach((clip) => {
         fileNode.append(`    ${clip},`);
         fileNode.appendNewLine();
     });
-    fileNode.append("])");
+
+    fileNode.append(`], method="compose")`);
+    fileNode.appendNewLine();
+    
     fileNode.appendNewLine();
     return layerVar;
 }
@@ -104,6 +105,7 @@ function compileClip(clip: Clip): string {
         const subtitle = clip.properties.find(prop => prop.subtitle !== undefined)?.subtitle;
         if (subtitle) {
             clipCode = addSubtitleToClip(clipCode, subtitle);
+            return `concatenate_videoclips([${clipCode}], method="compose")`;
         }
         return clipCode;
     }
@@ -209,7 +211,7 @@ function cutClip(clip : Clip,clipCode:string) : string {
 function addSubtitleToClip(clipCode: string, subtitle: Subtitle): string {
     const text = subtitle.text || "Subtitle";
     const start = subtitle.start || 0;
-    const duration = subtitle.duration || 5;
+    const duration = subtitle.duration || 0;
     const color = subtitle.color || "white";
     const bg_color = subtitle.bg_color || "black";
     const position = subtitle.position || "bottom";

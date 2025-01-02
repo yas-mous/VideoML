@@ -1,6 +1,5 @@
 timeline myVideo {
     ---
     |Video 'videos/video1.mp4', subtitle: {text: 'Bienvenue', start: 1, duration: 5}
-    ---
     |Video'videos/video2.mp4',from 3, to 10
 }

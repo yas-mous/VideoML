@@ -1,7 +1,6 @@
 from moviepy import *
 from moviepy.video.fx import *
-
-clip_0_0 = CompositeVideoClip([
+clip_0_0 = concatenate_videoclips([CompositeVideoClip([
             VideoFileClip("videos/video1.mp4").subclipped(0),
             TextClip(
                 font="Arial.ttf",
@@ -14,11 +13,13 @@ clip_0_0 = CompositeVideoClip([
             .with_duration(5)
             .with_position('bottom')
         ])
-    
-clip_1_0 = VideoFileClip("videos/video2.mp4").subclipped(3, 10)
-
-final_video = concatenate_videoclips([
+    ], method="compose")
+clip_0_1 = VideoFileClip("videos/video2.mp4").subclipped(3, 10)
+layer_0 = concatenate_videoclips([
     clip_0_0,
-    clip_1_0,
+    clip_0_1,
 ], method="compose")
+
+
+final_video = layer_0
 final_video.write_videofile("myVideo.mp4", fps=24)
