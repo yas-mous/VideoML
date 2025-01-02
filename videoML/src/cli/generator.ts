@@ -24,7 +24,7 @@ function compileTimeline(timeline: TimeLine, fileNode: CompositeGeneratorNode): 
     fileNode.appendNewLine();
     fileNode.append("from moviepy.video.fx import *");
     fileNode.appendNewLine();
-    fileNode.appendNewLine();
+      
 
     const layers: string[] = [];
     let requiresComposeMethod = false;
@@ -38,7 +38,20 @@ function compileTimeline(timeline: TimeLine, fileNode: CompositeGeneratorNode): 
     });
 
     fileNode.appendNewLine();
-    fileNode.append("final_video = concatenate_videoclips([");
+
+    if (layers.length === 1) {
+        fileNode.append(`final_video = ${layers[0]}`);
+        fileNode.appendNewLine();
+    } else {
+        compileMultipleLayer(layers, fileNode);
+    }
+
+    fileNode.append(`final_video.write_videofile("${timeline.name}.mp4", fps=24)`);
+    fileNode.appendNewLine();
+}
+
+function compileMultipleLayer(layers: string[], fileNode: CompositeGeneratorNode): void {
+    fileNode.append("final_video = CompositeVideoClip([");
     fileNode.appendNewLine();
     layers.forEach((layer) => {
         fileNode.append(`    ${layer},`);
@@ -46,18 +59,16 @@ function compileTimeline(timeline: TimeLine, fileNode: CompositeGeneratorNode): 
     });
     fileNode.append(`], method="${requiresComposeMethod ? 'compose' : 'chain'}")`);
     fileNode.appendNewLine();
-    fileNode.append(`final_video.write_videofile("${timeline.name}.mp4", fps=24)`);
-    fileNode.appendNewLine();
 }
 
 function compileLayer(layer: Layer, layerIndex: number, fileNode: CompositeGeneratorNode): string {
     const clips: string[] = [];
     layer.clips.forEach((clip, clipIndex) => {
         const clipVar = `clip_${layerIndex}_${clipIndex}`;
-        const clipCode = compileClip(clip);
-        fileNode.append(`${clipVar} = ${clipCode}`); 
-        fileNode.appendNewLine();
+        generateProgramBody(clipVar,clip,fileNode)
+        
         clips.push(clipVar); 
+
     });
 
     if (clips.length === 1) {
@@ -73,7 +84,7 @@ function compileSingleClip(clipCode: string, fileNode: CompositeGeneratorNode): 
 
 function compileMultipleClip(clips: string[], layerIndex: number, fileNode: CompositeGeneratorNode): string {
     const layerVar = `layer_${layerIndex}`;
-    fileNode.append(`${layerVar} = CompositeVideoClip([`);
+    fileNode.append(`${layerVar} = concatenate_videoclips([`);
     fileNode.appendNewLine();
     clips.forEach((clip) => {
         fileNode.append(`    ${clip},`);
@@ -94,8 +105,6 @@ function compileClip(clip: Clip): string {
         if (subtitle) {
             clipCode = addSubtitleToClip(clipCode, subtitle);
         }
-
-        clip.effects.forEach(effect => clipCode+=compileEffect(effect));
         return clipCode;
     }
     else{
@@ -124,43 +133,56 @@ function compileTransition(){
     //TODO
 }
 */
-function compileEffect(effect:Effect):string{
+
+
+function compileEffect(effect:Effect,clipVar:string,fileNode: CompositeGeneratorNode):void{
     if(isAdjustmentEffect(effect)){
-        return compileAdjustmentEffect(effect)
+        compileAdjustmentEffect(effect,clipVar,fileNode)
     }
     else if(isCropEffect(effect)){
-        return compileCropEffect(effect)
+        compileCropEffect(effect,clipVar,fileNode)
     }
     else if(isFreezingEffect(effect)){
-        return compileFreezingEffect(effect)
+        compileFreezingEffect(effect,clipVar,fileNode)
     }
     else if(isZoomEffect(effect)){
-        return compileZoomEffect(effect)
+        compileZoomEffect(effect,clipVar,fileNode)
     }
     else{
         throw new Error("Unknown effect type"); 
     }
 }
 
-function compileCropEffect(effect:CropEffect):string{
+function compileCropEffect(effect:CropEffect, clipVar:string,fileNode: CompositeGeneratorNode):void{
     //TODO
-    return "TODOCrop"
+    /**
+     * cropeffect = Crop(x1=15,y1=10,width=10,height=10)
+     * cropeffect.apply(clip_2_0.subclipped())
+     */
+    fileNode.append(`crop_effect = Crop(x1=${effect.x}, y1=${effect.y}, width=${effect.width}, height=${effect.height})`)
+    fileNode.appendNewLine()
+    fileNode.append(`crop_effect.apply(${clipVar})`)
+    fileNode.appendNewLine()
+
+   
 }
 
-function compileFreezingEffect(effect:FreezingEffect){
-    //TODO
-    return "TODOFreez"
-}
-
-function compileZoomEffect(effect:ZoomEffect){
-    //TODO
-    return "TODOZoom"
+function compileFreezingEffect(effect:FreezingEffect,clipVar:string,fileNode: CompositeGeneratorNode):void{
+    
+    fileNode.append(`freeze_effect = Freeze(t=${effect.begin}, freeze_duration=${effect.frameSeconds})`)
+    fileNode.appendNewLine()
+    fileNode.append(`${clipVar} = freeze_effect.apply(${clipVar})`)
+    fileNode.appendNewLine()
 
 }
 
-function compileAdjustmentEffect(effect:AdjustmentEffect){
+function compileZoomEffect(effect:ZoomEffect,clipVar:string,fileNode: CompositeGeneratorNode):void{
     //TODO
-    return "TODOAdjust"
+
+}
+
+function compileAdjustmentEffect(effect:AdjustmentEffect,clipVar:string,fileNode: CompositeGeneratorNode):void{
+    //TODO
 
 }
 
@@ -206,4 +228,13 @@ function addSubtitleToClip(clipCode: string, subtitle: Subtitle): string {
             .with_position('${position}')
         ])
     `;
+}
+
+function generateProgramBody(clipVar: string,clip:Clip, fileNode:CompositeGeneratorNode):void {
+    const clipCode = compileClip(clip);
+    fileNode.append(`${clipVar} = ${clipCode}`); 
+    fileNode.appendNewLine();
+    clip.effects.forEach(effect => {
+        compileEffect(effect,clipVar,fileNode);
+    });
 }

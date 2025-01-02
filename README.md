@@ -19,6 +19,18 @@ timeline myVideo {
 }
 
 ```
+Avec effets freeze
+
+```bash
+timeline myVideo {
+    ---
+    |Video'videos/video1.mp4',from 5,to 8
+    ---
+    |Video'videos/video2.mp4',from 10, to 14 ~freeze 2+3
+    ---
+    |Video'videos/video1.mp4',to 5
+}
+```
 
 ### Requirements
 
