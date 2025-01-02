@@ -24,24 +24,36 @@ function compileTimeline(timeline: TimeLine, fileNode: CompositeGeneratorNode): 
     fileNode.appendNewLine();
     fileNode.append("from moviepy.video.fx import *");
     fileNode.appendNewLine();
-    fileNode.appendNewLine();
+      
 
     const layers: string[] = [];
+
     timeline.layers.forEach((layer, layerIndex) => {
         const layerVar = compileLayer(layer, layerIndex, fileNode);
         layers.push(layerVar);
     });
 
     fileNode.appendNewLine();
-    fileNode.append("final_video =CompositeVideoClip([");
+
+    if (layers.length === 1) {
+        fileNode.append(`final_video = ${layers[0]}`);
+        fileNode.appendNewLine();
+    } else {
+        compileMultipleLayer(layers, fileNode);
+    }
+
+    fileNode.append(`final_video.write_videofile("${timeline.name}.mp4", fps=24)`);
+    fileNode.appendNewLine();
+}
+
+function compileMultipleLayer(layers: string[], fileNode: CompositeGeneratorNode): void {
+    fileNode.append("final_video = CompositeVideoClip([");
     fileNode.appendNewLine();
     layers.forEach((layer) => {
         fileNode.append(`    ${layer},`);
         fileNode.appendNewLine();
     });
     fileNode.append("])");
-    fileNode.appendNewLine();
-    fileNode.append(`final_video.write_videofile("${timeline.name}.mp4", fps=24)`);
     fileNode.appendNewLine();
 }
 
