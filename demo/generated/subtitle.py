@@ -3,7 +3,7 @@ from moviepy.video.fx import *
 clip_0_0 = concatenate_videoclips([CompositeVideoClip([
             VideoFileClip("videos/video1.mp4").subclipped(0),
             TextClip(
-                font="Arial.ttf",
+                font="font/font.ttf",
                 text="Bienvenue",
                 font_size=24,
                 color='white',

@@ -24,7 +24,7 @@ function compileTimeline(timeline: TimeLine, fileNode: CompositeGeneratorNode): 
     fileNode.appendNewLine();
     fileNode.append("from moviepy.video.fx import *");
     fileNode.appendNewLine();
-      
+    fileNode.appendNewLine();
 
     const layers: string[] = [];
 
@@ -163,19 +163,33 @@ function compileEffect(effect:Effect,clipVar:string,fileNode: CompositeGenerator
     }
 }
 
-function compileCropEffect(effect:CropEffect, clipVar:string,fileNode: CompositeGeneratorNode):void{
-    //TODO
-    /**
-     * cropeffect = Crop(x1=15,y1=10,width=10,height=10)
-     * cropeffect.apply(clip_2_0.subclipped())
-     */
-    fileNode.append(`crop_effect = Crop(x1=${effect.x}, y1=${effect.y}, width=${effect.width}, height=${effect.height})`)
-    fileNode.appendNewLine()
-    fileNode.append(`crop_effect.apply(${clipVar})`)
-    fileNode.appendNewLine()
+function compileCropEffect(effect: CropEffect, clipVar: string, fileNode: CompositeGeneratorNode): void {
+    const from = effect.intervall?.find(prop => prop.begin !== undefined)?.begin || null;
+    const to = effect.intervall?.find(prop => prop.end !== undefined)?.end || null;
 
-   
+    if (from !== null && to !== null) {
+        fileNode.appendNewLine();
+        fileNode.append(`${clipVar}_before = ${clipVar}.subclipped(0, ${from})`);
+        fileNode.appendNewLine();
+        fileNode.append(`crop_effect = Crop(x1=${effect.x}, y1=${effect.y}, width=${effect.width}, height=${effect.height})`);
+        fileNode.appendNewLine();
+        fileNode.append(`${clipVar}_cropped = crop_effect.apply(${clipVar}.subclipped(${from}, ${to}))`);
+        fileNode.appendNewLine();
+        fileNode.append(`${clipVar}_after = ${clipVar}.subclipped(${to})`);
+        fileNode.appendNewLine();
+
+      
+        fileNode.append(`${clipVar} = concatenate_videoclips([${clipVar}_before, ${clipVar}_cropped, ${clipVar}_after], method="compose")`);
+        fileNode.appendNewLine();
+    } else {
+       
+        fileNode.append(`crop_effect = Crop(x1=${effect.x}, y1=${effect.y}, width=${effect.width}, height=${effect.height})`);
+        fileNode.appendNewLine();
+        fileNode.append(`${clipVar} = crop_effect.apply(${clipVar})`);
+        fileNode.appendNewLine();
+    }
 }
+
 
 function compileFreezingEffect(effect:FreezingEffect,clipVar:string,fileNode: CompositeGeneratorNode):void{
     
@@ -227,7 +241,7 @@ function addSubtitleToClip(clipCode: string, subtitle: Subtitle): string {
     return `CompositeVideoClip([
             ${clipCode},
             TextClip(
-                font="Arial.ttf",
+                font="font/font.ttf",
                 text="${text}",
                 font_size=24,
                 color='${color}',
