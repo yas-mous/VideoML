@@ -188,7 +188,8 @@ function addSubtitleToClip(clipCode: string, subtitle: Subtitle): string {
     const text = subtitle.text || "Subtitle";
     const start = subtitle.start || 0;
     const duration = subtitle.duration || 5;
-    const color = subtitle.color || "black";
+    const color = subtitle.color || "white";
+    const bg_color = subtitle.bg_color || "black";
     const position = subtitle.position || "bottom";
 
     return `CompositeVideoClip([
@@ -197,7 +198,8 @@ function addSubtitleToClip(clipCode: string, subtitle: Subtitle): string {
                 font="Arial.ttf",
                 text="${text}",
                 font_size=24,
-                color='${color}'
+                color='${color}',
+                bg_color='${bg_color}'
             )
             .with_start(${start})
             .with_duration(${duration})

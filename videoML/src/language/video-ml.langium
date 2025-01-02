@@ -25,6 +25,7 @@ Subtitle:
         'duration:' duration=INT 
         (',' 'color:' color=STRING)? 
         (',' 'position:' position=STRING)?
+        (',' 'bg_color:' bg_color=STRING)?
     '}';
 
 VideoClip:

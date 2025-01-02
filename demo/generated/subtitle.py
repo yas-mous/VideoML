@@ -2,12 +2,13 @@ from moviepy import *
 from moviepy.video.fx import *
 
 clip_0_0 = CompositeVideoClip([
-            VideoFileClip("video1.mp4").subclipped(0),
+            VideoFileClip("videos/video1.mp4").subclipped(0),
             TextClip(
                 font="Arial.ttf",
                 text="Bienvenue",
                 font_size=24,
-                color='black'
+                color='white',
+                bg_color='black'
             )
             .with_start(1)
             .with_duration(5)
