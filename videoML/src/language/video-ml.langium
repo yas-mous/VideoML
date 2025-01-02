@@ -15,8 +15,17 @@ Clip:
 ClipProperty:
     'from'begin=INT |
     'to'end=INT |
-    'subtitle:' subtitle=Subtitle;
+    'subtitle:' subtitle=Subtitle |
+    'stack:' stack=Stacking;
 
+
+Stacking:
+    '{'
+        'clip:' stackClip=STRING ','
+        'position:' stackPosition=STRING ','
+        'width:' stackWidth=INT ','
+        'height:' stackHeight=INT
+    '}';
 
 Subtitle:
     '{'

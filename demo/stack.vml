@@ -1,0 +1,6 @@
+timeline my_video {
+    ---
+    |Video 'videos/Video.mp4'
+    ---
+    |Video 'videos/Video2.mp4', stack: { clip: 'background.mp4', position: 'bottom-left', width: 300, height: 200 }
+}

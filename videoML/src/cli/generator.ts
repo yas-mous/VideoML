@@ -2,7 +2,7 @@ import { CompositeGeneratorNode, toString } from 'langium/generate';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { extractDestinationAndName } from './cli-util.js';
-import { TimeLine, Clip, Layer, isVideoClip, Effect, isAdjustmentEffect, VideoClip, CropEffect, FreezingEffect, ZoomEffect, AdjustmentEffect, isCropEffect, isFreezingEffect, isZoomEffect, Subtitle } from '../language/generated/ast.js';
+import { TimeLine, Clip, Layer, isVideoClip, Effect, isAdjustmentEffect, VideoClip, CropEffect, FreezingEffect, ZoomEffect, AdjustmentEffect, isCropEffect, isFreezingEffect, isZoomEffect, Subtitle, Stacking} from '../language/generated/ast.js';
 import { hasClipProperties } from './utils.js';
 
 export function generatepython(timeline: TimeLine, filePath: string, destination: string | undefined): string {
@@ -102,12 +102,16 @@ function compileClip(clip: Clip): string {
         let clipCode = compileVideoClip(clip);
         clipCode = cutClip(clip, clipCode);
 
+        const stacking = clip.properties.find(prop => prop.stack !== undefined)?.stack;
+        if (stacking) {
+            clipCode = addStackingToClip(clipCode, stacking);
+        }
+
         const subtitle = clip.properties.find(prop => prop.subtitle !== undefined)?.subtitle;
         if (subtitle) {
-            clipCode = addSubtitleToClip(clipCode, subtitle);
-            return `concatenate_videoclips([${clipCode}], method="compose")`;
+            clipCode = addSubtitleToClip(clipCode, subtitle);  
         }
-        return clipCode;
+        return `concatenate_videoclips([${clipCode}], method="compose")`;
     }
     else{
         //a ajouter audioClip ....
@@ -239,4 +243,26 @@ function generateProgramBody(clipVar: string,clip:Clip, fileNode:CompositeGenera
     clip.effects.forEach(effect => {
         compileEffect(effect,clipVar,fileNode);
     });
+}
+
+
+function addStackingToClip(clipCode: string, stacking: Stacking): string {
+    const stackClip = stacking.stackClip;
+    const position = stacking.stackPosition || "top-right";
+    const width = stacking.stackWidth || 250;
+    const height = stacking.stackHeight || 200;
+
+    const positionMap: Record<string, string> = {
+        "top-right": "('right', 'top')",
+        "top-left": "('left', 'top')",
+        "bottom-right": "('right', 'bottom')",
+        "bottom-left": "('left', 'bottom')",
+        "center": "('center', 'center')"
+    };
+
+    const positionCode = positionMap[position] || "('right', 'top')";
+    return `CompositeVideoClip([
+                ${clipCode},
+                VideoFileClip("${stackClip}").resize(height=${height}).resize(width=${width}).with_position(${positionCode})
+            ])`;
 }
