@@ -3,6 +3,17 @@
 voir dans langium-quickstart.md
 ### Générer du code a partir d'un .vml
 
+after any modif in the grammar 
+```bash
+npm run langium:generate
+```
+ after any modif in the generator
+ ```bash
+npm run build
+ ```
+
+
+ to generte code
 ```bash
 npm run cli ..\demo\test2.vml 
 ```
@@ -29,6 +40,15 @@ timeline myVideo {
     |Video'videos/video2.mp4',from 10, to 14 ~freeze 2+3
     ---
     |Video'videos/video1.mp4',to 5
+}
+```
+
+
+to add subtitle 
+```bash```
+timeline myVideo {
+    ---
+    |Video 'videos/video1.mp4', subtitle: {text: 'Bienvenue', start: 1, duration: 5}
 }
 ```
 
