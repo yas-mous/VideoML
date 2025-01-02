@@ -33,7 +33,7 @@ function compileTimeline(timeline: TimeLine, fileNode: CompositeGeneratorNode): 
     });
 
     fileNode.appendNewLine();
-    fileNode.append("final_video = concatenate_videoclips([");
+    fileNode.append("final_video =CompositeVideoClip([");
     fileNode.appendNewLine();
     layers.forEach((layer) => {
         fileNode.append(`    ${layer},`);
@@ -68,7 +68,7 @@ function compileSingleClip(clipCode: string, fileNode: CompositeGeneratorNode): 
 
 function compileMultipleClip(clips: string[], layerIndex: number, fileNode: CompositeGeneratorNode): string {
     const layerVar = `layer_${layerIndex}`;
-    fileNode.append(`${layerVar} = CompositeVideoClip([`);
+    fileNode.append(`${layerVar} = concatenate_videoclips([`);
     fileNode.appendNewLine();
     clips.forEach((clip) => {
         fileNode.append(`    ${clip},`);
