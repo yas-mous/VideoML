@@ -14,6 +14,7 @@ npm run build
 
 
  to generte code
+
 ```bash
 npm run cli ..\demo\test2.vml 
 ```
@@ -45,7 +46,7 @@ timeline myVideo {
 
 
 to add subtitle 
-```bash```
+```bash
 timeline myVideo {
     ---
     |Video 'videos/video1.mp4', subtitle: {text: 'Bienvenue', start: 1, duration: 5}
