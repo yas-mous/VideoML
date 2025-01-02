@@ -11,7 +11,7 @@ npm run langium:generate
  ```bash
 npm run build
  ```
-
+ Press `F5` to open a new window with your extension loaded to write `.vml` code
 
  to generte code
 
@@ -20,6 +20,7 @@ npm run cli ..\demo\test2.vml
 ```
 
 ### Exemple de grammaire possible 
+
 ```bash
 timeline myVideo {
     ---
@@ -31,6 +32,16 @@ timeline myVideo {
 }
 
 ```
+to add subtitle 
+```bash
+timeline myVideo {
+    ---
+    |Video 'videos/video1.mp4', subtitle: {text: 'Bienvenue', start: 1, duration: 5}
+}
+```
+
+#### Effets
+
 Avec effets freeze
 
 ```bash
@@ -43,16 +54,31 @@ timeline myVideo {
     |Video'videos/video1.mp4',to 5
 }
 ```
-
-
-to add subtitle 
+Avec effet crop appliqué sur toute la video1.mp4
 ```bash
 timeline myVideo {
     ---
-    |Video 'videos/video1.mp4', subtitle: {text: 'Bienvenue', start: 1, duration: 5}
+    |Video'videos/video2.mp4' ~freeze 2+3
+    |Video'videos/video1.mp4' ~crop x 200,y 200, width 200, height 200
+}
+```
+
+Avec effet crop appliqué sur la video1.mp4 dans l extrait de 2s a 4s.
+Le reste de la vidéo reste inchangé.
+```bash
+timeline myVideo {
+    ---
+    |Video'videos/video2.mp4', to 7 ~freeze 2+3
+    |Video'videos/video1.mp4' 
+    ~crop x 200,y 200, width 200, height 200,from 2,to 4
 }
 ```
 
 ### Requirements
 
 Avoir la version **2.1.1** de **moviepy**
+
+### Generated videos
+
+Exemples de vidéos générés par le DSL
+`VideoML\demo\generatedVideos`

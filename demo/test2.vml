@@ -1,8 +1,6 @@
-timeline myVideo {
+timeline freezeAndCropVideo {
     ---
-    |Video'videos/video2.mp4' ~freeze 2+3 
-    ~crop x 50,y 50,width 200, height 200,from 2, to 4
-    |Video'videos/video1.mp4'
-    ---
-    |Video'videos/video1.mp4'
-} 
+    |Video'videos/video2.mp4', to 7 ~freeze 2+3
+    |Video'videos/video1.mp4' 
+    ~crop x 200,y 200, width 200, height 200,from 2,to 4
+}
