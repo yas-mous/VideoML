@@ -1,4 +1,4 @@
 timeline grayscaleVideo {
     ---
-    |Video'videos/video2.mp4', from 7 ~grayscale, from 4, to 6
+    |Video'videos/video2.mp4',from 4
 }
