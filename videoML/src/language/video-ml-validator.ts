@@ -22,10 +22,10 @@ export function registerValidationChecks(services: VideoMlServices) {
  */
 export class VideoMlValidator {
 
-    checkRequiredArgument(person: TimeLine, accept: ValidationAcceptor): void {
+    checkRequiredArgument(timeline: TimeLine, accept: ValidationAcceptor): void {
         
-        if(!person.name) {
-            accept('error', 'Video name is missing.', { node: person, property: 'name' });
+        if(!timeline.name) {
+            accept('error', 'Video name is missing.', { node: timeline, property: 'name' });
         }
     }
 
