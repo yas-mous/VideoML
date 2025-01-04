@@ -2,7 +2,7 @@ import { CompositeGeneratorNode, toString } from 'langium/generate';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { extractDestinationAndName } from './cli-util.js';
-import { TimeLine, Clip, Layer, isVideoClip, Effect, isAdjustmentEffect, VideoClip, CropEffect, FreezingEffect, ZoomEffect, AdjustmentEffect, isCropEffect, isFreezingEffect, isZoomEffect, Subtitle, Stacking,FadeOutEffect ,FadeInEffect , isFadeOutEffect , isFadeInEffect } from '../language/generated/ast.js';
+import { TimeLine, Clip, Layer, isVideoClip, Effect, VideoClip, CropEffect, FreezingEffect, ZoomEffect, isCropEffect, isFreezingEffect, isZoomEffect, Subtitle, Stacking,FadeOutEffect ,FadeInEffect , isFadeOutEffect , isFadeInEffect, isGrayscaleEffect, GrayscaleEffect } from '../language/generated/ast.js';
 import { hasClipProperties } from './utils.js';
 
 export function generatepython(timeline: TimeLine, filePath: string, destination: string | undefined): string {
@@ -142,8 +142,8 @@ function compileTransition(){
 
 
 function compileEffect(effect:Effect,clipVar:string,fileNode: CompositeGeneratorNode):void{
-    if(isAdjustmentEffect(effect)){
-        compileAdjustmentEffect(effect,clipVar,fileNode)
+    if(isGrayscaleEffect(effect)){
+        compileGrayscaleEffect(effect,clipVar,fileNode)
     }
     else if(isCropEffect(effect)){
         compileCropEffect(effect,clipVar,fileNode)
@@ -205,8 +205,28 @@ function compileZoomEffect(effect:ZoomEffect,clipVar:string,fileNode: CompositeG
 
 }
 
-function compileAdjustmentEffect(effect:AdjustmentEffect,clipVar:string,fileNode: CompositeGeneratorNode):void{
-    //TODO
+function compileGrayscaleEffect(effect:GrayscaleEffect,clipVar:string,fileNode: CompositeGeneratorNode):void{
+    //clip_0_0 = BlackAndWhite(RGB='CRT_phosphor', preserve_luminosity=True).apply(clip_0_0)
+    const from = effect.intervall?.find(prop => prop.begin !== undefined)?.begin || null;
+    const to = effect.intervall?.find(prop => prop.end !== undefined)?.end || null;
+
+    if (from !== null && to !== null) {
+        fileNode.appendNewLine();
+        fileNode.append(`${clipVar}_before = ${clipVar}.subclipped(0, ${from})`);
+        fileNode.appendNewLine();
+        fileNode.append(`${clipVar}_gray = BlackAndWhite(RGB='CRT_phosphor', preserve_luminosity=True).apply(clip_0_0.subclipped(${from}, ${to}))`);
+        fileNode.appendNewLine();
+        fileNode.append(`${clipVar}_after = ${clipVar}.subclipped(${to})`);
+        fileNode.appendNewLine();
+
+      
+        fileNode.append(`${clipVar} = concatenate_videoclips([${clipVar}_before, ${clipVar}_gray, ${clipVar}_after], method="compose")`);
+        fileNode.appendNewLine();
+    } else {
+       
+        fileNode.append(`${clipVar} = BlackAndWhite(RGB='CRT_phosphor', preserve_luminosity=True).apply(clip_0_0)`);
+        fileNode.appendNewLine();
+    }
 
 }
 

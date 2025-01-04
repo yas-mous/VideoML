@@ -73,6 +73,13 @@ timeline myVideo {
     ~crop x 200,y 200, width 200, height 200,from 2,to 4
 }
 ```
+Avec effet grayscale : converti la video en couleur de gris. From et to sont optionnel pour rendre seulement une partie de la video grise.
+```bash
+timeline grayscaleVideo {
+    ---
+    |Video'videos/video2.mp4', from 7 ~grayscale, from 4, to 6
+}
+```
 
 ### Requirements
 

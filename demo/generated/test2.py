@@ -1,21 +1,12 @@
 from moviepy import *
 from moviepy.video.fx import *
 
-clip_0_0 = VideoFileClip("videos/video2.mp4").subclipped(0, 7)
-freeze_effect = Freeze(t=2, freeze_duration=3)
-clip_0_0 = freeze_effect.apply(clip_0_0)
-clip_0_1 = VideoFileClip("videos/video1.mp4")
+clip_0_0 = concatenate_videoclips([VideoFileClip("videos/video2.mp4").subclipped(7)], method="compose")
 
-clip_0_1_before = clip_0_1.subclipped(0, 2)
-crop_effect = Crop(x1=200, y1=200, width=200, height=200)
-clip_0_1_cropped = crop_effect.apply(clip_0_1.subclipped(2, 4))
-clip_0_1_after = clip_0_1.subclipped(4)
-clip_0_1 = concatenate_videoclips([clip_0_1_before, clip_0_1_cropped, clip_0_1_after], method="compose")
-layer_0 = concatenate_videoclips([
-    clip_0_0,
-    clip_0_1,
-], method="compose")
+clip_0_0_before = clip_0_0.subclipped(0, 4)
+clip_0_0_gray = BlackAndWhite(RGB='CRT_phosphor', preserve_luminosity=True).apply(clip_0_0.subclipped(4, 6))
+clip_0_0_after = clip_0_0.subclipped(6)
+clip_0_0 = concatenate_videoclips([clip_0_0_before, clip_0_0_gray, clip_0_0_after], method="compose")
 
-
-final_video = layer_0
-final_video.write_videofile("freezeAndCropVideo.mp4", fps=24)
+final_video = clip_0_0
+final_video.write_videofile("grayscaleVideo.mp4", fps=24)

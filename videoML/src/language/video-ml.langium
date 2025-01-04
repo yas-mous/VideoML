@@ -15,6 +15,7 @@ Clip:
 ClipProperty:
     'from'begin=INT |
     'to'end=INT |
+    'start' positionInTimeline=INT |
     'subtitle:' subtitle=Subtitle |
     'stack:' stack=Stacking;
 
@@ -41,7 +42,7 @@ VideoClip:
     '|Video' sourceFile=STRING (',' properties+=ClipProperty)* ('~' effects+=Effect)* NL;
 
 Effect:
-    CropEffect | FreezingEffect | ZoomEffect | AdjustmentEffect | FadeInEffect | FadeOutEffect ;
+    CropEffect | FreezingEffect | ZoomEffect | GrayscaleEffect | FadeInEffect | FadeOutEffect ;
 
 CropEffect:
     'crop'  ('x' x=INT ',' 'y' y=INT ',' | 'x_center' x_center=INT ',' 'y_center' y_center=INT ) 'width' width=INT ',' 'height' height=INT (',' intervall+=Intervall)*;
@@ -50,11 +51,10 @@ FreezingEffect:
     'freeze' begin=INT '+' frameSeconds=INT;
 
 ZoomEffect:
-    'zoom'  x=INT ',' y=INT ',' width=INT ',' height=INT ;
+    'zoom'  resizeFactor=STRING (',' intervall+=Intervall)*;
 
-AdjustmentEffect:
-    'adjust' ('brightness:' brightness=FLOAT)? (',' 'saturation:' saturation=FLOAT)? ;
-
+GrayscaleEffect:
+    'grayscale' (',' intervall+=Intervall)*;
 
 FadeInEffect:
     'fadein' ('duration:' duration=INT);
