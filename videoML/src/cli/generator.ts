@@ -17,7 +17,7 @@ import {
     isCropEffect,
     isFreezingEffect,
     isZoomEffect,
-    isAudioClip, AudioClip
+    isAudioClip, AudioClip, VolumeEffect, isVolumeEffect, isLoopEffect, LoopEffect
 } from '../language/generated/ast.js';
 import { hasClipProperties } from './utils.js';
 
@@ -72,7 +72,7 @@ function compileLayer(layer: Layer, layerIndex: number, fileNode: CompositeGener
              videoClips.push(clipVar);
 
          }
-        generateProgramBody(clipVar,clip,fileNode)
+        generateProgramBody(clipVar,clip,fileNode,videoVar)
          //attach audio to the last video clip
         if(isAudioClip(clip)){
             attachAudioToVideo(clipVar, videoVar,fileNode)
@@ -133,9 +133,7 @@ function compileVideoClip(clip: VideoClip): string {
 // FUNCTIONS TO IMPLEMENT (commented because of compilation errors : empty functions)
 
 /*
-function compileAudioClip(){
-    //TODO
-}
+
 
 function compileText(){
     //TODO
@@ -160,10 +158,37 @@ function compileEffect(effect:Effect,clipVar:string,fileNode: CompositeGenerator
     else if(isZoomEffect(effect)){
         compileZoomEffect(effect,clipVar,fileNode)
     }
+    else if(isVolumeEffect(effect)){
+        compileVolumeEffect(effect,clipVar,fileNode,"v")
+    }
     else{
         throw new Error("Unknown effect type"); 
     }
 }
+
+function  compileVolumeEffect(effect:VolumeEffect,clipVar:string,fileNode: CompositeGeneratorNode, volumeEffectName:string):void{
+    const begin = effect.properties.find(prop => prop.begin !== undefined)?.begin || 0;
+    const end = effect.properties.find(prop => prop.end !== undefined)?.end || 0;
+    if(begin !== undefined && end !== undefined){
+        fileNode.append(`${volumeEffectName} = afx.MultiplyVolume(${effect.volume}, start_time=${begin}, end_time=${end})`)
+
+    }
+else{
+    if(begin !== undefined){
+        fileNode.append(`${volumeEffectName} = afx.MultiplyVolume(${effect.volume}, start_time=${begin})`)
+    }
+    if(end !== undefined){
+        fileNode.append(`${volumeEffectName} = afx.MultiplyVolume(${effect.volume}, end_time=${end})`)
+    }
+    else{
+        fileNode.append(`${volumeEffectName} = afx.MultiplyVolume(${effect.volume})`)
+
+    }
+    }
+    fileNode.appendNewLine()
+
+}
+
 
 function compileCropEffect(effect:CropEffect, clipVar:string,fileNode: CompositeGeneratorNode):string{
     //TODO
@@ -207,16 +232,53 @@ function cutClip(clip : Clip,clipCode:string) : string {
     return clipCode;
 }
 
-function generateProgramBody(clipVar: string,clip:Clip, fileNode:CompositeGeneratorNode):void {
+function compileAudioEffects(effects: Array<Effect>, clipVar: string, fileNode: CompositeGeneratorNode,videoClipVar?:string):void{
+    const effectsVar:string[] = [];
+effects.forEach(effect => {
+    if(isVolumeEffect(effect)){
+    compileVolumeEffect(effect,clipVar,fileNode,"volume_effect");
+    effectsVar.push("volume_effect");
+}
+    else if(isLoopEffect(effect)){
+        compileLoopEffect(effect,clipVar,fileNode,"loop_effect",videoClipVar);
+        effectsVar.push("loop_effect");
+
+    }
+});
+fileNode.append(`${clipVar} = ${clipVar}.with_effects([${effectsVar.join(",")}])`);
+fileNode.appendNewLine()
+
+}
+
+function generateProgramBody(clipVar: string,clip:Clip, fileNode:CompositeGeneratorNode,videoClipVar?:string):void {
     const clipCode = compileClip(clip);
     fileNode.append(`${clipVar} = ${clipCode}`); 
     fileNode.appendNewLine();
-    clip.effects.forEach(effect => {
+   if(isVideoClip(clip)) clip.effects.forEach(effect => {
         compileEffect(effect,clipVar,fileNode);
     });
+   else if(isAudioClip(clip)) compileAudioEffects(clip.effects,clipVar,fileNode,videoClipVar);
 }
 function attachAudioToVideo(clipVar:string, videoVar:string,fileNode:CompositeGeneratorNode):void{
     fileNode.append(`${videoVar} = ${videoVar}.with_audio(${clipVar})`);
     fileNode.appendNewLine();
+
+}
+
+function compileLoopEffect(effect:LoopEffect,clipVar:string,fileNode: CompositeGeneratorNode, loopEffectName:string,videoClipVar?:string):void{
+    if(effect.duration === undefined && effect.n_times === undefined){
+        fileNode.append(`${loopEffectName} = afx.AudioLoop(duration=${videoClipVar}.duration)`)
+    }
+    else {
+
+    if(effect.n_times !== undefined){
+        fileNode.append(`${loopEffectName} = afx.AudioLoop(n_loops=${effect.n_times})`)
+    }
+    if(effect.duration !== undefined){
+            fileNode.append(`${loopEffectName} = afx.AudioLoop(duration=${effect.duration})`)
+
+        }
+    }
+    fileNode.appendNewLine()
 
 }
