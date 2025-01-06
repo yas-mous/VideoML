@@ -1,9 +1,8 @@
 timeline myVideo {
     ---
-    |Video'videos/video3.mp4',from 5,to 65
-    |Audio'audios/audio1.mp3',from 5,to 10 ~volume(x 2 from 2 to 4) ~loop
+    |Video @first_video 'videos/video2.mp4',from 10, to 14 ~freeze 2->3
     ---
-    |Video'videos/video2.mp4',from 10, to 14 ~freeze 2->3
+    Audios 'audios/audio1.mp3',from 5,to 10 ~volume(x 2 from 2 to 4) ~loop|Audios'audios/audio2.mp3',from 5,to 10 ~volume(x 2 from 2 to 4) ~loop
     ---
     |Video'videos/video1.mp4',to 5
 }

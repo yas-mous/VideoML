@@ -7,10 +7,13 @@ entry TimeLine:
 
 Layer:
     '---'NL
-    clips+=Clip*;
+    elements+=LayerElement*;
 
+LayerElement:
+    VideoClip | AudiosClip|AudioClip;
 Clip:
     VideoClip | AudioClip;
+
 
 ClipProperty:
     'from'begin=INT |
@@ -19,8 +22,10 @@ ClipProperty:
 VideoClip:
     '|Video' sourceFile=STRING (',' properties+=ClipProperty)* ('~' effects+=Effect)* NL;
 
+AudiosClip:
+     ( audios+=AudioClip)* NL;
 AudioClip:
-    '|Audio' sourceFile=STRING (',' properties+=ClipProperty)* ('~' effects+=Effect)* NL;
+    '|Audios' sourceFile=STRING (',' properties+=ClipProperty)* ('~' effects+=Effect)*;
 
 Effect:
     AudioEffect | VideoEffect;

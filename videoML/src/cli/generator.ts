@@ -17,7 +17,7 @@ import {
     isCropEffect,
     isFreezingEffect,
     isZoomEffect,
-    isAudioClip, AudioClip, VolumeEffect, isVolumeEffect, isLoopEffect, LoopEffect
+    isAudioClip, AudioClip, VolumeEffect, isVolumeEffect, isLoopEffect, LoopEffect, isAudiosClip, AudiosClip
 } from '../language/generated/ast.js';
 import { hasClipProperties } from './utils.js';
 
@@ -65,20 +65,31 @@ function compileLayer(layer: Layer, layerIndex: number, fileNode: CompositeGener
     const videoClips: string[] = [];
 
     let videoVar = "";
-    layer.clips.forEach((clip, clipIndex) => {
+    layer.elements.forEach((clip, clipIndex) => {
         const clipVar = `clip_${layerIndex}_${clipIndex}`;
-         if(isVideoClip(clip)){
-            videoVar = clipVar;
-             videoClips.push(clipVar);
-
-         }
-        generateProgramBody(clipVar,clip,fileNode,videoVar)
-         //attach audio to the last video clip
-        if(isAudioClip(clip)){
+        if(isAudiosClip(clip)){
+            const clipVar = `audios_${layerIndex}_${clipIndex}`;
+            compileAudiosCLip(clip,clipVar,fileNode)
             attachAudioToVideo(clipVar, videoVar,fileNode)
         }
+        else{
+            if(isVideoClip(clip)){
+                videoVar = clipVar;
+                videoClips.push(clipVar);
+            }
+            generateProgramBody(clipVar,clip,fileNode,videoVar)
+
+
+            //attach audio to the last video clip
+            if(isAudioClip(clip)){
+                attachAudioToVideo(clipVar, videoVar,fileNode)
+            }
+        }
+
+
 
     });
+
 
 
     if (videoClips.length === 1) {
@@ -86,6 +97,22 @@ function compileLayer(layer: Layer, layerIndex: number, fileNode: CompositeGener
     } else {
         return compileMultipleClip(videoClips, layerIndex, fileNode);
     }
+}
+function compileAudiosCLip(clip:AudiosClip,clipVar:string,fileNode: CompositeGeneratorNode):void{
+    const  audioClipsVar:string[]=[];
+    clip.audios.forEach(((audioClip,index) => {
+        let audioClipVar = `${clipVar}_${index}`;
+        audioClipsVar.push(audioClipVar);
+        let clipCode = compileAudioClip(audioClip);
+        clipCode = cutClip(audioClip, clipCode);
+        fileNode.append(`${audioClipVar} = ${clipCode}`);
+        fileNode.appendNewLine();
+
+    }));
+    fileNode.append(`${clipVar} = concatenate_audioclips([${audioClipsVar.join(",")}])`);
+    fileNode.appendNewLine();
+
+
 }
 
 function compileSingleClip(clipCode: string, fileNode: CompositeGeneratorNode): string {
@@ -280,5 +307,6 @@ function compileLoopEffect(effect:LoopEffect,clipVar:string,fileNode: CompositeG
         }
     }
     fileNode.appendNewLine()
+    // ne pas ajouter un audio  a une seconde d'un video si la seconde n'este pas ne pas ajouter une audio a un noomde variable qui n'existe pas
 
 }
