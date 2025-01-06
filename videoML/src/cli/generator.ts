@@ -111,7 +111,7 @@ function compileClip(clip: Clip): string {
         if (subtitle) {
             clipCode = addSubtitleToClip(clipCode, subtitle);  
         }
-        return `concatenate_videoclips([${clipCode}], method="compose")`;
+        return clipCode;
     }
     else{
         //a ajouter audioClip ....

@@ -6,7 +6,7 @@ entry TimeLine:
     '}';
 
 Layer:
-    '---'NL 
+    '---''@' layerName=ID NL 
     clips+=Clip*;
 
 Clip:
@@ -39,7 +39,7 @@ Subtitle:
     '}';
 
 VideoClip:
-    '|Video' sourceFile=STRING (',' properties+=ClipProperty)* ('~' effects+=Effect)* NL;
+    '|Video' '@' videoName=ID sourceFile=STRING (',' properties+=ClipProperty)* ('~' effects+=Effect)* NL;
 
 Effect:
     CropEffect | FreezingEffect | ZoomEffect | GrayscaleEffect | FadeInEffect | FadeOutEffect ;
