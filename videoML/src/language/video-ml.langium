@@ -45,9 +45,9 @@ VideoClip:
     '|Video' '@' clipName=ID sourceFile=STRING (',' properties+=ClipProperty)* ('~' effects+=Effect)* NL;
 
 AudiosClip:
-     ( audios+=AudioClip)* NL;
+     '@' clipName=ID ( audios+=AudioClip)* NL;
 AudioClip:
-    '|Audios' sourceFile=STRING (',' properties+=ClipProperty)* ('~' effects+=Effect)*;
+    '|Audios' '@' clipName=ID sourceFile=STRING (',' properties+=ClipProperty)* ('~' effects+=Effect)*;
 
 Effect:
     AudioEffect | VideoEffect;
