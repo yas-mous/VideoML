@@ -1,9 +1,7 @@
 timeline groupVideo {
-    ---@layer
-    |Video @V'videos/video1.mp4',from 2, to 7 
-        ~> grayscale ,from 1, to 3 
-        ~> crop x 50, y 50, width 500, height 500 ,from 1, to 2
-    |Video'videos/video2.mp4',from 3, to 10 ~freeze 2+3
-    ---
-    |Video'videos/video3.mp4',from 3, to 10 ~freeze 2+3 starts @3 of layer 1
+    --- @layer1
+    |Video @brasil'videos/video1.mp4',from 2, to 7 
+        ~ grayscale ,from 1, to 3 
+        ~ crop x 50, y 50, width 500, height 500 ,from 1, to 2
+    |Video @Finn'videos/video2.mp4',from 3, to 10 ~freeze 2+3
 }

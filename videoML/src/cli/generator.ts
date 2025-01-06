@@ -60,7 +60,7 @@ function compileMultipleLayer(layers: string[], fileNode: CompositeGeneratorNode
 function compileLayer(layer: Layer, layerIndex: number, fileNode: CompositeGeneratorNode): string {
     const clips: string[] = [];
     layer.clips.forEach((clip, clipIndex) => {
-        const clipVar = `clip_${layerIndex}_${clipIndex}`;
+        const clipVar = clip.clipName;
         generateProgramBody(clipVar,clip,fileNode)
         
         clips.push(clipVar); 
@@ -206,7 +206,6 @@ function compileZoomEffect(effect:ZoomEffect,clipVar:string,fileNode: CompositeG
 }
 
 function compileGrayscaleEffect(effect:GrayscaleEffect,clipVar:string,fileNode: CompositeGeneratorNode):void{
-    //clip_0_0 = BlackAndWhite(RGB='CRT_phosphor', preserve_luminosity=True).apply(clip_0_0)
     const from = effect.intervall?.find(prop => prop.begin !== undefined)?.begin || null;
     const to = effect.intervall?.find(prop => prop.end !== undefined)?.end || null;
 
@@ -214,7 +213,7 @@ function compileGrayscaleEffect(effect:GrayscaleEffect,clipVar:string,fileNode: 
         fileNode.appendNewLine();
         fileNode.append(`${clipVar}_before = ${clipVar}.subclipped(0, ${from})`);
         fileNode.appendNewLine();
-        fileNode.append(`${clipVar}_gray = BlackAndWhite(RGB='CRT_phosphor', preserve_luminosity=True).apply(clip_0_0.subclipped(${from}, ${to}))`);
+        fileNode.append(`${clipVar}_gray = BlackAndWhite(RGB='CRT_phosphor', preserve_luminosity=True).apply(${clipVar}.subclipped(${from}, ${to}))`);
         fileNode.appendNewLine();
         fileNode.append(`${clipVar}_after = ${clipVar}.subclipped(${to})`);
         fileNode.appendNewLine();
@@ -224,7 +223,7 @@ function compileGrayscaleEffect(effect:GrayscaleEffect,clipVar:string,fileNode: 
         fileNode.appendNewLine();
     } else {
        
-        fileNode.append(`${clipVar} = BlackAndWhite(RGB='CRT_phosphor', preserve_luminosity=True).apply(clip_0_0)`);
+        fileNode.append(`${clipVar} = BlackAndWhite(RGB='CRT_phosphor', preserve_luminosity=True).apply(${clipVar})`);
         fileNode.appendNewLine();
     }
 

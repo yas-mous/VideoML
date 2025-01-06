@@ -39,7 +39,7 @@ Subtitle:
     '}';
 
 VideoClip:
-    '|Video' '@' videoName=ID sourceFile=STRING (',' properties+=ClipProperty)* ('~' effects+=Effect)* NL;
+    '|Video' '@' clipName=ID sourceFile=STRING (',' properties+=ClipProperty)* ('~' effects+=Effect)* NL;
 
 Effect:
     CropEffect | FreezingEffect | ZoomEffect | GrayscaleEffect | FadeInEffect | FadeOutEffect ;
