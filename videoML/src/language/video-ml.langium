@@ -17,16 +17,10 @@ ClipProperty:
     'to'end=INT |
     'start' positionInTimeline=INT |
     'subtitle:' subtitle=Subtitle |
-    'stack:' stack=Stacking;
-
-
-Stacking:
-    '{'
-        'clip:' stackClip=STRING ','
-        'position:' stackPosition=STRING ','
-        'width:' stackWidth=INT ','
-        'height:' stackHeight=INT
-    '}';
+    'after' after=INT |
+    'position:' position=STRING |
+    'width:' width=INT |
+    'height:' height=INT;
 
 Subtitle:
     '{'

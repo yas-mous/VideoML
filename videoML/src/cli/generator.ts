@@ -2,7 +2,7 @@ import { CompositeGeneratorNode, toString } from 'langium/generate';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { extractDestinationAndName } from './cli-util.js';
-import { TimeLine, Clip, Layer, isVideoClip, Effect, VideoClip, CropEffect, FreezingEffect, ZoomEffect, isCropEffect, isFreezingEffect, isZoomEffect, Subtitle, Stacking,FadeOutEffect ,FadeInEffect , isFadeOutEffect , isFadeInEffect, isGrayscaleEffect, GrayscaleEffect } from '../language/generated/ast.js';
+import { TimeLine, Clip, Layer, isVideoClip, Effect, VideoClip, CropEffect, FreezingEffect, ZoomEffect, isCropEffect, isFreezingEffect, isZoomEffect, Subtitle,FadeOutEffect ,FadeInEffect , isFadeOutEffect , isFadeInEffect, isGrayscaleEffect, GrayscaleEffect } from '../language/generated/ast.js';
 import { hasClipProperties } from './utils.js';
 
 export function generatepython(timeline: TimeLine, filePath: string, destination: string | undefined): string {
@@ -39,21 +39,10 @@ function compileTimeline(timeline: TimeLine, fileNode: CompositeGeneratorNode): 
         fileNode.append(`final_video = ${layers[0]}`);
         fileNode.appendNewLine();
     } else {
-        compileMultipleLayer(layers, fileNode);
+        compileMultipleLayers(layers, fileNode);
     }
 
     fileNode.append(`final_video.write_videofile("${timeline.name}.mp4", fps=24)`);
-    fileNode.appendNewLine();
-}
-
-function compileMultipleLayer(layers: string[], fileNode: CompositeGeneratorNode): void {
-    fileNode.append("final_video = CompositeVideoClip([");
-    fileNode.appendNewLine();
-    layers.forEach((layer) => {
-        fileNode.append(`    ${layer},`);
-        fileNode.appendNewLine();
-    });
-    fileNode.append(`])`);
     fileNode.appendNewLine();
 }
 
@@ -63,6 +52,45 @@ function compileLayer(layer: Layer, layerIndex: number, fileNode: CompositeGener
         const clipVar = clip.clipName;
         generateProgramBody(clipVar,clip,fileNode)
         
+        if (layerIndex > 0 && hasClipProperties(clip)) {
+            const after = clip.properties.find(prop => prop.after !== undefined)?.after;
+            let position = clip.properties.find(prop => prop.position !== undefined)?.position;
+            const width = clip.properties.find(prop => prop.width !== undefined)?.width;
+            const height = clip.properties.find(prop => prop.height !== undefined)?.height;
+
+            if (position == "bottom-left" || position == "left-bottom") {
+                position = "'left', 'bottom'";
+            }else if (position == "bottom-right" || position == "right-bottom") {
+                position = "'right', 'bottom'";
+            }else if (position == "top-left" || position == "left-top") {
+                position = "'left', 'top'";
+            }else if (position == "top-right" || position == "right-top") {
+                position = "'right', 'top'";
+            }else if (position == "center") {
+                position = "'center', 'center'";
+            }
+            
+            if (after !== undefined) {
+                fileNode.append(`${clipVar} = ${clipVar}.with_start(${after})`);
+                fileNode.appendNewLine();
+            }
+            
+            if (position !== undefined) {
+                fileNode.append(`${clipVar} = ${clipVar}.with_position((${position}))`);
+                fileNode.appendNewLine();
+            }
+
+            if (width !== undefined) {
+                fileNode.append(`${clipVar} = ${clipVar}.resized(width=${width})`);
+                fileNode.appendNewLine();
+            }
+
+            if (height !== undefined) {
+                fileNode.append(`${clipVar} = ${clipVar}.resized(height=${height})`);
+                fileNode.appendNewLine();
+            }
+        }
+
         clips.push(clipVar); 
 
     });
@@ -101,11 +129,6 @@ function compileClip(clip: Clip): string {
     if (isVideoClip(clip)) {
         let clipCode = compileVideoClip(clip);
         clipCode = cutClip(clip, clipCode);
-
-        const stacking = clip.properties.find(prop => prop.stack !== undefined)?.stack;
-        if (stacking) {
-            clipCode = addStackingToClip(clipCode, stacking);
-        }
 
         const subtitle = clip.properties.find(prop => prop.subtitle !== undefined)?.subtitle;
         if (subtitle) {
@@ -283,28 +306,6 @@ function generateProgramBody(clipVar: string,clip:Clip, fileNode:CompositeGenera
 }
 
 
-function addStackingToClip(clipCode: string, stacking: Stacking): string {
-    const stackClip = stacking.stackClip;
-    const position = stacking.stackPosition || "top-right";
-    const width = stacking.stackWidth || 250;
-    const height = stacking.stackHeight || 200;
-
-    const positionMap: Record<string, string> = {
-        "top-right": "('right', 'top')",
-        "top-left": "('left', 'top')",
-        "bottom-right": "('right', 'bottom')",
-        "bottom-left": "('left', 'bottom')",
-        "center": "('center', 'center')"
-    };
-
-    const positionCode = positionMap[position] || "('right', 'top')";
-    return `CompositeVideoClip([
-                ${clipCode},
-                VideoFileClip("${stackClip}").resize(height=${height}).resize(width=${width}).with_position(${positionCode})
-            ])`;
-}
-
-
 function compileFadeOutEffect(effect: FadeOutEffect, clipVar: string, fileNode: CompositeGeneratorNode): void {
     fileNode.append(`${clipVar} = ${clipVar}.with_effects([vfx.CrossFadeOut(${effect.duration})])`);
     fileNode.appendNewLine();
@@ -312,5 +313,16 @@ function compileFadeOutEffect(effect: FadeOutEffect, clipVar: string, fileNode: 
 
 function compileFadeInEffect(effect: FadeInEffect, clipVar: string, fileNode: CompositeGeneratorNode): void {
     fileNode.append(`${clipVar} = ${clipVar}.with_effects([vfx.CrossFadeIn(${effect.duration})])`);
+    fileNode.appendNewLine();
+}
+
+function compileMultipleLayers(layerClips: string[], fileNode: CompositeGeneratorNode): void {
+    fileNode.append("final_video = CompositeVideoClip([");
+    fileNode.appendNewLine();
+    layerClips.forEach((layer) => {
+        fileNode.append(`    ${layer},`);
+        fileNode.appendNewLine();
+    });
+    fileNode.append("])");
     fileNode.appendNewLine();
 }
