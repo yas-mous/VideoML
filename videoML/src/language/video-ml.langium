@@ -6,7 +6,7 @@ entry TimeLine:
     '}';
 
 Layer:
-    '---'NL
+    '---''@' layerName=ID NL
     elements+=LayerElement*;
 
 LayerElement:
@@ -17,10 +17,32 @@ Clip:
 
 ClipProperty:
     'from'begin=INT |
-    'to'end=INT ;
+    'to'end=INT |
+    'start' positionInTimeline=INT |
+    'subtitle:' subtitle=Subtitle |
+    'stack:' stack=Stacking;
+
+
+Stacking:
+    '{'
+        'clip:' stackClip=STRING ','
+        'position:' stackPosition=STRING ','
+        'width:' stackWidth=INT ','
+        'height:' stackHeight=INT
+    '}';
+
+Subtitle:
+    '{'
+        'text:' text=STRING ','
+        'start:' start=INT ','
+        'duration:' duration=INT
+        (',' 'color:' color=STRING)?
+        (',' 'position:' position=STRING)?
+        (',' 'bg_color:' bg_color=STRING)?
+    '}';
 
 VideoClip:
-    '|Video' sourceFile=STRING (',' properties+=ClipProperty)* ('~' effects+=Effect)* NL;
+    '|Video' '@' clipName=ID sourceFile=STRING (',' properties+=ClipProperty)* ('~' effects+=Effect)* NL;
 
 AudiosClip:
      ( audios+=AudioClip)* NL;
@@ -31,26 +53,36 @@ Effect:
     AudioEffect | VideoEffect;
 
 VideoEffect:
-    CropEffect | FreezingEffect | ZoomEffect | AdjustmentEffect;
+    CropEffect | FreezingEffect | ZoomEffect | GrayscaleEffect | FadeInEffect | FadeOutEffect ;
 AudioEffect:
     VolumeEffect | LoopEffect;
 
 CropEffect:
-    'crop'  x=INT ',' y=INT ',' width=INT ',' height=INT ;
+    'crop'  ('x' x=INT ',' 'y' y=INT ',' | 'x_center' x_center=INT ',' 'y_center' y_center=INT ) 'width' width=INT ',' 'height' height=INT (',' intervall+=Intervall)*;
 
 FreezingEffect:
-    'freeze' begin=INT '->' frameSeconds=INT;
+    'freeze' begin=INT '+' frameSeconds=INT;
 
 ZoomEffect:
-    'zoom'  x=INT ',' y=INT ',' width=INT ',' height=INT ;
+    'zoom'  resizeFactor=STRING (',' intervall+=Intervall)*;
 
-AdjustmentEffect:
-    'adjust' ('brightness:' brightness=FLOAT)? (',' 'saturation:' saturation=FLOAT)? ;
+GrayscaleEffect:
+    'grayscale' (',' intervall+=Intervall)*;
+
+FadeInEffect:
+    'fadein' ('duration:' duration=INT);
+
+FadeOutEffect:
+    'fadeout' ('duration:' duration=INT);
+
+Intervall:
+    'from'begin=INT |
+    'to'end=INT ;
+
 VolumeEffect:
     'volume' '(' 'x' volume=INT (properties+=ClipProperty)* ')';
 LoopEffect:
     'loop' ( 'x'n_times=INT | duration=INT 's' )?;
-
 hidden terminal WS: /\s+/;
 terminal ID: /[_a-zA-Z][\w_]*/;
 terminal INT returns number: /[0-9]+/;
