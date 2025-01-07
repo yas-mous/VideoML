@@ -1,5 +1,10 @@
-timeline myVideo {
-    ---
-    |Video 'videos/video1.mp4', subtitle: {text: 'Bienvenue', start: 1, duration: 5}
-    |Video'videos/video2.mp4',from 3, to 10
+timeline my_video {
+    ---@layer1
+    |Video @v1 'videos/Video2.mp4'
+    ---@subtitles
+    |Subtitle @sub1 {
+        text: 'Hello World',
+        start: 0, 
+        duration: 5, color: 'white', position: 'bottom'
+    }
 }

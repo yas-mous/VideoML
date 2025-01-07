@@ -1,5 +1,5 @@
 import type { ValidationAcceptor, ValidationChecks } from 'langium';
-import type { VideoMlAstType, Subtitle, VideoClip, TimeLine } from './generated/ast.js';
+import type { VideoMlAstType, TimeLine } from './generated/ast.js';
 import type { VideoMlServices } from './video-ml-module.js';
 
 
@@ -11,8 +11,8 @@ export function registerValidationChecks(services: VideoMlServices) {
     const validator = services.validation.VideoMlValidator;
     const checks: ValidationChecks<VideoMlAstType> = {
         TimeLine: validator.checkRequiredArgument,
-        Subtitle: validator.checkSubtitle,
-        Clip:validator.checkClipProperties,
+        //Subtitle: validator.checkSubtitle,
+        //Clip:validator.checkClipProperties,
     };
     registry.register(checks, validator);
 }
@@ -31,7 +31,7 @@ export class VideoMlValidator {
 
 
 
-    checkSubtitle(subtitle: Subtitle, accept: ValidationAcceptor): void {
+    /*checkSubtitle(subtitle: Subtitle, accept: ValidationAcceptor): void {
         // Check that text is a string and not empty
         if (typeof subtitle.text !== 'string' || subtitle.text.trim() === "") {
             accept('error', 'Subtitle text must be a non-empty string.', { node: subtitle, property: 'text' });
@@ -58,10 +58,10 @@ export class VideoMlValidator {
         if (subtitle.position && !['top', 'center', 'bottom'].includes(subtitle.position)) {
             accept('warning', 'Subtitle position must be one of "top", "center", or "bottom".', { node: subtitle, property: 'position' });
         }
-    }
+    }*/
 
 
-    checkClipProperties(clip: VideoClip, accept: ValidationAcceptor): void {
+    /*checkClipProperties(clip: VideoClip, accept: ValidationAcceptor): void {
         //console.log('Processing Clip:', clip);  
         //console.log('Clip properties:', clip.properties);
 
@@ -86,7 +86,7 @@ export class VideoMlValidator {
         } else {
             console.log('No ClipProperties found in the clip.');
         }
-    }
+    }*/
     
     
     

@@ -10,27 +10,26 @@ Layer:
     clips+=Clip*;
 
 Clip:
-    VideoClip ;
+    VideoClip | SubtitleClip;
 
 ClipProperty:
     'from'begin=INT |
     'to'end=INT |
     'start' positionInTimeline=INT |
-    'subtitle:' subtitle=Subtitle |
     'after' after=INT |
     'position:' position=STRING |
     'width:' width=INT |
     'height:' height=INT;
 
-Subtitle:
-    '{'
-        'text:' text=STRING ',' 
-        'start:' start=INT ',' 
+SubtitleClip:
+    '|Subtitle' '@' clipName=ID '{' NL
+        'text:' text=STRING ',' NL
+        'start:' start=INT ','
         'duration:' duration=INT 
-        (',' 'color:' color=STRING)? 
+        (',' 'color:' color=STRING)?
         (',' 'position:' position=STRING)?
-        (',' 'bg_color:' bg_color=STRING)?
-    '}';
+        (',' 'bg_color:' bg_color=STRING)? NL
+    '}'NL;
 
 VideoClip:
     '|Video' '@' clipName=ID sourceFile=STRING (',' properties+=ClipProperty)* ('~' effects+=Effect)* NL;

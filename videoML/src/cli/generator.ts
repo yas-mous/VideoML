@@ -2,7 +2,7 @@ import { CompositeGeneratorNode, toString } from 'langium/generate';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { extractDestinationAndName } from './cli-util.js';
-import { TimeLine, Clip, Layer, isVideoClip, Effect, VideoClip, CropEffect, FreezingEffect, ZoomEffect, isCropEffect, isFreezingEffect, isZoomEffect, Subtitle,FadeOutEffect ,FadeInEffect , isFadeOutEffect , isFadeInEffect, isGrayscaleEffect, GrayscaleEffect } from '../language/generated/ast.js';
+import { TimeLine, Clip, Layer, isVideoClip, Effect, VideoClip, CropEffect, FreezingEffect, ZoomEffect, isCropEffect, isFreezingEffect, isZoomEffect,FadeOutEffect ,FadeInEffect , isFadeOutEffect , isFadeInEffect, isGrayscaleEffect, GrayscaleEffect, isSubtitleClip,SubtitleClip } from '../language/generated/ast.js';
 import { hasClipProperties } from './utils.js';
 
 export function generatepython(timeline: TimeLine, filePath: string, destination: string | undefined): string {
@@ -52,42 +52,44 @@ function compileLayer(layer: Layer, layerIndex: number, fileNode: CompositeGener
         const clipVar = clip.clipName;
         generateProgramBody(clipVar,clip,fileNode)
         
-        if (layerIndex > 0 && hasClipProperties(clip)) {
-            const after = clip.properties.find(prop => prop.after !== undefined)?.after;
-            let position = clip.properties.find(prop => prop.position !== undefined)?.position;
-            const width = clip.properties.find(prop => prop.width !== undefined)?.width;
-            const height = clip.properties.find(prop => prop.height !== undefined)?.height;
+        if ( isVideoClip(clip) && clip.effects.length > 0) {
+            if (layerIndex > 0 && hasClipProperties(clip)) {
+                const after = clip.properties.find(prop => prop.after !== undefined)?.after;
+                let position = clip.properties.find(prop => prop.position !== undefined)?.position;
+                const width = clip.properties.find(prop => prop.width !== undefined)?.width;
+                const height = clip.properties.find(prop => prop.height !== undefined)?.height;
 
-            if (position == "bottom-left" || position == "left-bottom") {
-                position = "'left', 'bottom'";
-            }else if (position == "bottom-right" || position == "right-bottom") {
-                position = "'right', 'bottom'";
-            }else if (position == "top-left" || position == "left-top") {
-                position = "'left', 'top'";
-            }else if (position == "top-right" || position == "right-top") {
-                position = "'right', 'top'";
-            }else if (position == "center") {
-                position = "'center', 'center'";
-            }
-            
-            if (after !== undefined) {
-                fileNode.append(`${clipVar} = ${clipVar}.with_start(${after})`);
-                fileNode.appendNewLine();
-            }
-            
-            if (position !== undefined) {
-                fileNode.append(`${clipVar} = ${clipVar}.with_position((${position}))`);
-                fileNode.appendNewLine();
-            }
+                if (position == "bottom-left" || position == "left-bottom") {
+                    position = "'left', 'bottom'";
+                }else if (position == "bottom-right" || position == "right-bottom") {
+                    position = "'right', 'bottom'";
+                }else if (position == "top-left" || position == "left-top") {
+                    position = "'left', 'top'";
+                }else if (position == "top-right" || position == "right-top") {
+                    position = "'right', 'top'";
+                }else if (position == "center") {
+                    position = "'center', 'center'";
+                }
+                
+                if (after !== undefined) {
+                    fileNode.append(`${clipVar} = ${clipVar}.with_start(${after})`);
+                    fileNode.appendNewLine();
+                }
+                
+                if (position !== undefined) {
+                    fileNode.append(`${clipVar} = ${clipVar}.with_position((${position}))`);
+                    fileNode.appendNewLine();
+                }
 
-            if (width !== undefined) {
-                fileNode.append(`${clipVar} = ${clipVar}.resized(width=${width})`);
-                fileNode.appendNewLine();
-            }
+                if (width !== undefined) {
+                    fileNode.append(`${clipVar} = ${clipVar}.resized(width=${width})`);
+                    fileNode.appendNewLine();
+                }
 
-            if (height !== undefined) {
-                fileNode.append(`${clipVar} = ${clipVar}.resized(height=${height})`);
-                fileNode.appendNewLine();
+                if (height !== undefined) {
+                    fileNode.append(`${clipVar} = ${clipVar}.resized(height=${height})`);
+                    fileNode.appendNewLine();
+                }
             }
         }
 
@@ -129,12 +131,9 @@ function compileClip(clip: Clip): string {
     if (isVideoClip(clip)) {
         let clipCode = compileVideoClip(clip);
         clipCode = cutClip(clip, clipCode);
-
-        const subtitle = clip.properties.find(prop => prop.subtitle !== undefined)?.subtitle;
-        if (subtitle) {
-            clipCode = addSubtitleToClip(clipCode, subtitle);  
-        }
         return clipCode;
+    }else if(isSubtitleClip(clip)){
+        return addSubtitleToClip(clip);
     }
     else{
         //a ajouter audioClip ....
@@ -253,7 +252,7 @@ function compileGrayscaleEffect(effect:GrayscaleEffect,clipVar:string,fileNode: 
 }
 
 function cutClip(clip : Clip,clipCode:string) : string {
-    if (hasClipProperties(clip)) {
+    if (hasClipProperties(clip) && isVideoClip(clip)) {
         const begin = clip.properties.find(prop => prop.begin !== undefined)?.begin || 0;
         const end = clip.properties.find(prop => prop.end !== undefined)?.end || null;
 
@@ -272,37 +271,34 @@ function cutClip(clip : Clip,clipCode:string) : string {
 
 
 
-function addSubtitleToClip(clipCode: string, subtitle: Subtitle): string {
-    const text = subtitle.text || "Subtitle";
-    const start = subtitle.start || 0;
-    const duration = subtitle.duration || 0;
-    const color = subtitle.color || "white";
-    const bg_color = subtitle.bg_color || "black";
-    const position = subtitle.position || "bottom";
+function addSubtitleToClip(clip: SubtitleClip): string {
+    const text = clip.text;
+    const start = clip.start;
+    const duration = clip.duration;
+    const color = clip.color || "none";
+    const bg_color = clip.bg_color || "black";
+    const position = clip.position || "bottom";
 
-    return `CompositeVideoClip([
-            ${clipCode},
-            TextClip(
-                font="font/font.ttf",
-                text="${text}",
-                font_size=24,
-                color='${color}',
-                bg_color='${bg_color}'
-            )
-            .with_start(${start})
-            .with_duration(${duration})
-            .with_position('${position}')
-        ])
-    `;
+
+    return `TextClip(
+        text="${text}",
+        font="font/font.ttf",
+        font_size=24,
+        color='${color}',
+        bg_color='${bg_color}'
+    ).with_start(${start}).with_duration(${duration}).with_position('${position}')`;
 }
 
 function generateProgramBody(clipVar: string,clip:Clip, fileNode:CompositeGeneratorNode):void {
     const clipCode = compileClip(clip);
     fileNode.append(`${clipVar} = ${clipCode}`); 
     fileNode.appendNewLine();
-    clip.effects.forEach(effect => {
-        compileEffect(effect,clipVar,fileNode);
-    });
+    if (isVideoClip(clip)){
+        clip.effects.forEach(effect => {
+            compileEffect(effect,clipVar,fileNode);
+        });
+    }
+    
 }
 
 
