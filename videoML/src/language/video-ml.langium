@@ -10,7 +10,8 @@ Layer:
     elements+=LayerElement*;
 
 LayerElement:
-    VideoClip | AudiosClip|AudioClip;
+    VideoClip | AudiosClip| AudioClip | SubtitleClip;
+
 Clip:
     VideoClip | SubtitleClip | AudioClip;
 

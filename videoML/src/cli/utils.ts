@@ -1,6 +1,6 @@
-import { Clip,isVideoClip } from "../language/generated/ast.js";
+import { LayerElement,isVideoClip } from "../language/generated/ast.js";
 
-export function hasClipProperties(clip: Clip): boolean {
+export function hasClipProperties(clip: LayerElement): boolean {
     if (!isVideoClip(clip)) {
         return false;
     }else{

@@ -1,0 +1,5 @@
+timeline myVideo {
+    ---@layer1
+    |Video @V1 'videos/video1.mp4',from 5,to 8
+    |Video @v2 'videos/video2.mp4',from 10, to 14 ~freeze 2+3
+}
