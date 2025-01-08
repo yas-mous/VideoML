@@ -1,5 +1,6 @@
 import type { ValidationAcceptor, ValidationChecks } from 'langium';
-import type { VideoMlAstType, TimeLine } from './generated/ast.js';
+//import Clip
+import type {VideoMlAstType, TimeLine} from './generated/ast.js';
 import type { VideoMlServices } from './video-ml-module.js';
 
 
@@ -61,8 +62,9 @@ export class VideoMlValidator {
     }*/
 
 
-    /*checkClipProperties(clip: VideoClip, accept: ValidationAcceptor): void {
-        //console.log('Processing Clip:', clip);  
+    /*checkClipProperties(clip: Clip, accept: ValidationAcceptor): void {
+
+        //console.log('Processing Clip:', clip);
         //console.log('Clip properties:', clip.properties);
 
         if (clip.properties && Array.isArray(clip.properties)) {
