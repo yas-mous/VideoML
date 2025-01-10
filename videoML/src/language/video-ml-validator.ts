@@ -12,7 +12,10 @@ export function registerValidationChecks(services: VideoMlServices) {
     const registry = services.validation.ValidationRegistry;
     const validator = services.validation.VideoMlValidator;
     const checks: ValidationChecks<VideoMlAstType> = {
-        TimeLine: validator.checkRequiredArgument,
+        TimeLine: [
+            validator.checkRequiredArgument,
+            validator.checkUniqueNames,
+        ],
         LayerElement:validator.checkClipProperties,
     };
     registry.register(checks, validator);
@@ -28,6 +31,21 @@ export class VideoMlValidator {
         if(!timeline.name) {
             accept('error', 'Video name is missing.', { node: timeline, property: 'name' });
         }
+    }
+
+    checkUniqueNames(timeline: TimeLine, accept: ValidationAcceptor): void {
+        const globalNameSet = new Set<string>();
+        timeline.layers.forEach(layer =>{
+            if (globalNameSet.has(layer.layerName)) {
+                accept('error', `Duplicate layer name: ${layer.layerName}`, { node: layer, property: 'layerName' });
+            }
+            globalNameSet.add(layer.layerName);
+            layer.elements.forEach(element =>{
+                if(globalNameSet.has(element.clipName)){
+                    accept('error', `Duplicate element name: ${element.clipName}`, { node: element, property: 'clipName' });
+                }
+            })
+        })
     }
 
     checkClipProperties(clip: LayerElement, accept: ValidationAcceptor): void {

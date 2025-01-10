@@ -12,9 +12,6 @@ Layer:
 LayerElement:
     VideoClip | AudiosClip| AudioClip | SubtitleClip;
 
-Clip:
-    VideoClip | SubtitleClip | AudioClip;
-
 ClipProperty:
     'from'begin=INT |
     'to'end=INT |
@@ -47,6 +44,7 @@ Effect:
 
 VideoEffect:
     CropEffect | FreezingEffect | ZoomEffect | GrayscaleEffect | FadeInEffect | FadeOutEffect ;
+
 AudioEffect:
     VolumeEffect | LoopEffect;
 
@@ -74,8 +72,10 @@ Intervall:
 
 VolumeEffect:
     'volume' '(' 'x' volume=INT (properties+=ClipProperty)* ')';
+
 LoopEffect:
     'loop' ( 'x'n_times=INT | duration=INT 's' )?;
+
 hidden terminal WS: /\s+/;
 terminal ID: /[_a-zA-Z][\w_]*/;
 terminal INT returns number: /[0-9]+/;
