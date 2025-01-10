@@ -1,7 +1,7 @@
 import type { ValidationAcceptor, ValidationChecks } from 'langium';
 //import Clip
-import type {VideoMlAstType, TimeLine,LayerElement } from './generated/ast.js';
-import {isVideoClip } from './generated/ast.js';
+import type {VideoMlAstType, TimeLine,LayerElement, ClipProperty, Intervall } from './generated/ast.js';
+import {isAudioClip, isVideoClip } from './generated/ast.js';
 import type { VideoMlServices } from './video-ml-module.js';
 
 
@@ -17,6 +17,8 @@ export function registerValidationChecks(services: VideoMlServices) {
             validator.checkUniqueNames,
         ],
         LayerElement:validator.checkClipProperties,
+        ClipProperty:validator.checkFromTo,
+        Intervall:validator.checkInterval
     };
     registry.register(checks, validator);
 }
@@ -48,35 +50,43 @@ export class VideoMlValidator {
         })
     }
 
-    checkClipProperties(clip: LayerElement, accept: ValidationAcceptor): void {
 
-        //console.log('Processing Clip:', clip);
-        //console.log('Clip properties:', clip.properties);
-
-        if ( isVideoClip(clip) && clip.properties && Array.isArray(clip.properties)) {
-            clip.properties.forEach(prop => {
-                //console.log("Checking ClipProperty:", prop.begin, prop.end);
-    
-                if (prop.begin !== undefined) {
-                    if (!Number.isInteger(prop.begin)) {
-                        console.log('Invalid begin value:', prop.begin);
-                        accept('error', 'Clip property "from" must be an integer.', { node: prop, property: 'begin' });
-                    }
-                }
-    
-                if (prop.end !== undefined) {
-                    if (!Number.isInteger(prop.end)) {
-                        console.log('Invalid end value:', prop.end);    
-                        accept('error', 'Clip property "to" must be an integer.', { node: prop, property: 'end' });
-                    }
-                }
-            });
-        } else {
-            console.log('No ClipProperties found in the clip.');
+    checkFromTo(clipProp:ClipProperty, accept: ValidationAcceptor): void {
+        console.log('Checking ClipProperty:', clipProp.begin, clipProp.end);
+        if(clipProp.begin !== undefined && clipProp.end !== undefined && clipProp.begin >= clipProp.end){
+            console.log('Error: Clip property from:', clipProp.begin, 'must be less than to:', clipProp.end);
+            accept('error', `Clip property from : ${clipProp.begin} must be less than to ${clipProp.end}.`, { node: clipProp, property: 'begin' });
         }
     }
+
+    checkInterval(interval:Intervall, accept: ValidationAcceptor): void {
+        console.log('Checking Interval:', interval.begin, interval.end);
+        if(interval.begin !== undefined && interval.end !== undefined && interval.begin >= interval.end){
+            console.log('Error: Interval from:', interval.begin, 'must be less than to:', interval.end);
+            accept('error', `Interval from : ${interval.begin} must be less than to ${interval.end}.`, { node: interval, property: 'begin' });
+        }
+    }
+
+    checkClipProperties(clip: LayerElement, accept: ValidationAcceptor): void {
+        if ((isVideoClip(clip)||isAudioClip(clip)) && clip.properties && Array.isArray(clip.properties)) {
+            let beginValue: number | undefined = undefined;
+            let endValue: number | undefined = undefined;
     
+            clip.properties.forEach(prop => {
+                if (prop.begin !== undefined) {
+                    beginValue = prop.begin;  
+                }
+                if (prop.end !== undefined) {
+                    endValue = prop.end; 
+                }
+            });
     
-    
+            if (beginValue !== undefined && endValue !== undefined) {
+                if (beginValue >= endValue) {
+                    accept('error', `Clip property 'from':${beginValue} must be less than 'to':${endValue}.`, { node: clip, property: 'properties' });
+                }
+            } 
+        } 
+    }
         
 }
