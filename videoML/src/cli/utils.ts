@@ -8,3 +8,19 @@ export function hasClipProperties(clip: LayerElement): boolean {
     }
     
 }
+
+export function hasFrom(clip: LayerElement): boolean {
+    if (!isVideoClip(clip)) {
+        return false;
+    }else{
+        return clip.properties.some(prop => prop.begin !== undefined);
+    }
+}
+
+export function hasEnd(clip: LayerElement): boolean {
+    if (!isVideoClip(clip)) {
+        return false;
+    }else{
+        return clip.properties.some(prop => prop.end !== undefined);
+    }
+}
