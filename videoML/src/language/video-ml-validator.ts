@@ -1,8 +1,9 @@
 import type { ValidationAcceptor, ValidationChecks } from 'langium';
 //import Clip
-import type {VideoMlAstType, TimeLine,LayerElement } from './generated/ast.js';
-import {isVideoClip } from './generated/ast.js';
+import type {VideoMlAstType, TimeLine,LayerElement, VideoClip } from './generated/ast.js';
+import {isAudioClip, isVideoClip, isVideoEffect } from './generated/ast.js';
 import type { VideoMlServices } from './video-ml-module.js';
+import { hasEnd, hasFrom } from '../cli/utils.js';
 
 
 /**
@@ -12,8 +13,13 @@ export function registerValidationChecks(services: VideoMlServices) {
     const registry = services.validation.ValidationRegistry;
     const validator = services.validation.VideoMlValidator;
     const checks: ValidationChecks<VideoMlAstType> = {
-        TimeLine: validator.checkRequiredArgument,
+        TimeLine: [
+            validator.checkRequiredArgument,
+            validator.checkValidVideoExtension,
+            validator.checkUniqueNames,
+        ],
         LayerElement:validator.checkClipProperties,
+        VideoClip: validator.checkVideoClipEffects,
     };
     registry.register(checks, validator);
 }
@@ -22,43 +28,149 @@ export function registerValidationChecks(services: VideoMlServices) {
  * Implementation of custom validations.
  */
 export class VideoMlValidator {
+    private supportedExtensions: string[] = ['mp4', 'avi', 'mkv', 'mov', 'flv', 'webm'];
+
 
     checkRequiredArgument(timeline: TimeLine, accept: ValidationAcceptor): void {
         
         if(!timeline.name) {
             accept('error', 'Video name is missing.', { node: timeline, property: 'name' });
         }
+    
+    }
+
+    checkValidVideoExtension(timeline: TimeLine, accept: ValidationAcceptor): void {
+        const extension = timeline.extension || 'mp4';  // Utilise 'mp4' par défaut si pas spécifié
+
+        if (!this.supportedExtensions.includes(extension)) {
+            const validExtensionsList = this.supportedExtensions.map(ext => `- ${ext}`).join('\n');
+    
+            accept('error', `Invalid video extension: ${extension}.\nSupported extensions are:\n${validExtensionsList}`, { node: timeline, property: 'extension' });
+        }
+    }
+
+    checkUniqueNames(timeline: TimeLine, accept: ValidationAcceptor): void {
+        const globalNameSet = new Set<string>();
+        timeline.layers.forEach(layer =>{
+            if (globalNameSet.has(layer.layerName)) {
+                accept('error', `Duplicate layer name: ${layer.layerName}`, { node: layer, property: 'layerName' });
+            }
+            globalNameSet.add(layer.layerName);
+            layer.elements.forEach(element =>{
+                if(globalNameSet.has(element.clipName)){
+                    accept('error', `Duplicate element name: ${element.clipName}`, { node: element, property: 'clipName' });
+                }
+            })
+        })
     }
 
     checkClipProperties(clip: LayerElement, accept: ValidationAcceptor): void {
-
-        //console.log('Processing Clip:', clip);
-        //console.log('Clip properties:', clip.properties);
-
-        if ( isVideoClip(clip) && clip.properties && Array.isArray(clip.properties)) {
+        if ((isVideoClip(clip)||isAudioClip(clip)) && clip.properties && Array.isArray(clip.properties)) {
+            let beginValue: number | undefined = undefined;
+            let endValue: number | undefined = undefined;
+    
             clip.properties.forEach(prop => {
-                //console.log("Checking ClipProperty:", prop.begin, prop.end);
-    
                 if (prop.begin !== undefined) {
-                    if (!Number.isInteger(prop.begin)) {
-                        console.log('Invalid begin value:', prop.begin);
-                        accept('error', 'Clip property "from" must be an integer.', { node: prop, property: 'begin' });
-                    }
+                    beginValue = prop.begin;  
                 }
-    
                 if (prop.end !== undefined) {
-                    if (!Number.isInteger(prop.end)) {
-                        console.log('Invalid end value:', prop.end);    
-                        accept('error', 'Clip property "to" must be an integer.', { node: prop, property: 'end' });
-                    }
+                    endValue = prop.end; 
                 }
             });
-        } else {
-            console.log('No ClipProperties found in the clip.');
+    
+            if (beginValue !== undefined && endValue !== undefined) {
+                if (beginValue >= endValue) {
+                    accept('error', `Clip property 'from':${beginValue} must be less than 'to':${endValue}.`, { node: clip, property: 'properties' });
+                }
+            } 
+        } 
+    }
+
+    checkVideoClipEffects(clip: VideoClip, accept: ValidationAcceptor): void {
+        if (isVideoClip(clip) && clip.effects && Array.isArray(clip.effects)) {
+            const endProperty = clip.properties.find(prop => prop.end !== undefined);
+            const beginProperty = clip.properties.find(prop => prop.begin !== undefined);
+
+            if (hasFrom(clip) && hasEnd(clip)) {
+                const videoDuration = this.getVideoDuration(beginProperty, endProperty);
+
+                clip.effects.forEach(effect => {
+                    if (isVideoEffect(effect) && videoDuration !== undefined) {
+                        if ('intervall' in effect && Array.isArray(effect.intervall)) {
+                            effect.intervall.forEach(interval => {
+                                const { begin, end } = this.extractIntervalValues(interval);
+
+                                if (begin !== undefined && (begin < 0 || begin > videoDuration)) {
+                                    accept('error', `Effect 'from':${begin} is out of bounds (0 to ${videoDuration}).`, { node: effect, property: 'intervall' });
+                                }
+
+                                if (end !== undefined && (end < 0 || end > videoDuration)) {
+                                    accept('error', `Effect 'to':${end} is out of bounds (0 to ${videoDuration}).`, { node: effect, property: 'intervall' });
+                                }
+
+                                if (begin !== undefined && end !== undefined && begin >= end) {
+                                    accept('error', `Effect interval 'from':${begin} must be less than 'to':${end}.`, { node: effect, property: 'intervall' });
+                                }
+                            });
+                        }
+                    }
+                });
+            }
+
+            else if (hasEnd(clip) && !hasFrom(clip)) {
+                console.log('hasEnd && !hasFrom');
+                const videoDuration = endProperty?.end !== undefined && beginProperty?.begin !== undefined ? endProperty.end - beginProperty.begin : undefined;
+
+                clip.effects.forEach(effect => {
+                    if (isVideoEffect(effect) ) {
+                        console.log('videoDuration',videoDuration);
+                        if ('intervall' in effect && Array.isArray(effect.intervall)) {
+                            effect.intervall.forEach(interval => {
+                                const { begin, end } = this.extractIntervalValues(interval);
+                                console.log('begin',begin);
+                                console.log('end',end);
+                                if (begin === undefined && end !== undefined) {
+                                    if (end < 0 || (endProperty?.end !== undefined && end > endProperty.end)) {
+                                        if (endProperty?.end !== undefined) {
+                                            accept('error', `Effect 'to':${end} is out of bounds (0 to ${endProperty.end}).`, { node: effect, property: 'intervall' });
+                                        }
+                                    }
+                                }
+
+                                else if (end !== undefined && endProperty?.end !== undefined && (end < 0 || end > endProperty.end)) {
+                                    accept('error', `Effect 'to':${end} is out of bounds (0 to ${ endProperty.end}).`, { node: effect, property: 'intervall' });
+                                }
+
+                                else if (begin !== undefined && end !== undefined && begin >= end) {
+                                    accept('error', `Effect interval 'from':${begin} must be less than 'to':${end}.`, { node: effect, property: 'intervall' });
+                                }
+                            });
+                        }
+                    }
+                });
+            }
         }
     }
-    
-    
-    
+
+    getVideoDuration(beginProperty: any, endProperty: any): number | undefined {
+        return endProperty?.end !== undefined && beginProperty?.begin !== undefined
+            ? endProperty.end - beginProperty.begin
+            : undefined;
+    }
+
+    extractIntervalValues(interval: any): { begin: number | undefined, end: number | undefined } {
+        let begin: number | undefined = undefined;
+        let end: number | undefined = undefined;
+
+        if (interval.begin !== undefined) {
+            begin = interval.begin;
+        }
+        if (interval.end !== undefined) {
+            end = interval.end;
+        }
+
+        return { begin, end };
+    }
+        
         
 }

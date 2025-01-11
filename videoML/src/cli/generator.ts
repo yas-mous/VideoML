@@ -5,7 +5,7 @@ import { extractDestinationAndName } from './cli-util.js';
 import { TimeLine, Layer, isVideoClip, Effect, VideoClip, CropEffect, FreezingEffect, ZoomEffect, isCropEffect, 
          isFreezingEffect, isZoomEffect,FadeOutEffect ,FadeInEffect , isFadeOutEffect , isFadeInEffect, isGrayscaleEffect, GrayscaleEffect,isAudioClip, AudioClip, VolumeEffect, isVolumeEffect, isLoopEffect, LoopEffect, isAudiosClip, AudiosClip,
          isSubtitleClip,SubtitleClip, LayerElement} from '../language/generated/ast.js';
-import { hasClipProperties } from './utils.js';
+import { generateOutputFilePath, hasClipProperties } from './utils.js';
 
 export function generatepython(timeline: TimeLine, filePath: string, destination: string | undefined): string {
     const data = extractDestinationAndName(filePath, destination);
@@ -44,7 +44,10 @@ function compileTimeline(timeline: TimeLine, fileNode: CompositeGeneratorNode): 
         compileMultipleLayers(layers, fileNode);
     }
 
-    fileNode.append(`final_video.write_videofile("${timeline.name}.mp4", fps=24)`);
+    const outputFilePath = generateOutputFilePath(timeline);
+
+
+    fileNode.append(`final_video.write_videofile("${outputFilePath}", fps=24)`);
     fileNode.appendNewLine();
 }
 

@@ -1,19 +1,16 @@
 grammar VideoML
 
 entry TimeLine:
-    'timeline' name=ID '{' NL
+    'timeline' name=ID ('&' extension=ID)? ('output' outputPath=STRING)? '{' NL
         layers+=Layer*
     '}';
-
+    
 Layer:
     '---''@' layerName=ID NL
     elements+=LayerElement*;
 
 LayerElement:
     VideoClip | AudiosClip| AudioClip | SubtitleClip;
-
-Clip:
-    VideoClip | SubtitleClip | AudioClip;
 
 ClipProperty:
     'from'begin=INT |
@@ -47,6 +44,7 @@ Effect:
 
 VideoEffect:
     CropEffect | FreezingEffect | ZoomEffect | GrayscaleEffect | FadeInEffect | FadeOutEffect ;
+
 AudioEffect:
     VolumeEffect | LoopEffect;
 
@@ -74,12 +72,16 @@ Intervall:
 
 VolumeEffect:
     'volume' '(' 'x' volume=INT (properties+=ClipProperty)* ')';
+
 LoopEffect:
     'loop' ( 'x'n_times=INT | duration=INT 's' )?;
+
 hidden terminal WS: /\s+/;
 terminal ID: /[_a-zA-Z][\w_]*/;
 terminal INT returns number: /[0-9]+/;
 terminal NL: /\r?\n/;
 terminal DOUBLE returns number: INT '.' INT;
 terminal FLOAT returns number: /[0-9]+(\.[0-9]+)?/;
+//terminal EXTENSION: 'mp4' | 'avi' | 'mkv' | 'mov' | 'flv' | 'webm';
 terminal STRING: /'(\\.|[^'\\])*'|'(\\.|[^'\\])*'/;
+//terminal PATH: /([a-zA-Z]:[\\/]|[\\/])?[a-zA-Z0-9\-_\\\/. ]+/;
