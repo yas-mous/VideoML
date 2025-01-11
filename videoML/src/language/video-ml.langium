@@ -12,8 +12,6 @@ Layer:
 LayerElement:
     VideoClip | AudiosClip| AudioClip | SubtitleClip;
 
-Clip:
-    VideoClip | SubtitleClip | AudioClip;
 
 ClipProperty:
     'from'begin=INT |
