@@ -14,7 +14,8 @@ export function registerValidationChecks(services: VideoMlServices) {
     const validator = services.validation.VideoMlValidator;
     const checks: ValidationChecks<VideoMlAstType> = {
         TimeLine: [
-            //validator.checkRequiredArgument,
+            validator.checkRequiredArgument,
+            validator.checkValidVideoExtension,
             validator.checkUniqueNames,
         ],
         LayerElement:validator.checkClipProperties,
@@ -27,11 +28,24 @@ export function registerValidationChecks(services: VideoMlServices) {
  * Implementation of custom validations.
  */
 export class VideoMlValidator {
+    private supportedExtensions: string[] = ['mp4', 'avi', 'mkv', 'mov', 'flv', 'webm'];
+
 
     checkRequiredArgument(timeline: TimeLine, accept: ValidationAcceptor): void {
         
-        if(!timeline.outputPath) {
-            accept('error', 'Video outputPath is missing.', { node: timeline, property: 'outputPath' });
+        if(!timeline.name) {
+            accept('error', 'Video name is missing.', { node: timeline, property: 'name' });
+        }
+    
+    }
+
+    checkValidVideoExtension(timeline: TimeLine, accept: ValidationAcceptor): void {
+        const extension = timeline.extension || 'mp4';  // Utilise 'mp4' par défaut si pas spécifié
+
+        if (!this.supportedExtensions.includes(extension)) {
+            const validExtensionsList = this.supportedExtensions.map(ext => `- ${ext}`).join('\n');
+    
+            accept('error', `Invalid video extension: ${extension}.\nSupported extensions are:\n${validExtensionsList}`, { node: timeline, property: 'extension' });
         }
     }
 
