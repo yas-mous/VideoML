@@ -10,10 +10,7 @@ Layer:
     elements+=LayerElement*;
 
 LayerElement:
-    VideoClip | AudiosClip| AudioClip | SubtitleClip;
-
-Clip:
-    VideoClip | SubtitleClip | AudioClip;
+    VideoClip | AudiosClip| AudioClip | SubtitleClip | CustomClip;
 
 ClipProperty:
     'from'begin=INT |
@@ -34,6 +31,7 @@ SubtitleClip:
         (',' 'bg_color:' bg_color=STRING)? NL
     '}'NL;
 
+
 VideoClip:
     '|Video' '@' clipName=ID sourceFile=STRING (',' properties+=ClipProperty)* ('~' effects+=Effect)* NL;
 
@@ -41,6 +39,16 @@ AudiosClip:
      '@' clipName=ID ( audios+=AudioClip)* NL;
 AudioClip:
     '|Audios' '@' clipName=ID sourceFile=STRING (',' properties+=ClipProperty)* ('~' effects+=Effect)*;
+
+CustomClip:
+    '|CustomClip' '@' clipName=ID '{' NL
+        'text:' text=STRING ',' 
+        'duration:' duration=INT
+        (',' 'color:' color=STRING)?
+        (',' 'bg_color:' bg_color=STRING)?
+        (',' 'position:' position=STRING)?
+        (',' 'font_size:' fontSize=INT)?
+    '}'NL;
 
 Effect:
     AudioEffect | VideoEffect;
