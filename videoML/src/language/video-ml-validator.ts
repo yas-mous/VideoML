@@ -74,29 +74,26 @@ export class VideoMlValidator {
 
     checkVideoClipEffects(clip: VideoClip, accept: ValidationAcceptor): void {
         if (isVideoClip(clip) && clip.effects && Array.isArray(clip.effects)) {
-            console.log("checkVideoClipEffects");
             const endProperty = clip.properties.find(prop => prop.end !== undefined);
             const beginProperty = clip.properties.find(prop => prop.begin !== undefined);
-            console.log(endProperty);
-            console.log(beginProperty);
-            console.log("--------------------");
-            if (hasFrom(clip) && hasEnd(clip)){
-                console.log("hasFrom and hasEnd");
-                const videoDuration = endProperty?.end !== undefined && beginProperty?.begin !== undefined ? endProperty.end - beginProperty.begin : undefined;
+
+            if (hasFrom(clip) && hasEnd(clip)) {
+                const videoDuration = this.getVideoDuration(beginProperty, endProperty);
+
                 clip.effects.forEach(effect => {
                     if (isVideoEffect(effect) && videoDuration !== undefined) {
                         if ('intervall' in effect && Array.isArray(effect.intervall)) {
                             effect.intervall.forEach(interval => {
                                 const { begin, end } = this.extractIntervalValues(interval);
-                
+
                                 if (begin !== undefined && (begin < 0 || begin > videoDuration)) {
                                     accept('error', `Effect 'from':${begin} is out of bounds (0 to ${videoDuration}).`, { node: effect, property: 'intervall' });
                                 }
-                
+
                                 if (end !== undefined && (end < 0 || end > videoDuration)) {
                                     accept('error', `Effect 'to':${end} is out of bounds (0 to ${videoDuration}).`, { node: effect, property: 'intervall' });
                                 }
-                
+
                                 if (begin !== undefined && end !== undefined && begin >= end) {
                                     accept('error', `Effect interval 'from':${begin} must be less than 'to':${end}.`, { node: effect, property: 'intervall' });
                                 }
@@ -104,12 +101,47 @@ export class VideoMlValidator {
                         }
                     }
                 });
-                
             }
-            else if (hasEnd(clip) && !hasFrom(clip)){
 
+            else if (hasEnd(clip) && !hasFrom(clip)) {
+                console.log('hasEnd && !hasFrom');
+                const videoDuration = endProperty?.end !== undefined && beginProperty?.begin !== undefined ? endProperty.end - beginProperty.begin : undefined;
+
+                clip.effects.forEach(effect => {
+                    if (isVideoEffect(effect) ) {
+                        console.log('videoDuration',videoDuration);
+                        if ('intervall' in effect && Array.isArray(effect.intervall)) {
+                            effect.intervall.forEach(interval => {
+                                const { begin, end } = this.extractIntervalValues(interval);
+                                console.log('begin',begin);
+                                console.log('end',end);
+                                if (begin === undefined && end !== undefined) {
+                                    if (end < 0 || (endProperty?.end !== undefined && end > endProperty.end)) {
+                                        if (endProperty?.end !== undefined) {
+                                            accept('error', `Effect 'to':${end} is out of bounds (0 to ${endProperty.end}).`, { node: effect, property: 'intervall' });
+                                        }
+                                    }
+                                }
+
+                                else if (end !== undefined && endProperty?.end !== undefined && (end < 0 || end > endProperty.end)) {
+                                    accept('error', `Effect 'to':${end} is out of bounds (0 to ${ endProperty.end}).`, { node: effect, property: 'intervall' });
+                                }
+
+                                else if (begin !== undefined && end !== undefined && begin >= end) {
+                                    accept('error', `Effect interval 'from':${begin} must be less than 'to':${end}.`, { node: effect, property: 'intervall' });
+                                }
+                            });
+                        }
+                    }
+                });
             }
         }
+    }
+
+    getVideoDuration(beginProperty: any, endProperty: any): number | undefined {
+        return endProperty?.end !== undefined && beginProperty?.begin !== undefined
+            ? endProperty.end - beginProperty.begin
+            : undefined;
     }
 
     extractIntervalValues(interval: any): { begin: number | undefined, end: number | undefined } {
@@ -125,5 +157,6 @@ export class VideoMlValidator {
 
         return { begin, end };
     }
+        
         
 }
