@@ -1,6 +1,6 @@
 timeline my_video {
     ---@layer1
-    |Video @v1 'videos/Video2.mp4'
+    |Video @v1 'videos/Video2.mp4',from 5,to 8
     ---@layer2
-    |Video @v2 'videos/Video1.mp4', position: 'bottom-left', width: 300, height: 200, after 4
+    |Video @v2 'videos/Video1.mp4', position: 'bottom-left', width: 300, height: 200, after 45
 }
