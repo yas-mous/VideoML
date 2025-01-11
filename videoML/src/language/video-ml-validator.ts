@@ -14,7 +14,7 @@ export function registerValidationChecks(services: VideoMlServices) {
     const validator = services.validation.VideoMlValidator;
     const checks: ValidationChecks<VideoMlAstType> = {
         TimeLine: [
-            validator.checkRequiredArgument,
+            //validator.checkRequiredArgument,
             validator.checkUniqueNames,
         ],
         LayerElement:validator.checkClipProperties,
@@ -30,8 +30,8 @@ export class VideoMlValidator {
 
     checkRequiredArgument(timeline: TimeLine, accept: ValidationAcceptor): void {
         
-        if(!timeline.name) {
-            accept('error', 'Video name is missing.', { node: timeline, property: 'name' });
+        if(!timeline.outputPath) {
+            accept('error', 'Video outputPath is missing.', { node: timeline, property: 'outputPath' });
         }
     }
 

@@ -1,4 +1,5 @@
-import { LayerElement,isVideoClip } from "../language/generated/ast.js";
+import path from "path";
+import { LayerElement,TimeLine,isVideoClip } from "../language/generated/ast.js";
 
 export function hasClipProperties(clip: LayerElement): boolean {
     if (!isVideoClip(clip)) {
@@ -23,4 +24,14 @@ export function hasEnd(clip: LayerElement): boolean {
     }else{
         return clip.properties.some(prop => prop.end !== undefined);
     }
+}
+
+export function generateOutputFilePath(timeline: TimeLine): string {
+    const extension = timeline.extension || 'mp4';  
+    const outputPath = timeline.outputPath || './';  
+    let outputFilePath = path.join(outputPath, `${timeline.name}.${extension}`);
+
+    outputFilePath = outputFilePath.replace(/\\/g, '/');
+
+    return outputFilePath;
 }

@@ -20,9 +20,12 @@ npm run cli ..\demo\test2.vml
 ```
 
 ### Exemple de grammaire possible 
+**optionnel :**
+- & mp4 : pour modifier l extension (validation a faire pour accepter que les extensions videos)
+- output'../generatedVideos' : pour specifier un chemin, par defaut meme repertoire que le fichier .vml
 
 ```bash
-timeline myVideo {
+timeline myVideo & mp4 output'../generatedVideos'{
     ---
     |Video'videos/video1.mp4',from 5,to 8
     ---

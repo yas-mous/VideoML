@@ -23,4 +23,4 @@ layer_0 = concatenate_videoclips([
 
 
 final_video = layer_0
-final_video.write_videofile("groupVideo.mp4", fps=24)
+final_video.write_videofile("../generatedVideos/groupVideo.mp4", fps=24)
