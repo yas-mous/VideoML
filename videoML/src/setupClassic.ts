@@ -9,7 +9,14 @@ export const setupConfigClassic = (): UserConfig => {
             editorAppConfig: {
                 $type: 'classic',
                 languageId: 'video-ml',
-                code: `// to mofify to add a default functionnal code`,
+                code: 
+`timeline myVideo {
+    ---@Layer1
+    |Video @V1 'video2.mp4' 
+        ~freeze 2+3
+    |Video @V2 'video1.mp4' 
+        ~crop x 200,y 200, width 200, height 200
+}`,
                 useDiffEditor: false,
                 languageExtensionConfig: { id: 'langium' },
                 languageDef: monarchSyntax,
