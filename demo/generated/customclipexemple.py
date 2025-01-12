@@ -8,7 +8,7 @@ custom = TextClip(
             color='white',
             bg_color='pink'
         ) .with_duration(5).with_position('left')
-Finn = VideoFileClip("result.mp4")
+Finn = VideoFileClip("../demo/generated/videos/video2.mp4")
 layer_0 = concatenate_videoclips([
     custom,
     Finn,
