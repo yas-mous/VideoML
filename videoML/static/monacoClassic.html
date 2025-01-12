@@ -8,11 +8,22 @@
     </head>
     <body>
         <h1>videoML in Langium</h1>
-        <div class="wrapper">
-            <b>Monaco-Editor + Monarch</b>
-            <!-- Monaco Root -->
-            <div id="monaco-editor-root"></div>
+        <div class="grid-container">
+        <!-- Editeur Monaco -->
+        <div id="editor" class="editor">Monaco Editor</div>
+
+        <!-- Visualisation -->
+        <div id="visualization" class="visualization">
+            <h2>Visualization</h2>
+            <div id="visualization-root"></div>
         </div>
+
+        <!-- Téléchargement -->
+        <div id="download" class="download">
+            <h2>Téléchargement</h2>
+            <button>Télécharger</button>
+        </div>
+    </div>
         <footer>
             <p style="font-style:italic">Powered by</p>
             <img width="125" src="https://langium.org/assets/langium_logo_w_nib.svg" alt="Langium">
@@ -25,7 +36,7 @@
 
             configureMonacoWorkers();
             // keep a reference to a promise for when the editor is finished starting, we'll use this to setup the canvas on load
-            const startingPromise = executeClassic(document.getElementById('monaco-editor-root'));
+            const startingPromise = executeClassic(document.getElementById('editor'));
         </script>
     </body>
 </html>
