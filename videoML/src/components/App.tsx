@@ -4,6 +4,7 @@ import { TimelineVisualization } from "./timeline/timeline.tsx";
 import { DragAndDrop } from "./download/draganddrop.tsx";
 import VideoPreview from "./visualisations/videoPrevisualisation.tsx";
 import HelpButton from "./utils/help.tsx";
+import EyamotionLogo from "./logos/eyamotionLogo.tsx";
 
 import "../styles/styles.css";
 
@@ -12,7 +13,7 @@ const App: React.FC = () => {
     <div className="app">
       <div className="header">
         <HelpButton />
-        <h1>EYAMOTION</h1>
+        <EyamotionLogo />
       </div>
       <div className="grid-container">
         <div className="editor">
