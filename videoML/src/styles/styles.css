@@ -7,6 +7,11 @@ body, html {
     color: white;
 }
 
+.app {
+    position: relative;
+}
+
+
 .grid-container {
     display: grid;
     grid-template-areas:
