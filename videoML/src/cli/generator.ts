@@ -4,7 +4,9 @@ import * as path from 'node:path';
 import { extractDestinationAndName } from './cli-util.js';
 import { TimeLine, Layer, isVideoClip, Effect, VideoClip, CropEffect, FreezingEffect, ZoomEffect, isCropEffect, 
          isFreezingEffect, isZoomEffect,FadeOutEffect ,FadeInEffect , isFadeOutEffect , isFadeInEffect, isGrayscaleEffect, GrayscaleEffect,isAudioClip, AudioClip, VolumeEffect, isVolumeEffect, isLoopEffect, LoopEffect, isAudiosClip, AudiosClip,
-         isSubtitleClip,SubtitleClip, LayerElement} from '../language/generated/ast.js';
+         isSubtitleClip,SubtitleClip, LayerElement,
+         CustomClip,
+         isCustomClip} from '../language/generated/ast.js';
 import { generateOutputFilePath, hasClipProperties } from './utils.js';
 
 export function generatepython(timeline: TimeLine, filePath: string, destination: string | undefined): string {
@@ -183,7 +185,12 @@ function compileClip(clip: LayerElement): string {
             clipCode = cutClip(clip, clipCode);
             return clipCode;
         }
-        return "Invalid clip type";
+        if (isCustomClip(clip)) {
+            let clipCode = createCustomClip(clip);
+            return clipCode;
+        }
+        return "clip format not supported"
+        
     }
 }
 
@@ -421,4 +428,26 @@ function compileFadeOutEffect(effect: FadeOutEffect, clipVar: string, fileNode: 
 function compileFadeInEffect(effect: FadeInEffect, clipVar: string, fileNode: CompositeGeneratorNode): void {
     fileNode.append(`${clipVar} = ${clipVar}.with_effects([vfx.CrossFadeIn(${effect.duration})])`);
     fileNode.appendNewLine();
+}
+
+function createCustomClip( customClip: CustomClip): string {
+    const text = customClip.text || "Intro Title";
+    const duration = customClip.duration || 10;  // valeur par défaut de 10 secondes
+    const color = customClip.color || "white";
+    const bgColor = customClip.bg_color || "black";
+    const position = customClip.position || "center";
+    const fontSize = customClip.fontSize || 48;
+    const font = "Arial"
+
+    // Créer un TextClip avec un fond noir
+    const introTitleClip = `TextClip(
+            font="${font}",
+            text="${text}",
+            font_size=${fontSize},
+            color='${color}',
+            bg_color='${bgColor}'
+        ) .with_duration(${duration}).with_position('${position}')`;
+
+    // Ajouter ce clip d'introduction avant le clip existant
+    return `${introTitleClip}`;
 }
