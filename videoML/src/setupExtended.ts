@@ -12,7 +12,14 @@ export const setupConfigExtended = (): UserConfig => {
             editorAppConfig: {
                 $type: 'extended',
                 languageId: 'video-ml',
-                code: `hello`,
+                code: 
+`timeline myVideo {
+    ---@Layer1
+    |Video @V1 'video2.mp4' 
+        ~freeze 2+3
+    |Video @V2 'video1.mp4' 
+        ~crop x 200,y 200, width 200, height 200
+}`,
                 useDiffEditor: false,
                 extensions: [{
                     config: {

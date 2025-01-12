@@ -1,13 +1,13 @@
 import { useEffect, useRef } from "react";
 import { MonacoEditorLanguageClientWrapper } from "monaco-editor-wrapper";
-import { setupConfigClassic } from "../../../setupClassic.ts";
+import { setupConfigExtended  } from "../../../setupExtended.ts";
 import { configureMonacoWorkers } from "../../../setupCommon.ts";
 
 export const useMonacoEditor = (setCode: (code: string) => void) => {
     const refHtml = useRef<HTMLDivElement>(null!);
     const initialized = useRef(false);
     const wrapper = useRef(new MonacoEditorLanguageClientWrapper());
-    const userConfig = setupConfigClassic();
+    const userConfig = setupConfigExtended();
 
     useEffect(() => {
         configureMonacoWorkers();
