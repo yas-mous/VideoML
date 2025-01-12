@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-export const Download: React.FC = () => {
+export const DragAndDrop: React.FC = () => {
   const [fileNames, setFileNames] = useState<string[]>([]); 
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
@@ -24,9 +24,7 @@ export const Download: React.FC = () => {
     e.preventDefault(); 
   };
 
-  const handleDownload = () => {
-    console.log("Téléchargement lancé...");
-  };
+
 
   const handleDeleteFile = (fileName: string) => {
     setFileNames((prevFileNames) =>
@@ -47,8 +45,6 @@ export const Download: React.FC = () => {
         marginTop: "20px",
       }}
     >
-      <h2>Téléchargement</h2>
-      <button onClick={handleDownload}>Télécharger</button>
       <p>Glissez un fichier ici pour le télécharger</p>
       {fileNames.length > 0 && (
         <div>
