@@ -12,6 +12,14 @@
             <b>Monaco-Editor + Textmate</b>
             <!-- Monaco Root -->
             <div id="monaco-editor-root"></div>
+            <h1>Timeline</h1>
+            <div >
+            <div class="timeline-style-video">timeline</div>
+            <div class="timeline-style-audio">audio</div>
+            <div class="timeline-style">video1</div>
+            </div>
+            <button id="myButton">Click me</button>
+        
         </div>
         <footer>
             <p style="font-style:italic">Powered by</p>
@@ -22,10 +30,18 @@
             // vite is used to resolve the included TypeScript files
             import { configureMonacoWorkers } from '../src/setupCommon';
             import { executeExtended } from '../src/setupExtended';
+            import {executeClassic} from '../src/setupClassic'
 
             configureMonacoWorkers();
             // keep a reference to a promise for when the editor is finished starting, we'll use this to setup the canvas on load
             const startingPromise = executeExtended(document.getElementById('monaco-editor-root'));
+
+               // Ajout de l'événement click pour le bouton
+           document.getElementById('myButton').addEventListener('click', () => {
+            console.log('Button clicked');
+            executeClassic();
+        });
+
         </script>
     </body>
 </html>

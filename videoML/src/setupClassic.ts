@@ -26,5 +26,27 @@ export const setupConfigClassic = (): UserConfig => {
 export const executeClassic = async (htmlElement: HTMLElement) => {
     const userConfig = setupConfigClassic();
     const wrapper = new MonacoEditorLanguageClientWrapper();
+
+    // Initialiser l'éditeur
     await wrapper.initAndStart(userConfig, htmlElement);
+
+
+    // Récupérer l'éditeur Monaco
+    const editor = wrapper.getEditor() ;
+
+    // Ajouter un écouteur pour capturer les changements de code
+    if(editor){
+        editor.onDidChangeModelContent(() => {
+            const code = editor.getValue(); // Récupérer le code écrit par l'utilisateur
+            console.log("Code actuel :", code); // Afficher le code dans la console
+        });
+    }
+   
 };
+
+
+
+
+
+
+
