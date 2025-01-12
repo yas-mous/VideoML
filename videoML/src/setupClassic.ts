@@ -9,7 +9,7 @@ export const setupConfigClassic = (): UserConfig => {
             editorAppConfig: {
                 $type: 'classic',
                 languageId: 'video-ml',
-                code: `// videoML is running in the web!`,
+                code: `// to mofify to add a default functionnal code`,
                 useDiffEditor: false,
                 languageExtensionConfig: { id: 'langium' },
                 languageDef: monarchSyntax,
