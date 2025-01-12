@@ -12,7 +12,7 @@ export const setupConfigExtended = (): UserConfig => {
             editorAppConfig: {
                 $type: 'extended',
                 languageId: 'video-ml',
-                code: `// videoML is running in the web!`,
+                code: `hello`,
                 useDiffEditor: false,
                 extensions: [{
                     config: {
