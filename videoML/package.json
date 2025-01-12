@@ -39,6 +39,8 @@
         "monaco-editor-wrapper": "~4.0.2",
         "monaco-languageclient": "~8.1.1",
         "react": "^19.0.0",
+        "react-dnd": "^16.0.1",
+        "react-dnd-html5-backend": "^16.0.1",
         "react-dom": "^19.0.0",
         "vscode": "npm:@codingame/monaco-vscode-api@~3.2.3",
         "vscode-languageclient": "~9.0.1",
