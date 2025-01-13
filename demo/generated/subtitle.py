@@ -6,8 +6,8 @@ sub1 = TextClip(
         text="Hello World",
         font="font/font.ttf",
         font_size=24,
-        color='white',
-        bg_color='black'
+        color='#000000',
+        bg_color='#ffffff',
     ).with_start(0).with_duration(5).with_position('bottom')
 
 final_video = CompositeVideoClip([

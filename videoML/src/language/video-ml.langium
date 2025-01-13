@@ -17,7 +17,7 @@ ClipProperty:
     'to'end=INT |
     'start' positionInTimeline=INT |
     'after' after=INT |
-    'position:' position=STRING |
+    'position:' position=Position |
     'width:' width=INT |
     'height:' height=INT;
 
@@ -26,9 +26,9 @@ SubtitleClip:
         'text:' text=STRING ',' NL
         'start:' start=INT ','
         'duration:' duration=INT
-        (',' 'color:' color=STRING)?
-        (',' 'position:' position=STRING)?
-        (',' 'bg_color:' bg_color=STRING)? NL
+        (',' 'color:' color= Color)?
+        (',' 'position:' position= PositionText)?
+        (',' 'bg_color:' bg_color= Color)? NL
     '}'NL;
 
 VideoClip:
@@ -36,6 +36,8 @@ VideoClip:
 
 AudiosClip:
      '@' clipName=ID ( audios+=AudioClip)* NL;
+
+    
 AudioClip:
     '|Audios' '@' clipName=ID sourceFile=STRING (',' properties+=ClipProperty)* ('~' effects+=Effect)*;
 
@@ -71,7 +73,7 @@ GrayscaleEffect:
     'grayscale' (',' intervall+=Intervall)*;
 
 FadeInEffect:
-    'fadein' ('duration:' duration=INT);
+    'fadein' ('duration:' duration= Time);
 
 FadeOutEffect:
     'fadeout' ('duration:' duration=INT);
@@ -92,6 +94,10 @@ terminal INT returns number: /[0-9]+/;
 terminal NL: /\r?\n/;
 terminal DOUBLE returns number: INT '.' INT;
 terminal FLOAT returns number: /[0-9]+(\.[0-9]+)?/;
-//terminal EXTENSION: 'mp4' | 'avi' | 'mkv' | 'mov' | 'flv' | 'webm';
+terminal EXTENSION: 'mp4' | 'avi' | 'mkv' | 'mov' | 'flv' | 'webm';
 terminal STRING: /'(\\.|[^'\\])*'|'(\\.|[^'\\])*'/;
+terminal Position: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+terminal Color: /#[0-9a-fA-F]{6}/;
+terminal PositionText : 'top' | 'bottom' | 'center';
+terminal Time: (INT 'h')* (INT 'm')* (INT 's') ; 
 //terminal PATH: /([a-zA-Z]:[\\/]|[\\/])?[a-zA-Z0-9\-_\\\/. ]+/;
