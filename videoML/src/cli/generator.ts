@@ -431,15 +431,15 @@ function compileFadeInEffect(effect: FadeInEffect, clipVar: string, fileNode: Co
 }
 
 function createCustomClip( customClip: CustomClip): string {
-    const text = customClip.text || "Intro Title";
-    const duration = customClip.duration || 10;  // valeur par défaut de 10 secondes
+    const text = customClip.text || "My title";
+    const duration = customClip.duration || 10;  
     const color = customClip.color || "white";
     const bgColor = customClip.bg_color || "black";
     const position = customClip.position || "center";
     const fontSize = customClip.fontSize || 48;
     const font = "Arial"
 
-    // Créer un TextClip avec un fond noir
+    // Créer un TextClip 
     const introTitleClip = `TextClip(
             font="${font}",
             text="${text}",
@@ -448,6 +448,5 @@ function createCustomClip( customClip: CustomClip): string {
             bg_color='${bgColor}'
         ) .with_duration(${duration}).with_position('${position}')`;
 
-    // Ajouter ce clip d'introduction avant le clip existant
     return `${introTitleClip}`;
 }
