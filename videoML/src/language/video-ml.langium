@@ -12,26 +12,25 @@ Layer:
 LayerElement:
     VideoClip | AudioClip | SubtitleClip;
 
-
 ClipProperty:
     (',' 'start:' positionInTimeline= STRING )?
     interval = IntervalFrom;
-    
+
 
 
 SubtitleClip:
     '|Subtitle' '@' clipName=ID '{' NL
-        TextProperties+=TextProperties 
+        TextProperties+=TextProperties
         (properties+=ClipProperty)?
     '}' NL;
 
 VideoClip:
     PathVideo | TextVideo;
-     
+
 
 TextVideo:
     '|TextVideo' '@' clipName=ID '{' NL
-        TextProperties+=TextProperties 
+        TextProperties+=TextProperties
         '}' ('~' effects+=VideoEffect)*NL;
 
 PathVideo:
@@ -42,7 +41,7 @@ PathVideo:
     ( ('~' effects+=VideoEffect)*)? NL;
 
 TextProperties:
-    'text:' text=STRING ',' 
+    'text:' text=STRING ','
     'duration:' duration= STRING
     (',' 'color:' color=COLOR)?
     (',' 'bg_color:' bg_color=COLOR)?
@@ -80,7 +79,7 @@ IntervalFrom:
     (',' 'from:' begin=STRING)? (',' 'to:' end=STRING)?;
 
 IntervalDuration:
-    ',' 'from:'begin=STRING 
+    ',' 'from:'begin=STRING
     ',' 'duration:'duration=STRING;
 
 VolumeEffect:

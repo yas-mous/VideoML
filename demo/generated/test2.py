@@ -16,11 +16,19 @@ brasil = concatenate_videoclips([brasil_before, brasil_cropped, brasil_after], m
 Finn = VideoFileClip("videos/video2.mp4").subclipped(3, 10)
 freeze_effect = Freeze(t=2, freeze_duration=3)
 Finn = freeze_effect.apply(Finn)
-layer_0 = concatenate_videoclips([
+layer1 = concatenate_videoclips([
     brasil,
     Finn,
 ], method="compose")
 
+a1 = AudioFileClip("audios/audio1.mp3")
+volume_effect = afx.MultiplyVolume(2, start_time=2, end_time=4)
+a1 = a1.with_effects([volume_effect])
+a2 = AudioFileClip("audios/audio2.mp3")
+volume_effect = afx.MultiplyVolume(2, start_time=2, end_time=4)
+a2 = a2.with_effects([volume_effect])
+layer2 = concatenate_audioclips([a1,a2])
+layer1 = layer1.with_audio(layer2)
 
-final_video = layer_0
+final_video = layer1
 final_video.write_videofile("../generatedVideos/groupVideo.mp4", fps=24)
