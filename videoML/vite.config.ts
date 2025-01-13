@@ -2,6 +2,7 @@
 import { defineConfig } from 'vite';
 import * as path from 'path';
 import importMetaUrlPlugin from '@codingame/esbuild-import-meta-url-plugin';
+import react from '@vitejs/plugin-react'
 
 export default defineConfig(() => {
     const config = {
@@ -12,6 +13,8 @@ export default defineConfig(() => {
                     index: path.resolve(__dirname, 'index.html'),
                     monacoClassic: path.resolve(__dirname, 'static/monacoClassic.html'),
                     monacoExtended: path.resolve(__dirname, 'static/monacoExtended.html'),
+                    eyamotion: path.resolve(__dirname, 'static/eyamotion.html'),
+
                 }
             }
         },
@@ -25,6 +28,7 @@ export default defineConfig(() => {
                 ]
             }
         },
+        plugins: [react()],
         server: {
             port: 5173
         }
