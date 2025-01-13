@@ -82,7 +82,7 @@ Intervall:
     'to'end=INT ;
 
 VolumeEffect:
-    'volume' '(' 'x' volume=INT (properties+=ClipProperty)* ')';
+    'volume' '(' 'x' volume=INT (properties+=Intervall)* ')';
 
 LoopEffect:
     'loop' ( 'x'n_times=INT | duration=INT 's' )?;
