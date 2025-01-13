@@ -1,8 +1,8 @@
 import path from "path";
-import { LayerElement,TimeLine,isVideoClip } from "../language/generated/ast.js";
+import {LayerElement, TimeLine, isVideoClip, isAudioClip} from "../language/generated/ast.js";
 
 export function hasClipProperties(clip: LayerElement): boolean {
-    if (!isVideoClip(clip)) {
+    if (!(isVideoClip(clip)||isAudioClip(clip))) {
         return false;
     }else{
         return clip.properties.length > 0;

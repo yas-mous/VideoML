@@ -3,6 +3,6 @@ timeline groupVideo & mp4 output'../generatedVideos'{
     |Video @brasil'videos/video1.mp4',from 2, to 7 ~ grayscale ,from 1, to 3 ~ crop x 50, y 50, width 500, height 500 ,from 1, to 2
     |Video @Finn'videos/video2.mp4',from 3, to 10 ~freeze 2+3
     --- @layer2
-    |Audio @a1 'audios/audio1.mp3',from 5, to 10 ~volume(x 2 from 2 to 4)
+    |Audio @a1 'audios/audio1.mp3',from 5, to 10 5s  ~volume(x 2 from 2 to 4) on @brasil after 5s
     |Audio @a2 'audios/audio2.mp3',from 5, to 10 ~volume(x 2 from 2 to 4)
 }

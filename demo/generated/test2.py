@@ -21,10 +21,10 @@ layer1 = concatenate_videoclips([
     Finn,
 ], method="compose")
 
-a1 = AudioFileClip("audios/audio1.mp3")
+a1 = AudioFileClip("audios/audio1.mp3").subclipped(5, 10)
 volume_effect = afx.MultiplyVolume(2, start_time=2, end_time=4)
 a1 = a1.with_effects([volume_effect])
-a2 = AudioFileClip("audios/audio2.mp3")
+a2 = AudioFileClip("audios/audio2.mp3").subclipped(5, 10)
 volume_effect = afx.MultiplyVolume(2, start_time=2, end_time=4)
 a2 = a2.with_effects([volume_effect])
 layer2 = concatenate_audioclips([a1,a2])
