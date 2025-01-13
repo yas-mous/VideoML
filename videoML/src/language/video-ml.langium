@@ -10,7 +10,7 @@ Layer:
     elements+=LayerElement*;
 
 LayerElement:
-    VideoClip | AudiosClip| AudioClip | SubtitleClip;
+    VideoClip | AudioClip | SubtitleClip;
 
 ClipProperty:
     'from'begin=INT |
@@ -34,10 +34,11 @@ SubtitleClip:
 VideoClip:
     '|Video' '@' clipName=ID sourceFile=STRING (',' properties+=ClipProperty)* ('~' effects+=Effect)* NL;
 
-AudiosClip:
-     '@' clipName=ID ( audios+=AudioClip)* NL;
 AudioClip:
-    '|Audios' '@' clipName=ID sourceFile=STRING (',' properties+=ClipProperty)* ('~' effects+=Effect)*;
+    '|Audio' '@' clipName=ID sourceFile=STRING (',' properties+=ClipProperty)* ('~' effects+=Effect)* NL;
+
+AddAudioToVideo:
+    '@' videoName=ID 'with_audio' '@' audioName=ID;
 
 Effect:
     AudioEffect | VideoEffect;
