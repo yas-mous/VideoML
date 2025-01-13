@@ -372,8 +372,8 @@ function addSubtitleToClip(clip: SubtitleClip): string {
     const text = clip.text;
     const start = clip.start;
     const duration = clip.duration;
-    const color = clip.color;
-    const bg_color = clip.bg_color || "000000";
+    const color = clip.color || "none";
+    const bg_color = clip.bg_color || "black";
     const position = clip.position || "bottom";
 
 
@@ -381,8 +381,8 @@ function addSubtitleToClip(clip: SubtitleClip): string {
         text="${text}",
         font="font/font.ttf",
         font_size=24,
-        color='#${color}',
-        bg_color='#${bg_color}'
+        color='${color}',
+        bg_color='${bg_color}'
     ).with_start(${start}).with_duration(${duration}).with_position('${position}')`;
 }
 
