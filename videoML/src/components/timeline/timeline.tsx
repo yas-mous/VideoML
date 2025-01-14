@@ -1,7 +1,8 @@
 import React from "react";
-import { LayerUI } from "./layers/layer.tsx";
 import { useMappedTimeline } from "../editor/hooks/useMappedTimeline.tsx";
 import { AST } from "../../cli/models/models.ts";
+import { LayerUI } from "./layers/layer.tsx";
+
 
 
 export const TimelineVisualization: React.FC = () => {

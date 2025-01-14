@@ -1,22 +1,27 @@
 import React from "react";
+import { LayerElement } from "../../../cli/models/models.ts";
+import { FaMusic } from 'react-icons/fa';
 
-export const ClipUI: React.FC<{ clipName: string; width: number }> = ({ clipName, width }) => {
-    return (
+export const ClipUI: React.FC<{ clip: LayerElement; width: number }> = ({ clip, width }) => {
+  const color:string =clip.$type === "AudioClip" ? "#ffbb33" : "#6699ff";
+  return (
       <div
         style={{
           width: `${width}px`,
-          height: "30px",
-          backgroundColor: "#4caf50",
-          color: "#000",
+          height: "40px",
+          backgroundColor: color,
+          color: "white",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          marginRight: "2px",
           borderRadius:"6px",
+          marginLeft:"-6px",
         
         }}
       >
-        {clipName}
+  
+        {clip.$type === "AudioClip" && <FaMusic  />}
+        {clip.$type !== "AudioClip" && clip.clipName}
       </div>
     );
 };

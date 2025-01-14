@@ -1,8 +1,10 @@
 import React from "react";
 //import { useProgramStore } from "../../editor/stores/programStore.ts";
 import { ClipUI } from "../clips/clip.tsx";
+import { Layer } from "../../../cli/models/models.ts";
+import { TransitionUI } from "../transition/transition.tsx";
 
-export const LayerUI: React.FC<{ layer: any }> = ({ layer }) => {
+export const LayerUI: React.FC<{ layer: Layer }> = ({ layer }) => {
     return (
       <div style={{ marginBottom: "1rem" }}>
         <h3>{layer.layerName}</h3>
@@ -18,9 +20,15 @@ export const LayerUI: React.FC<{ layer: any }> = ({ layer }) => {
           }}
         >
           {layer.elements.map((element: any, idx: number) => {
-            const clipName = element.clipName || `Clip ${idx + 1}`;
             const width = 100; 
-            return <ClipUI key={idx} clipName={clipName} width={width} />;
+            return (
+            <div style={{display:"flex", alignItems:"center"}}>
+              <ClipUI key={idx} clip={element} width={width} />
+              {idx < layer.elements.length - 1 && <TransitionUI />}
+             </div>
+
+            );
+
           })}
         </div>
       </div>
