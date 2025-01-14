@@ -22,8 +22,8 @@ export const LayerUI: React.FC<{ layer: Layer }> = ({ layer }) => {
           {layer.elements.map((element: any, idx: number) => {
             const width = 100; 
             return (
-            <div style={{display:"flex", alignItems:"center"}}>
-              <ClipUI key={idx} clip={element} width={width} />
+            <div key={idx} style={{display:"flex", alignItems:"center"}}>
+              <ClipUI key={idx}  clip={element} width={width} />
               {idx < layer.elements.length - 1 && <TransitionUI />}
              </div>
 
