@@ -54,7 +54,7 @@ Effect:
     AudioEffect | VideoEffect;
 
 VideoEffect:
-    CropEffect | FreezingEffect | ZoomEffect | GrayscaleEffect | FadeInEffect | FadeOutEffect ;
+    CropEffect | FreezingEffect | GrayscaleEffect | FadeInEffect | FadeOutEffect ;
 
 AudioEffect:
     VolumeEffect | LoopEffect;
@@ -64,9 +64,6 @@ CropEffect:
 
 FreezingEffect:
     'freeze' begin=INT '+' frameSeconds=INT;
-
-ZoomEffect:
-    'zoom'  resizeFactor=STRING (',' intervall+=Intervall)*;
 
 GrayscaleEffect:
     'grayscale' (',' intervall+=Intervall)*;

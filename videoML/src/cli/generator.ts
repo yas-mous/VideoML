@@ -2,8 +2,8 @@ import { CompositeGeneratorNode, toString } from 'langium/generate';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { extractDestinationAndName } from './cli-util.js';
-import { TimeLine, Layer, isVideoClip, Effect, VideoClip, CropEffect, FreezingEffect, ZoomEffect, isCropEffect, 
-         isFreezingEffect, isZoomEffect,FadeOutEffect ,FadeInEffect , isFadeOutEffect , isFadeInEffect, isGrayscaleEffect, GrayscaleEffect,isAudioClip, AudioClip, VolumeEffect, isVolumeEffect, isLoopEffect, LoopEffect,
+import { TimeLine, Layer, isVideoClip, Effect, VideoClip, CropEffect, FreezingEffect, isCropEffect, 
+         isFreezingEffect,FadeOutEffect ,FadeInEffect , isFadeOutEffect , isFadeInEffect, isGrayscaleEffect, GrayscaleEffect,isAudioClip, AudioClip, VolumeEffect, isVolumeEffect, isLoopEffect, LoopEffect,
          isSubtitleClip,SubtitleClip, LayerElement,
          CustomClip,
          isCustomClip} from '../language/generated/ast.js';
@@ -12,6 +12,15 @@ interface ILayer    {
     layerName: string;
     isAudioLayer: boolean;
 }
+
+export function generatePythonProgram(timeline: TimeLine): string {
+   
+    const fileNode = new CompositeGeneratorNode();
+    compileTimeline(timeline, fileNode)
+    console.log(toString(fileNode));
+    return toString(fileNode);
+}
+
 export function generatepython(timeline: TimeLine, filePath: string, destination: string | undefined): string {
     const data = extractDestinationAndName(filePath, destination);
     const generatedFilePath = `${path.join(data.destination, data.name)}.py`;
@@ -56,7 +65,6 @@ let previousLayer:string;
     }
 
     const outputFilePath = generateOutputFilePath(timeline);
-
 
     fileNode.append(`final_video.write_videofile("${outputFilePath}", fps=24)`);
     fileNode.appendNewLine();
@@ -243,9 +251,6 @@ function compileEffect(effect:Effect,clipVar:string,fileNode: CompositeGenerator
     else if(isFreezingEffect(effect)){
         compileFreezingEffect(effect,clipVar,fileNode)
     }
-    else if(isZoomEffect(effect)){
-        compileZoomEffect(effect,clipVar,fileNode)
-    }
     else if (isFadeOutEffect(effect)) {
         compileFadeOutEffect(effect, clipVar, fileNode);
     } else if (isFadeInEffect(effect)) {
@@ -319,10 +324,6 @@ function compileFreezingEffect(effect:FreezingEffect,clipVar:string,fileNode: Co
 
 }
 
-function compileZoomEffect(effect:ZoomEffect,clipVar:string,fileNode: CompositeGeneratorNode):void{
-    //TODO
-
-}
 
 function compileGrayscaleEffect(effect:GrayscaleEffect,clipVar:string,fileNode: CompositeGeneratorNode):void{
     const from = effect.intervall?.find(prop => prop.begin !== undefined)?.begin || null;

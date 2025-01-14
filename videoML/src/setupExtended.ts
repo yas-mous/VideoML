@@ -17,7 +17,7 @@ export const setupConfigExtended = (): UserConfig => {
     ---@Layer1
     |Video @V1 'video2.mp4' 
         ~freeze 2+3
-    |Audio @Audio1 'video1.mp4' 
+    |Audio @Audio1 'video1.mp4'
 }`,
                 useDiffEditor: false,
                 extensions: [{

@@ -2,7 +2,7 @@ import { DocumentState, EmptyFileSystem } from 'langium';
 import { startLanguageServer } from 'langium/lsp';
 import { BrowserMessageReader, BrowserMessageWriter, createConnection, Diagnostic, NotificationType } from 'vscode-languageserver/browser.js';
 import { createVideoMlServices } from './video-ml-module.js';
-
+import { generatePythonProgram } from '../cli/generator.ts';
 import { TimeLine } from './generated/ast.js';
 
 declare const self: DedicatedWorkerGlobalScope;
@@ -28,8 +28,16 @@ shared.workspace.DocumentBuilder.onBuildPhase(DocumentState.Validated, documents
             sourceText: true, 
             textRegions: true, 
         });
+        let pythonCode: string = "";
        
+        if(document.diagnostics === undefined  || document.diagnostics.filter((i) => i.severity === 1).length === 0) {
+            pythonCode = generatePythonProgram(model);
+            (model as unknown as {$isValid: boolean}).$isValid = true;
+        } else {
+            (model as unknown as {$isValid: boolean}).$isValid = false;
+        }
 
+        (model as unknown as {$pythonCode: string}).$pythonCode = pythonCode;
         connection.sendNotification(documentChangeNotification, {
             uri: document.uri.toString(),
             content: serializedAst,

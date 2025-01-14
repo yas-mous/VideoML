@@ -1,4 +1,3 @@
-import path from "path";
 import {LayerElement, TimeLine, isVideoClip, isAudioClip} from "../language/generated/ast.js";
 
 export function hasClipProperties(clip: LayerElement): boolean {
@@ -29,9 +28,12 @@ export function hasEnd(clip: LayerElement): boolean {
 export function generateOutputFilePath(timeline: TimeLine): string {
     const extension = timeline.extension || 'mp4';  
     const outputPath = timeline.outputPath || './';  
-    let outputFilePath = path.join(outputPath, `${timeline.name}.${extension}`);
+    const normalizedOutputPath = outputPath.endsWith('/') ? outputPath : `${outputPath}/`;
+    
+    let outputFilePath = `${normalizedOutputPath}${timeline.name}.${extension}`;
 
     outputFilePath = outputFilePath.replace(/\\/g, '/');
 
     return outputFilePath;
 }
+

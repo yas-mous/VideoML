@@ -40,7 +40,9 @@ export const useMonacoEditor = (setCode: (code: string) => void) => {
                             console.log("Document URI:", change.uri);
                             console.log("Serialized AST:", ast);
                             console.log("Diagnostics:", change.diagnostics);
-                            // updateUIWithAST(ast);
+                            const code = ast.$pythonCode;
+                            console.log("Python code:", code);
+
 
                             running = false;
                         }, 200); 
