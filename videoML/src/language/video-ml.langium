@@ -26,7 +26,7 @@ SubtitleClip:
         'text:' text=STRING ',' NL
         'start:' start=INT ','
         'duration:' duration=INT
-        (',' 'color:' color=STRING)?
+        (',' 'color:' color=COLOR)?
         (',' 'position:' position=STRING)?
         (',' 'bg_color:' bg_color=STRING)? NL
     '}'NL;
@@ -94,4 +94,5 @@ terminal DOUBLE returns number: INT '.' INT;
 terminal FLOAT returns number: /[0-9]+(\.[0-9]+)?/;
 //terminal EXTENSION: 'mp4' | 'avi' | 'mkv' | 'mov' | 'flv' | 'webm';
 terminal STRING: /'(\\.|[^'\\])*'|'(\\.|[^'\\])*'/;
+terminal COLOR: /#[0-9a-fA-F]{6}/;
 //terminal PATH: /([a-zA-Z]:[\\/]|[\\/])?[a-zA-Z0-9\-_\\\/. ]+/;

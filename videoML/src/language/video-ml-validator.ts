@@ -1,6 +1,6 @@
 import type { ValidationAcceptor, ValidationChecks } from 'langium';
 //import Clip
-import type {VideoMlAstType, TimeLine,LayerElement, VideoClip,SubtitleClip, ClipProperty, Layer   } from './generated/ast.js';
+import type {VideoMlAstType, TimeLine,LayerElement, VideoClip,SubtitleClip, ClipProperty, Layer} from './generated/ast.js';
 import {isAudioClip, isVideoClip, isVideoEffect, isSubtitleClip } from './generated/ast.js';
 import type { VideoMlServices } from './video-ml-module.js';
 import { hasEnd, hasFrom } from '../cli/utils.js';
@@ -178,6 +178,8 @@ export class VideoMlValidator {
 
 
     validateSubtitleClip(subtitle: SubtitleClip, accept: ValidationAcceptor): void {
+      
+
         if (!subtitle.text || subtitle.text.trim() === '') {
             accept('error', 'Subtitle text is missing.', { node: subtitle, property: 'text' });
         }
@@ -191,6 +193,8 @@ export class VideoMlValidator {
 
 
     validateClipProperty(property: ClipProperty, accept: ValidationAcceptor): void {
+        const Videopositions: string[] = ['top-left','top-right','bottom-left','bottom-right']
+
         if (property.begin !== undefined && (!Number.isInteger(property.begin) || property.begin < 0)) {
             accept('error', 'Clip property "from" must be a non-negative integer.', { node: property, property: 'begin' });
         }
@@ -203,8 +207,8 @@ export class VideoMlValidator {
         if (property.after !== undefined && (!Number.isInteger(property.after) || property.after < 0)) {
             accept('error', 'Clip property "after" must be a non-negative integer.', { node: property, property: 'after' });
         }
-        if (property.position && property.position.trim() === '') {
-            accept('error', 'Clip property "position" must be a non-empty string.', { node: property, property: 'position' });
+        if (property.position && !Videopositions.includes(property.position)) {
+            accept('error', `Invalid subtitle position: ${property.position}.`, { node: property, property: 'position' });
         }
         if (property.width !== undefined && (!Number.isInteger(property.width) || property.width <= 0)) {
             accept('error', 'Clip property "width" must be a positive integer.', { node: property, property: 'width' });
@@ -217,7 +221,7 @@ export class VideoMlValidator {
         const allLayers: Layer[] = timeline.layers;
         allLayers.forEach(layer => {
             if (!layer.layerName.startsWith('subtitles')) {
-                return; // Ne valide que les layers de sous-titres
+                return;
             }
             // Récupérer tous les clips sous-titres dans ce layer
             const subtitleClips = layer.elements.filter(isSubtitleClip);
@@ -290,8 +294,8 @@ export class VideoMlValidator {
                                 const ElementStart = element.properties.find(e => e.begin)?.begin || 0;
                                 const elementDuration = elementEnd - ElementStart;
 
-                                if ( baseVideoDuration <= elementDuration + afterTime) {
-                                    accept('error', `Base layer duration is too short to accommodate the video with position starting after ${afterTime}.`, {
+                                if ( baseVideoDuration!=Infinity && baseVideoDuration!=Infinity   && baseVideoDuration <= elementDuration + afterTime) {
+                                    accept('error', `Base layer duration is too short ${baseVideoDuration} to accommodate the video with position starting after ${afterTime} with duration ${elementDuration}.`, {
                                         node: element
                                     });
                                 }
