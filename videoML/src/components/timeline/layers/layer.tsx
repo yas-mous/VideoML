@@ -9,11 +9,12 @@ export const LayerUI: React.FC<{ layer: any }> = ({ layer }) => {
         <div
           style={{
             position: "relative",
-            height: "50px",
             backgroundColor: "#333",
             borderRadius: "8px",
             overflow: "hidden",
             display: "flex",
+            alignItems:"center",
+            padding:"5px"
           }}
         >
           {layer.elements.map((element: any, idx: number) => {

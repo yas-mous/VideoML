@@ -5,14 +5,15 @@ export const ClipUI: React.FC<{ clipName: string; width: number }> = ({ clipName
       <div
         style={{
           width: `${width}px`,
-          height: "100%",
+          height: "30px",
           backgroundColor: "#4caf50",
           color: "#000",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          border: "1px solid #fff",
           marginRight: "2px",
+          borderRadius:"6px",
+        
         }}
       >
         {clipName}

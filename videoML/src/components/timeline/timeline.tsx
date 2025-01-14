@@ -1,19 +1,29 @@
 import React from "react";
 import { useProgramStore } from "../editor/stores/programStore.ts";
 import { LayerUI } from "./layers/layer.tsx";
+import { useMappedTimeline } from "../editor/hooks/useMappedTimeline.tsx";
+import { AST } from "../../cli/models/models.ts";
+
 
 export const TimelineVisualization: React.FC = () => {
-  const ast = useProgramStore((state) => state.ast);
+
+
+
+const mappedAst :AST = useMappedTimeline() as AST;
+console.log("layers",mappedAst.layers);
+
+const ast = useProgramStore((state) => state.ast);
 
   if (!ast || !ast.layers || !Array.isArray(ast.layers)) {
+    //timeline vide
     return (
-      <div>
+      <div>x
         <h2>Timeline Visualization</h2>
         <p style={{ color: "#fff" }}>Aucune donnée disponible.</p>
       </div>
     );
   }
-
+  //sinon
   return (
     <div style={{ padding: "1rem", backgroundColor: "#1e1e1e", color: "#fff" }}>
       <h2>Timeline: {ast.name || "Unnamed"} Visualization</h2>
