@@ -10,6 +10,8 @@ export const useMonacoEditor = (setCode: (code: string) => void) => {
     const wrapper = useRef(new MonacoEditorLanguageClientWrapper());
     const userConfig = setupConfigExtended();
     const setAst = useProgramStore((state) => state.setAst);
+    const setPythonCode = useProgramStore((state) => state.setPythonCode);
+    const setIsVideoMLValid = useProgramStore((state) => state.setIsVideoMLValid);
 
     useEffect(() => {
         configureMonacoWorkers();
@@ -35,17 +37,17 @@ export const useMonacoEditor = (setCode: (code: string) => void) => {
                         timeout = window.setTimeout(async () => {
                             running = true;
 
-                            const ast = JSON.parse(change.content);
-                            setAst(ast);
+                            const jsonRes = JSON.parse(change.content);
+                            setAst(jsonRes);
                             console.log("Document URI:", change.uri);
-                            console.log("Serialized AST:", ast);
+                            console.log("Serialized AST:", jsonRes);
                             console.log("Diagnostics:", change.diagnostics);
-                            const code = ast.$pythonCode;
+                            const code = jsonRes.$pythonCode;
                             console.log("Python code:", code);
+                            handleResponse(jsonRes, code, setPythonCode, setIsVideoMLValid);
+        
+                        }, 200);
 
-
-                            running = false;
-                        }, 200); 
                     });
                 }
             });
@@ -60,3 +62,21 @@ export const useMonacoEditor = (setCode: (code: string) => void) => {
 
     return refHtml;
 };
+
+
+function handleResponse(jsonRes: any, code: string, setPythonCode: (code: string) => void, setIsVideoMLValid: (isValid: boolean) => void) {
+    let running = true;
+
+    try {
+        if (jsonRes.$isValid) {
+            setPythonCode(code);
+        }
+        setIsVideoMLValid(!!jsonRes.$isValid);
+        running = false;
+    } catch (e) {
+        console.error(e);
+        running = false;
+    }
+
+    return running; 
+}
