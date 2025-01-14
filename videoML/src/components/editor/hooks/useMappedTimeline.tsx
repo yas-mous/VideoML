@@ -17,27 +17,24 @@ export const useMappedTimeline = () => {
       layerName: layer.layerName,
       elements: layer.elements.map((element: any) => {
         if (element.$type === 'VideoClip') {
-          // Si c'est un VideoClip, on le mappe en tant que VideoClip
           return {
             $type: 'VideoClip',
             clipName: element.clipName,
             sourceFile: element.sourceFile,
             effects: element.effects.map((effect: any) => ({
               $type: effect.$type,
-              ...effect, // On garde les autres propriétés de l'effet
+              ...effect, 
             })),
             properties: element.properties,
-          } as VideoClip; // Type explicite pour VideoClip
+          } as VideoClip; 
         } else if (element.$type === 'AudioClip') {
-          // Si c'est un AudioClip, on le mappe en tant que AudioClip
           return {
             $type: 'AudioClip',
             clipName: element.clipName,
             sourceFile: element.sourceFile,
             properties: element.properties,
-          } as AudioClip; // Type explicite pour AudioClip
+          } as AudioClip; 
         } else if (element.$type === 'SubtitleClip') {
-          // Si c'est un SubtitleClip, on le mappe en tant que SubtitleClip
           return {
             $type: 'SubtitleClip',
             clipName: element.clipName,
@@ -47,9 +44,9 @@ export const useMappedTimeline = () => {
             position: element.position,
             bg_color: element.bg_color,
             color: element.color,
-          } as SubtitleClip; // Type explicite pour SubtitleClip
+          } as SubtitleClip; 
         } else if (element.$type === 'CustomClip') {
-          // Si c'est un CustomClip, on le mappe en tant que CustomClip
+
           return {
             $type: 'CustomClip',
             clipName: element.clipName,
@@ -59,9 +56,9 @@ export const useMappedTimeline = () => {
             position: element.position,
             bg_color: element.bg_color,
             color: element.color,
-          } as CustomClip; // Type explicite pour CustomClip
+          } as CustomClip; 
         }
-        // Retourner null si l'élément n'est pas reconnu
+        
         return null;
       }).filter((element: LayerElement | null) => element !== null),
     }));
