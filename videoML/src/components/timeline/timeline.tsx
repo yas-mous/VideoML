@@ -1,6 +1,6 @@
 import React from "react";
 import { useProgramStore } from "../editor/stores/programStore.ts";
-import {LayerUI} from "./layers/layer.tsx";
+import { LayerUI } from "./layers/layer.tsx";
 
 export const TimelineVisualization: React.FC = () => {
   const ast = useProgramStore((state) => state.ast);
@@ -17,9 +17,40 @@ export const TimelineVisualization: React.FC = () => {
   return (
     <div style={{ padding: "1rem", backgroundColor: "#1e1e1e", color: "#fff" }}>
       <h2>Timeline: {ast.name || "Unnamed"} Visualization</h2>
-      {ast.layers.map((layer: any, index: number) => (
-        <LayerUI key={index} layer={layer} />
-      ))}
+      <div
+        style={{
+          maxHeight: "300px",
+          overflowY: "auto",
+          border: "1px solid #444",
+          borderRadius: "8px",
+          padding: "0.5rem",
+          scrollbarWidth: "thin", //  Firefox
+          scrollbarColor: "#1e4c85 #1e1e1e", //  Firefox
+        }}
+      >
+        {/* Pour Chrome, Safari, Edge */}
+        <style>
+          {`
+            ::-webkit-scrollbar {
+              width: 8px;
+            }
+            ::-webkit-scrollbar-track {
+              background-color: #333;
+              border-radius: 8px;
+            }
+            ::-webkit-scrollbar-thumb {
+              background-color: #1e4c85; /* Couleur bleu clair pour la poignée */
+              border-radius: 8px;
+            }
+            ::-webkit-scrollbar-thumb:hover {
+              background-color:rgb(74, 114, 140); /* Couleur bleu encore plus claire au survol */
+            }
+          `}
+        </style>
+        {ast.layers.map((layer: any, index: number) => (
+          <LayerUI key={index} layer={layer} />
+        ))}
+      </div>
     </div>
   );
 };
