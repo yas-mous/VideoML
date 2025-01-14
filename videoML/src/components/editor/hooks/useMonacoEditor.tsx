@@ -2,12 +2,14 @@ import { useEffect, useRef } from "react";
 import { MonacoEditorLanguageClientWrapper } from "monaco-editor-wrapper";
 import { setupConfigExtended } from "../../../setupExtended.ts";
 import { configureMonacoWorkers } from "../../../setupCommon.ts";
+import { useProgramStore } from "../stores/programStore.ts";
 
 export const useMonacoEditor = (setCode: (code: string) => void) => {
     const refHtml = useRef<HTMLDivElement>(null!);
     const initialized = useRef(false);
     const wrapper = useRef(new MonacoEditorLanguageClientWrapper());
     const userConfig = setupConfigExtended();
+    const setAst = useProgramStore((state) => state.setAst);
 
     useEffect(() => {
         configureMonacoWorkers();
@@ -34,7 +36,7 @@ export const useMonacoEditor = (setCode: (code: string) => void) => {
                             running = true;
 
                             const ast = JSON.parse(change.content);
-
+                            setAst(ast);
                             console.log("Document URI:", change.uri);
                             console.log("Serialized AST:", ast);
                             console.log("Diagnostics:", change.diagnostics);
