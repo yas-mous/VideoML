@@ -1,6 +1,6 @@
 import React from "react";
 import { ProgramEditor } from "./editor/programEditor.tsx";
-import { DragAndDrop } from "./download/draganddrop.tsx";
+import { DragAndDrop } from "./upload/draganddrop.tsx";
 import VideoPreview from "./visualisations/videoPrevisualisation.tsx";
 import HelpButton from "./utils/help.tsx";
 import EyamotionLogo from "./logos/eyamotionLogo.tsx";
