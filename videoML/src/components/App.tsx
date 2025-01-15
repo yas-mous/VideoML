@@ -4,9 +4,9 @@ import { DragAndDrop } from "./download/draganddrop.tsx";
 import VideoPreview from "./visualisations/videoPrevisualisation.tsx";
 import HelpButton from "./utils/help.tsx";
 import EyamotionLogo from "./logos/eyamotionLogo.tsx";
+import { TimelineVisualization } from "./timeline/timeline.tsx";
 
 import "../styles/styles.css";
-import { TimelineVisualization } from "./timeline/timeline.tsx";
 
 const App: React.FC = () => {
   return (
