@@ -3,7 +3,8 @@ export interface AST  {
     layers: Array<Layer>;
     name: string;
     outputPath?: string;
-}
+} 
+
 
 export interface Layer{
     $type: 'Layer';

@@ -1,6 +1,5 @@
 import React from "react";
 import { LayerElement } from "../../../cli/models/models.ts";
-import { FaMusic } from 'react-icons/fa';
 
 export const ClipUI: React.FC<{ clip: LayerElement; width: number }> = ({ clip, width }) => {
   const color:string =clip.$type === "AudioClip" ? "#ffbb33" : "#6699ff";
@@ -19,9 +18,7 @@ export const ClipUI: React.FC<{ clip: LayerElement; width: number }> = ({ clip, 
         
         }}
       >
-  
-        {clip.$type === "AudioClip" && <FaMusic  />}
-        {clip.$type !== "AudioClip" && clip.clipName}
+        {clip.clipName}
       </div>
     );
 };
