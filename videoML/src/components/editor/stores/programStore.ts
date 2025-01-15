@@ -47,6 +47,7 @@ export const useProgramStore = create<ProgramStore>((set) => ({
                     code: '',
                     isSaved: true,
                 })),
+                
             setAst: (ast) => set({ ast }),
 
 

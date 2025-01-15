@@ -1,49 +1,81 @@
-import React, { useState, useCallback } from "react";
+import React, { useCallback } from "react";
 import DragAndDropZone from "./utils/dragDropZone.tsx";
 import FileList from "./utils/fileList.tsx";
 import Modal from "./utils/modal.tsx";
+import { useVideoStore } from "./stores/videoStore.ts";
+import { useAudioStore } from "./stores/audioStore.ts";
 
 export const DragAndDrop: React.FC = () => {
-  const [fileNames, setFileNames] = useState<string[]>([]);
-  const [files, setFiles] = useState<File[]>([]);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [dragOver, setDragOver] = useState(false);
+  const {
+    videoFiles,
+    selectedVideo,
+    isVideoModalOpen,
+    dragOverVideo,
+    addVideo,
+    removeVideo,
+    setSelectedVideo,
+    toggleVideoModal,
+    setDragOverVideo,
+  } = useVideoStore();
 
-  const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    const droppedFiles = Array.from(e.dataTransfer.files);
+  const {
+    audioFiles,
+    selectedAudio,
+    isAudioModalOpen,
+    dragOverAudio,
+    addAudio,
+    removeAudio,
+    setSelectedAudio,
+    toggleAudioModal,
+    setDragOverAudio,
+  } = useAudioStore();
 
-    const validFiles = droppedFiles.filter((file) => file.type.startsWith("audio/") || file.type.startsWith("video/"));
-    const newFileNames = validFiles.map((file) => file.name);
-    const newFiles = newFileNames.filter((fileName) => !fileNames.includes(fileName));
+  const handleDrop = useCallback(
+    (e: React.DragEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      const droppedFiles = Array.from(e.dataTransfer.files);
 
-    if (newFiles.length > 0) {
-      setFileNames((prevFileNames) => [...prevFileNames, ...newFiles]);
-      setFiles((prevFiles) => [...prevFiles, ...validFiles]);
-    } else {
-      alert("Certains fichiers sont déjà ajoutés.");
-    }
-    setDragOver(false);
-  }, [fileNames]);
+      const validVideos = droppedFiles.filter((file) => file.type.startsWith("video/"));
+      const validAudios = droppedFiles.filter((file) => file.type.startsWith("audio/"));
+
+      validVideos.forEach((file) => {
+        if (!videoFiles.some((video) => video.name === file.name)) {
+          addVideo(file);
+        }
+      });
+
+      validAudios.forEach((file) => {
+        if (!audioFiles.some((audio) => audio.name === file.name)) {
+          addAudio(file);
+        }
+      });
+
+      setDragOverVideo(false);
+      setDragOverAudio(false);
+    },
+    [addVideo, addAudio, videoFiles, audioFiles, setDragOverVideo, setDragOverAudio]
+  );
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
   };
 
-  const handleDeleteFile = (fileName: string) => {
-    setFileNames((prevFileNames) => prevFileNames.filter((name) => name !== fileName));
-    setFiles((prevFiles) => prevFiles.filter((file) => file.name !== fileName));
+  const handleDeleteFile = (fileName: string, isVideo: boolean) => {
+    if (isVideo) {
+      removeVideo(fileName);
+    } else {
+      removeAudio(fileName);
+    }
   };
 
-  const handleClickVideo = (file: File) => {
-    setSelectedFile(file);
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedFile(null);
+  const handleClickFile = (file: File, isVideo: boolean) => {
+    if (isVideo) {
+      setSelectedVideo(file);
+      toggleVideoModal();
+    } else {
+      setSelectedAudio(file);
+      toggleAudioModal();
+    }
   };
 
   return (
@@ -51,17 +83,41 @@ export const DragAndDrop: React.FC = () => {
       <DragAndDropZone
         onDrop={handleDrop}
         onDragOver={handleDragOver}
-        onDragEnter={() => setDragOver(true)}
-        onDragLeave={() => setDragOver(false)}
-        dragOver={dragOver}
+        onDragEnter={() => {
+          setDragOverVideo(true);
+          setDragOverAudio(true);
+        }}
+        onDragLeave={() => {
+          setDragOverVideo(false);
+          setDragOverAudio(false);
+        }}
+        dragOver={dragOverVideo || dragOverAudio}
       />
       <FileList
-        fileNames={fileNames}
-        files={files}
-        onClickVideo={handleClickVideo}
-        onDeleteFile={handleDeleteFile}
+        videoFiles={videoFiles}
+        audioFiles={audioFiles}
+        onDeleteVideo={(fileName) => handleDeleteFile(fileName, true)}
+        onDeleteAudio={(fileName) => handleDeleteFile(fileName, false)}
+        onClickFile={handleClickFile}
       />
-      {isModalOpen && <Modal selectedFile={selectedFile} onClose={handleCloseModal} />}
+      {isVideoModalOpen && selectedVideo && (
+        <Modal
+          selectedFile={selectedVideo}
+          onClose={() => {
+            toggleVideoModal();
+            setSelectedVideo(null);
+          }}
+        />
+      )}
+      {isAudioModalOpen && selectedAudio && (
+        <Modal
+          selectedFile={selectedAudio}
+          onClose={() => {
+            toggleAudioModal();
+            setSelectedAudio(null);
+          }}
+        />
+      )}
     </div>
   );
 };

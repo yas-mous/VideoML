@@ -1,44 +1,43 @@
 import React from "react";
 
 interface FileListProps {
-  fileNames: string[];
-  files: File[];
-  onClickVideo: (file: File) => void;
-  onDeleteFile: (fileName: string) => void;
-}
-
-const FileList: React.FC<FileListProps> = ({ fileNames, files, onClickVideo, onDeleteFile }) => {
-  return (
-    <div>
-      {fileNames.length > 0 && (
-        <>
-          <h3>Fichiers déposés :</h3>
-          <ul>
-            {fileNames.map((fileName, index) => {
-              const file = files.find((f) => f.name === fileName);
-              return (
-                <li key={index}>
-                  <span
-                    onClick={() => file && onClickVideo(file)}
-                    style={{ cursor: "pointer", color: "blue" }}
-                  >
-                    {fileName}
-                  </span>
-                  <button
-                    onClick={() => onDeleteFile(fileName)}
-                    style={{ marginLeft: "10px", color: "red" }}
-                  >
-                    X
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-          <button onClick={() => alert("Générer la vidéo")}>Générer la vidéo</button>
-        </>
-      )}
-    </div>
-  );
-};
-
-export default FileList;
+    videoFiles: File[];
+    audioFiles: File[];
+    onDeleteVideo: (fileName: string) => void;
+    onDeleteAudio: (fileName: string) => void;
+    onClickFile: (file: File, isVideo: boolean) => void;
+  }
+  
+  const FileList: React.FC<FileListProps> = ({
+    videoFiles,
+    audioFiles,
+    onDeleteVideo,
+    onDeleteAudio,
+    onClickFile,
+  }) => {
+    return (
+      <div>
+        <h3>Videos</h3>
+        <ul>
+          {videoFiles.map((file) => (
+            <li key={file.name}>
+              <span onClick={() => onClickFile(file, true)}>{file.name}</span>
+              <button onClick={() => onDeleteVideo(file.name)}>X</button>
+            </li>
+          ))}
+        </ul>
+        <h3>Audios</h3>
+        <ul>
+          {audioFiles.map((file) => (
+            <li key={file.name}>
+              <span onClick={() => onClickFile(file, false)}>{file.name}</span>
+              <button onClick={() => onDeleteAudio(file.name)}>X</button>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  };
+  
+  export default FileList;
+  
