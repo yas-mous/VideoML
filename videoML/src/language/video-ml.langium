@@ -51,8 +51,7 @@ TextProperties:
     (',' 'position:' position=STRING)?
     (',' 'font_size:' fontSize=INT)? NL;
 
-/*AudiosClip:
-     '@' clipName=ID ( audios+=AudioClip)* NL;*/
+
 
 
 AudioClip:
@@ -68,8 +67,7 @@ CustomClip:
         (',' 'font_size:' fontSize=INT)?
     '}'NL;
 
-/*Effect:
-    AudioEffect | VideoEffect;*/
+
 
 VideoEffect:
     FreezingEffect  | GrayscaleEffect | FadeInEffect | FadeOutEffect ;
@@ -77,17 +75,7 @@ VideoEffect:
 AudioEffect:
     VolumeEffect | LoopEffect;
 
-/*CropEffect:
-    'crop'  ('x' x=INT ',' 'y' y=INT ',' | 'x_center' x_center=INT ',' 'y_center' y_center=INT ) 'width' width=INT ',' 'height' height=INT (',' intervall+=Intervall)*;*/
 
-/*CropEffect:
-    CropProperties;
-
-CropProperties:
-    UniqueProperties | DoubleProperties | QuadrupleProperties;
-
-UniqueProperties:
-    'crop'  ('x' x=INT ',' 'y' y=INT ',' | 'x_center' x_center=INT ',' 'y_center' y_center=INT ) 'width' width=INT ',' 'height' height=INT (',' intervall+=Intervall)*;*/
 
 FreezingEffect:
     'freeze' (',' intervall+=Intervall)*;
@@ -103,8 +91,7 @@ FadeOutEffect:
 
 Intervall:
     IntervalFrom |  IntervalDuration;
-    /*'from'begin=INT |
-    'to'end=INT ;*/
+
 
 IntervalFrom:
     'from'begin=Time| 
@@ -126,8 +113,6 @@ LoopDurationEffects:
 LoopNumberEffects:
     'loop' x_times=INT;
 
-/*LoopEffect:
-    'loop' ( 'x'n_times=INT | duration=INT 's' )?;*/
 
 hidden terminal WS: /\s+/;
 terminal ID: /[_a-zA-Z][\w_]*/;

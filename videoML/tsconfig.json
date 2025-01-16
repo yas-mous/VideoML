@@ -1,7 +1,6 @@
 {
     "compilerOptions": {
         "jsx": "react",
-        "allowImportingTsExtensions": true,
         "target": "ES2017",
         "module": "Node16",
         "lib": [
@@ -22,13 +21,11 @@
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
         "rootDir": ".",
-        "declaration": true,
-        "emitDeclarationOnly": true
-
+        "noEmit": true
     },
     "include": [
         "src/**/*.ts",
-        "test/**/*.ts", 
+        "test/**/*.ts",
         "src/**/*.tsx"
     ],
     "exclude": [
