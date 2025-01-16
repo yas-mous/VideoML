@@ -1,15 +1,14 @@
 import path from "path";
-import { LayerElement,TimeLine,isVideoClip } from "../language/generated/ast.js";
+import { LayerElement,TimeLine,isVideoClip, isAudioClip, isCustomClip, isTextVideo, isPathVideo } from "../language/generated/ast.js";
 
 export function hasClipProperties(clip: LayerElement): boolean {
-    if (!isVideoClip(clip)) {
-        return false;
-    }else{
+    //return clip..length > 0;
+    if (((isVideoClip(clip) && (isPathVideo(clip)||isTextVideo(clip))) || isAudioClip(clip) || isCustomClip(clip))) {
         return clip.properties.length > 0;
     }
-    
+    return false;
 }
-
+/*
 export function hasFrom(clip: LayerElement): boolean {
     if (!isVideoClip(clip)) {
         return false;
@@ -24,7 +23,7 @@ export function hasEnd(clip: LayerElement): boolean {
     }else{
         return clip.properties.some(prop => prop.end !== undefined);
     }
-}
+}*/
 
 export function generateOutputFilePath(timeline: TimeLine): string {
     const extension = timeline.extension || 'mp4';  
@@ -34,4 +33,13 @@ export function generateOutputFilePath(timeline: TimeLine): string {
     outputFilePath = outputFilePath.replace(/\\/g, '/');
 
     return outputFilePath;
+}
+
+export function convertToSeconds(time: string): number {
+    const timeArray = time.split(':');
+    return parseInt(timeArray[0]) * 60 * 60 + parseInt(timeArray[1])* 60 +parseInt(timeArray[1]);
+}
+
+export function isClipType(clip: LayerElement): boolean {
+    return ((isVideoClip(clip) && (isPathVideo(clip)||isTextVideo(clip))) || isAudioClip(clip) || isCustomClip(clip));
 }

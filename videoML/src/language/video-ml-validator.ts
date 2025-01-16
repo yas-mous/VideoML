@@ -1,16 +1,17 @@
-import type { ValidationAcceptor, ValidationChecks } from 'langium';
+//import type { ValidationAcceptor, ValidationChecks } from 'langium';
 //import Clip
-import type {VideoMlAstType, TimeLine,LayerElement, VideoClip,SubtitleClip, ClipProperty, Layer} from './generated/ast.js';
-import {isAudioClip, isVideoClip, isVideoEffect, isSubtitleClip } from './generated/ast.js';
+//import type {VideoMlAstType, TimeLine,LayerElement, VideoClip,SubtitleClip, ClipProperty, Layer} from './generated/ast.js';
+//import {isAudioClip, isVideoClip, isVideoEffect, isSubtitleClip } from './generated/ast.js';
 import type { VideoMlServices } from './video-ml-module.js';
-import { hasEnd, hasFrom } from '../cli/utils.js';
+//import { hasEnd, hasFrom } from '../cli/utils.js';
 
 
 /**
  * Register custom validation checks.
  */
+
 export function registerValidationChecks(services: VideoMlServices) {
-    const registry = services.validation.ValidationRegistry;
+    /*const registry = services.validation.ValidationRegistry;
     const validator = services.validation.VideoMlValidator;
     const checks: ValidationChecks<VideoMlAstType> = {
         TimeLine: [
@@ -25,13 +26,14 @@ export function registerValidationChecks(services: VideoMlServices) {
         SubtitleClip: validator.validateSubtitleClip,
         ClipProperty: validator.validateClipProperty,
     };
-    registry.register(checks, validator);
+    registry.register(checks, validator);*/
 }
 
 /**
  * Implementation of custom validations.
  */
 export class VideoMlValidator {
+    /*
     private supportedExtensions: string[] = ['mp4', 'avi', 'mkv', 'mov', 'flv', 'webm'];
 
 
@@ -310,4 +312,5 @@ export class VideoMlValidator {
             });
         });
     }
+        */
 }
