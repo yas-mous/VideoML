@@ -12,22 +12,21 @@ Layer:
 LayerElement:
     VideoClip | AudioClip | SubtitleClip;
 
-
 ClipProperty:
     (',' 'start:' positionInTimeline= STRING )?
     interval = IntervalFrom;
-    
+
 
 
 SubtitleClip:
     '|Subtitle' '@' clipName=ID '{' NL
-        TextProperties+=TextProperties 
+        TextProperties+=TextProperties
         (properties+=ClipProperty)?
     '}' NL;
 
 VideoClip:
     PathVideo | TextVideo;
-     
+
 
 TextVideo:
     '|TextVideo' '@' clipName=ID '{' NL
@@ -42,7 +41,7 @@ PathVideo:
     ( ('~' effects+=VideoEffect)*)? NL;
 
 TextProperties:
-    'text:' text=STRING ',' 
+    'text:' text=STRING ','
     'duration:' duration= STRING
     (',' 'color:' color=COLOR)?
     (',' 'bg_color:' bg_color=COLOR)?
@@ -51,7 +50,7 @@ TextProperties:
 
 
 AudioClip:
-    '|Audio' '@' clipName=ID sourceFile=STRING (',' properties+=ClipProperty)? (('~' effects+=AudioEffect)*)? NL;
+    '|Audio' '@' clipName=ID sourceFile=STRING (properties+=ClipProperty)? (('~' effects+=AudioEffect)*)? NL;
 
 
 VideoEffect:
@@ -80,11 +79,11 @@ IntervalFrom:
     (',' 'from:' begin=STRING)? (',' 'to:' end=STRING)?;
 
 IntervalDuration:
-    ',' 'from:'begin=STRING 
+    ',' 'from:'begin=STRING
     ',' 'duration:'duration=STRING;
 
 VolumeEffect:
-    'volume' '(' 'x:' volume=INT')';
+    'volume' '(' 'x' volume=INT (intervall=Intervall)? ')';
 
 LoopEffect:
     LoopDurationEffects | LoopNumberEffects ;
@@ -105,4 +104,5 @@ terminal NL: /\r?\n/;
 //terminal EXTENSION: 'mp4' | 'avi' | 'mkv' | 'mov' | 'flv' | 'webm';
 terminal STRING: /'(\\.|[^'\\])*'|'(\\.|[^'\\])*'/;
 terminal COLOR: /#[0-9a-fA-F]{6}/;
+terminal Time : /[0-9]{2}:[0-9]{2}:[0-9]{2}/;
 //terminal PATH: /([a-zA-Z]:[\\/]|[\\/])?[a-zA-Z0-9\-_\\\/. ]+/;

@@ -2,10 +2,16 @@ import { CompositeGeneratorNode, toString } from 'langium/generate';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { extractDestinationAndName } from './cli-util.js';
-import { TimeLine, Layer, isVideoClip, PathVideo,FadeOutEffect ,FadeInEffect , isFadeOutEffect , isFadeInEffect, isGrayscaleEffect, 
-         GrayscaleEffect,isAudioClip, AudioClip,isSubtitleClip,SubtitleClip, LayerElement, TextVideo, isPathVideo ,FreezingEffect, 
-         isTextVideo, VideoEffect, isIntervalDuration, isIntervalFrom, isFreezingEffect} from '../language/generated/ast.js';
+import { TimeLine, Layer, isVideoClip, PathVideo,FadeOutEffect ,FadeInEffect , isFadeOutEffect , isFadeInEffect, isGrayscaleEffect,
+         GrayscaleEffect,isAudioClip, AudioClip,isSubtitleClip,SubtitleClip, LayerElement, TextVideo, isPathVideo ,FreezingEffect,
+         isTextVideo, VideoEffect, isIntervalDuration, isIntervalFrom, isFreezingEffect,AudioEffect, isVolumeEffect, isLoopDurationEffects
+         ,isLoopEffect, LoopEffect, isLoopNumberEffects,VolumeEffect} from '../language/generated/ast.js';
 import { generateOutputFilePath, hasClipProperties, convertToSeconds, colorConvert} from './utils.js';
+
+interface ILayer    {
+    layerName: string;
+    isAudioLayer: boolean;
+}
 
 export function generatepython(timeline: TimeLine, filePath: string, destination: string | undefined): string {
     const data = extractDestinationAndName(filePath, destination);
@@ -29,18 +35,24 @@ function compileTimeline(timeline: TimeLine, fileNode: CompositeGeneratorNode): 
     fileNode.appendNewLine();
 
     const layers: string[] = [];
-
+    const  iLayers:ILayer[] = [];
+    let previousLayer:string;
     timeline.layers.forEach((layer, layerIndex) => {
-        const layerVar = compileLayer(layer, layerIndex, fileNode);
-        layers.push(layerVar);
+        const {layerName,isAudioLayer} = compileLayer(layer, layerIndex, fileNode);
+        iLayers.push({layerName:layerName,isAudioLayer:isAudioLayer});
+        if(isAudioLayer){
+            attachAudioToVideo(layerName,previousLayer,fileNode)
+        }
+        layers.push(layerName);
+        previousLayer = layerName;
     });
 
     fileNode.appendNewLine();
 
-    if (layers.length === 1) {
+    if (iLayers.filter(l=>!l.isAudioLayer).length === 1) {
         fileNode.append(`final_video = ${layers[0]}`);
         fileNode.appendNewLine();
-    } else {
+    } else if(iLayers.filter(l=>!l.isAudioLayer).length > 1){
         compileMultipleLayers(layers, fileNode);
     }
 
@@ -62,26 +74,27 @@ function compileMultipleLayers(layerClips: string[], fileNode: CompositeGenerato
     fileNode.appendNewLine();
 }
 
-function compileLayer(layer: Layer, layerIndex: number, fileNode: CompositeGeneratorNode): string {
+function compileLayer(layer: Layer, layerIndex: number, fileNode: CompositeGeneratorNode): ILayer {
     const videoClips: string[] = [];
     const audioClips: string[] = [];
 
     let videoVar = "";
     layer.elements.forEach((clip) => {
-        let clipVar: string;
+        const clipVar = clip.clipName;
         if(isAudioClip(clip)){
-            clipVar = clip.clipName;
-            /*compileAudiosCLip(clip,clipVar,fileNode)
-            attachAudioToVideo(clipVar, videoVar,fileNode)*/
             audioClips.push(clipVar);
         }
-        else{
-            clipVar = clip.clipName;
+       /* if(isAudioClip(clip)){
+            const clipVar = clip.clipName;
+            compileAudiosCLip(clip,clipVar,fileNode)
+            attachAudioToVideo(clipVar, videoVar,fileNode)
+        }
+        else{*/
             generateProgramBody(clipVar,clip,fileNode,videoVar)
             if ( isVideoClip(clip)&& isPathVideo(clip)) {
                 if (layerIndex > 0 ) {
                     let position = clip.position;
-                    const size = clip.size|| 100;    
+                    const size = clip.size|| 100;
                     const after = clip.properties.find(prop => prop.positionInTimeline !== undefined)?.positionInTimeline;
 
                     if (position == "bottom-left" || position == "left-bottom") {
@@ -105,25 +118,31 @@ function compileLayer(layer: Layer, layerIndex: number, fileNode: CompositeGener
                         fileNode.append(`${clipVar} = ${clipVar}.with_position((${position}))`);
                         fileNode.appendNewLine();
                     }
-                    
+
                     if (size !== undefined) {
                         fileNode.append(`${clipVar} = ${clipVar}.resized(${size/100})`);
                         fileNode.appendNewLine();
                     }
                 }
+                videoClips.push(clipVar);
             }
             /*if(isAudioClip(clip)){
                 attachAudioToVideo(clipVar, videoVar,fileNode)
             }*/
-            videoClips.push(clipVar);
-        }
+
+
     });
 
     if (videoClips.length === 1) {
-        return compileSingleClip(videoClips[0], fileNode);
-    } else if(videoClips.length > 1){
-        return compileMultipleClip(videoClips,layer, layerIndex, fileNode);
+        return {layerName:compileSingleClip(videoClips[0], fileNode),isAudioLayer:false};
+        // return compileSingleClip(videoClips[0], fileNode);
     }
+     else if(videoClips.length > 1){
+        return {layerName: compileMultipleClip(videoClips, layer, fileNode),isAudioLayer:false};
+
+    }/* else {
+        return compileMultipleClip(videoClips,layer, layerIndex, fileNode);
+    }*/
     if(audioClips.length === 1){
         return {layerName:audioClips[0],isAudioLayer:true};
     }
@@ -133,19 +152,13 @@ function compileLayer(layer: Layer, layerIndex: number, fileNode: CompositeGener
     }
 
     return {layerName:"Invalid layer type",isAudioLayer:false};
+
 }
 
-function compileAudiosCLip(clip:AudioClip,clipVar:string,fileNode: CompositeGeneratorNode):void{
-    const  audioClipsVar:string[]=[];
-    let audioClipVar = `${clipVar}`;
-    audioClipsVar.push(audioClipVar);
-    let clipCode = compileAudioClip(clip);
-    /*clipCode = cutClip(audioClip, clipCode);*/
-    fileNode.append(`${audioClipVar} = ${clipCode}`);
+function compileAudiosCLip(audios:string[],clipVar:string,fileNode: CompositeGeneratorNode):string{
+    fileNode.append(`${clipVar} = concatenate_audioclips([${audios.join(",")}])`);
     fileNode.appendNewLine();
-
-    fileNode.append(`${clipVar} = concatenate_audioclips([${audioClipsVar.join(",")}])`);
-    fileNode.appendNewLine();
+    return clipVar;
 
 
 }
@@ -154,8 +167,8 @@ function compileSingleClip(clipCode: string, fileNode: CompositeGeneratorNode): 
     return clipCode; 
 }
 
-function compileMultipleClip(clips: string[], layer: Layer , layerIndex: number, fileNode: CompositeGeneratorNode): string {
-    const layerVar = `layer_${layerIndex}`;
+function compileMultipleClip(clips: string[], layer: Layer, fileNode: CompositeGeneratorNode): string {
+    const layerVar = layer.layerName;
 
     fileNode.append(`${layerVar} = concatenate_videoclips([`);
     fileNode.appendNewLine();
@@ -194,7 +207,7 @@ function compileClip(clip: LayerElement,clipVar : String): string {
             return clipCode;
         }
         return "clip format not supported"
-        
+
     }
 }
 
@@ -255,19 +268,29 @@ function compileEffect(effect:VideoEffect,clipVar:string,fileNode: CompositeGene
     }
 }*/
 
-/*function  compileVolumeEffect(effect:VolumeEffect,clipVar:string,fileNode: CompositeGeneratorNode, volumeEffectName:string):void{
-    const begin = effect.properties.find(prop => prop.begin !== undefined)?.begin || 0;
-    const end = effect.properties.find(prop => prop.end !== undefined)?.end || 0;
-    if(begin !== undefined && end !== undefined){
-        fileNode.append(`${volumeEffectName} = afx.MultiplyVolume(${effect.volume}, start_time=${begin}, end_time=${end})`)
+function  compileVolumeEffect(effect:VolumeEffect,clipVar:string,fileNode: CompositeGeneratorNode, volumeEffectName:string):void{
+    const intervall = effect.intervall;
+    const begin = intervall?.begin || '00:00:00';
+    let end = null;
+    let effectDuration = null;
+    if ( isIntervalFrom(intervall)){
+        end = intervall.end || null;
+    }else if (isIntervalDuration(intervall)){
+        effectDuration = intervall.duration || null;
+    }
 
+    if(begin !== undefined && end !== null){
+        fileNode.append(`${volumeEffectName} = afx.MultiplyVolume(${effect.volume}, start_time=${convertToSeconds(begin)}, end_time=${convertToSeconds(end)})`)
+
+    }else if (  begin !== undefined && effectDuration !== null){
+        fileNode.append(`${volumeEffectName} = afx.MultiplyVolume(${effect.volume}, start_time=${convertToSeconds(begin)}, end_time=${convertToSeconds(begin+effectDuration)})`)
     }
     else{
         if(begin !== undefined){
-            fileNode.append(`${volumeEffectName} = afx.MultiplyVolume(${effect.volume}, start_time=${begin})`)
+            fileNode.append(`${volumeEffectName} = afx.MultiplyVolume(${effect.volume}, start_time=${convertToSeconds(begin)})`)
         }
-        if(end !== undefined){
-            fileNode.append(`${volumeEffectName} = afx.MultiplyVolume(${effect.volume}, end_time=${end})`)
+        if(end !== null){
+            fileNode.append(`${volumeEffectName} = afx.MultiplyVolume(${effect.volume}, end_time=${convertToSeconds(end)})`)
         }
         else{
             fileNode.append(`${volumeEffectName} = afx.MultiplyVolume(${effect.volume})`)
@@ -276,7 +299,7 @@ function compileEffect(effect:VideoEffect,clipVar:string,fileNode: CompositeGene
     }
     fileNode.appendNewLine()
 
-}*/
+}
 
 
 function compileFreezingEffect(effect:FreezingEffect,clipVar:string,fileNode: CompositeGeneratorNode):void{
@@ -289,7 +312,7 @@ function compileFreezingEffect(effect:FreezingEffect,clipVar:string,fileNode: Co
     }else if (isIntervalDuration(intervall)){
         effectDuration = intervall.duration || null;
     }
-    
+
     if (end !== null) {
         const duration = convertToSeconds(end) - convertToSeconds(begin);
         fileNode.append(`freeze_effect = Freeze(t=${convertToSeconds(begin)}, freeze_duration=${duration})`)
@@ -331,7 +354,8 @@ function compileGrayscaleEffect(effect:GrayscaleEffect,clipVar:string,fileNode: 
 }
 
 function cutClip(clip : LayerElement,clipCode:string) : string {
-    if (hasClipProperties(clip)&&( isSubtitleClip(clip) || isPathVideo(clip))) { 
+    if (hasClipProperties(clip)&&( isSubtitleClip(clip) || isPathVideo(clip)||isAudioClip(clip))) {
+        
         const begin = clip.properties.find(prop => prop.interval.begin !== undefined)?.interval.begin || '00:00:00';
         const end = clip.properties.find(prop => prop.interval.end !== undefined)?.interval.end || null;
         const convertedsBegin = convertToSeconds(begin);
@@ -350,7 +374,7 @@ function cutClip(clip : LayerElement,clipCode:string) : string {
     return clipCode;
 }
 
-/*function compileAudioEffects(effects: Array<Effect>, clipVar: string, fileNode: CompositeGeneratorNode,videoClipVar?:string):void{
+function compileAudioEffects(effects: Array<AudioEffect>, clipVar: string, fileNode: CompositeGeneratorNode,videoClipVar?:string):void{
     const effectsVar:string[] = [];
 effects.forEach(effect => {
     if(isVolumeEffect(effect)){
@@ -366,7 +390,7 @@ effects.forEach(effect => {
 fileNode.append(`${clipVar} = ${clipVar}.with_effects([${effectsVar.join(",")}])`);
 fileNode.appendNewLine()
 
-}*/
+}
 
 function addSubtitleToClip(clip: SubtitleClip): string {
     const text = clip.TextProperties.find(prop => prop.text !== undefined)?.text || "Subtitle";
@@ -402,7 +426,7 @@ function generateProgramBody(clipVar: string,clip:LayerElement, fileNode:Composi
    if(isVideoClip(clip)) clip.effects.forEach(effect => {
         compileEffect(effect,clipVar,fileNode);
     });
-   //else if(isAudioClip(clip)) compileAudioEffects(clip.effects,clipVar,fileNode,videoClipVar);
+   else if(isAudioClip(clip)) compileAudioEffects(clip.effects,clipVar,fileNode,videoClipVar);
 }
 
 function attachAudioToVideo(clipVar:string, videoVar:string,fileNode:CompositeGeneratorNode):void{
@@ -411,23 +435,23 @@ function attachAudioToVideo(clipVar:string, videoVar:string,fileNode:CompositeGe
 
 }
 
-/*function compileLoopEffect(effect:LoopEffect,clipVar:string,fileNode: CompositeGeneratorNode, loopEffectName:string,videoClipVar?:string):void{
+function compileLoopEffect(effect:LoopEffect,clipVar:string,fileNode: CompositeGeneratorNode, loopEffectName:string,videoClipVar?:string):void{
     if(( isLoopDurationEffects(effect) && effect.duration === undefined) || ( isLoopNumberEffects(effect) && effect.x_times === undefined)){
         fileNode.append(`${loopEffectName} = afx.AudioLoop(duration=${videoClipVar}.duration)`)
     }
     else {
 
-    if(( isLoopNumberEffects(effect) && effect.x_times === undefined)){
-        fileNode.append(`${loopEffectName} = afx.AudioLoop(n_loops=${effect.n_times})`)
+    if(( isLoopNumberEffects(effect) && effect.x_times !== undefined)){
+        fileNode.append(`${loopEffectName} = afx.AudioLoop(n_loops=${effect.x_times})`)
     }
-    if(( isLoopDurationEffects(effect) && effect.duration === undefined)){
-            fileNode.append(`${loopEffectName} = afx.AudioLoop(duration=${effect.duration})`)
+    if(( isLoopDurationEffects(effect) && effect.duration  !== undefined)){
+            fileNode.append(`${loopEffectName} = afx.AudioLoop(duration=${convertToSeconds(effect.duration)})`)
 
         }
     }
     fileNode.appendNewLine()
     // ne pas ajouter un audio  a une seconde d'un video si la seconde n'este pas ne pas ajouter une audio a un noomde variable qui n'existe pas
-}*/
+}
 
 function compileFadeOutEffect(effect: FadeOutEffect, clipVar: string, fileNode: CompositeGeneratorNode): void {
     fileNode.append(`${clipVar} = ${clipVar}.with_effects([vfx.CrossFadeOut(${convertToSeconds(effect.duration)})])`);
