@@ -1,6 +1,10 @@
 timeline my_video {
     ---@layer1
-    |CustomClip @custom {
-        text: 'Welcome to my video !', duration: 5, color: 'white', bg_color:'pink', position: 'left'}
-    |Video @Finn'../demo/generated/videos/video2.mp4'
+    |TextVideo @custom {
+        text: 'Welcome to my video !', duration: '00:00:05', color:#FFFFFF  , bg_color: #FFC0CB , position: 'left'
+        }
+    |Video @v1 'videos/video2.mp4'
+    |TextVideo @outro {
+        text: 'Thank you!', duration: '00:00:05', color:#FFFFFF  , bg_color: #FFC0CB , position: 'center'
+        }
 }

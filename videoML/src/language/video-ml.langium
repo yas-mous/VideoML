@@ -31,9 +31,7 @@ VideoClip:
 
 TextVideo:
     '|TextVideo' '@' clipName=ID '{' NL
-        'size:' size=INT ',' 'position:' position=STRING 
         TextProperties+=TextProperties 
-        (',' properties+=ClipProperty)* NL
         '}' ('~' effects+=VideoEffect)*NL;
 
 PathVideo:
@@ -52,21 +50,8 @@ TextProperties:
     (',' 'font_size:' fontSize=INT)? NL;
 
 
-
-
 AudioClip:
     '|Audios' '@' clipName=ID sourceFile=STRING (',' properties+=ClipProperty)* ('~' effects+=AudioEffect)*;
-
-/*CustomClip:
-    '|CustomClip' '@' clipName=ID '{' NL
-        'text:' text=STRING ',' 
-        'duration:' duration=Time
-        (',' 'color:' color=STRING)?
-        (',' 'bg_color:' bg_color=STRING)?
-        (',' 'position:' position=STRING)?
-        (',' 'font_size:' fontSize=INT)?
-    '}'NL;*/
-
 
 
 VideoEffect:
@@ -75,13 +60,11 @@ VideoEffect:
 AudioEffect:
     VolumeEffect | LoopEffect;
 
-
-
 FreezingEffect:
-    'freeze' (',' intervall+=Intervall)*;
+    'freeze' (intervall=Intervall);
 
 GrayscaleEffect:
-    'grayscale' (',' intervall+=Intervall)*;
+    'grayscale' ( intervall=Intervall)*;
 
 FadeInEffect:
     'fadein' ('duration:' duration=STRING);
@@ -97,8 +80,8 @@ IntervalFrom:
     (',' 'from:' begin=STRING)? (',' 'to:' end=STRING)?;
 
 IntervalDuration:
-    'from:'begin=Time |
-    'duration:'duration=Time;
+    ',' 'from:'begin=STRING 
+    ',' 'duration:'duration=STRING;
 
 VolumeEffect:
     'volume' '(' 'x:' volume=INT')';

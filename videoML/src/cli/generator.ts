@@ -3,9 +3,9 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { extractDestinationAndName } from './cli-util.js';
 import { TimeLine, Layer, isVideoClip, PathVideo,FadeOutEffect ,FadeInEffect , isFadeOutEffect , isFadeInEffect, isGrayscaleEffect, 
-         GrayscaleEffect,isAudioClip, AudioClip,isSubtitleClip,SubtitleClip, LayerElement, TextVideo, isPathVideo , 
-         isTextVideo, VideoEffect, isIntervalDuration, isIntervalFrom} from '../language/generated/ast.js';
-import { generateOutputFilePath, hasClipProperties, convertToSeconds} from './utils.js';
+         GrayscaleEffect,isAudioClip, AudioClip,isSubtitleClip,SubtitleClip, LayerElement, TextVideo, isPathVideo ,FreezingEffect, 
+         isTextVideo, VideoEffect, isIntervalDuration, isIntervalFrom, isFreezingEffect} from '../language/generated/ast.js';
+import { generateOutputFilePath, hasClipProperties, convertToSeconds, colorConvert} from './utils.js';
 
 export function generatepython(timeline: TimeLine, filePath: string, destination: string | undefined): string {
     const data = extractDestinationAndName(filePath, destination);
@@ -76,7 +76,7 @@ function compileLayer(layer: Layer, layerIndex: number, fileNode: CompositeGener
         else{
             clipVar = clip.clipName;
             generateProgramBody(clipVar,clip,fileNode,videoVar)
-            if ( isVideoClip(clip)) {
+            if ( isVideoClip(clip)&& isPathVideo(clip)) {
                 if (layerIndex > 0 ) {
                     let position = clip.position;
                     const size = clip.size|| 100;    
@@ -166,8 +166,7 @@ function compileMultipleClip(clips: string[], layer: Layer , layerIndex: number,
     return layerVar;
 }
 
-function compileClip(clip: LayerElement): string {
-    //TOADD : different types of clips (video, audio ...)
+function compileClip(clip: LayerElement,clipVar : String): string {
     if (isPathVideo(clip)) {
         let clipCode = compileVideoClip(clip);
         clipCode = cutClip(clip, clipCode);
@@ -182,7 +181,7 @@ function compileClip(clip: LayerElement): string {
             return clipCode;
         }
         if (isTextVideo(clip)) {
-            let clipCode = createCustomClip(clip);
+            let clipCode = createCustomClip(clip,clipVar);
             return clipCode;
         }
         return "clip format not supported"
@@ -200,19 +199,6 @@ function compileAudioClip(clip: AudioClip): string {
 }
 // FUNCTIONS TO IMPLEMENT (commented because of compilation errors : empty functions)
 
-/*
-
-
-function compileText(){
-    //TODO
-}
-
-function compileTransition(){
-    //TODO
-}
-*/
-
-
 function compileEffect(effect:VideoEffect,clipVar:string,fileNode: CompositeGeneratorNode):void{
     if(isGrayscaleEffect(effect)){
         compileGrayscaleEffect(effect,clipVar,fileNode)
@@ -220,9 +206,9 @@ function compileEffect(effect:VideoEffect,clipVar:string,fileNode: CompositeGene
     /*else if(isCropEffect(effect)){
         compileCropEffect(effect,clipVar,fileNode)
     }*/
-    /*else if(isFreezingEffect(effect)){
+    else if(isFreezingEffect(effect)){
         compileFreezingEffect(effect,clipVar,fileNode)
-    }*/
+    }
     else if (isFadeOutEffect(effect)) {
         compileFadeOutEffect(effect, clipVar, fileNode);
     } else if (isFadeInEffect(effect)) {
@@ -284,14 +270,27 @@ function compileEffect(effect:VideoEffect,clipVar:string,fileNode: CompositeGene
 }*/
 
 
-/*function compileFreezingEffect(effect:FreezingEffect,clipVar:string,fileNode: CompositeGeneratorNode):void{
+function compileFreezingEffect(effect:FreezingEffect,clipVar:string,fileNode: CompositeGeneratorNode):void{
+    const begin = effect.intervall.begin || '00:00:00';
+    const intervall = effect.intervall;
+    let end = null;
+    let effectDuration = null;
+    if ( isIntervalFrom(intervall)){
+        end = intervall.end || null;
+    }else if (isIntervalDuration(intervall)){
+        effectDuration = intervall.duration || null;
+    }
     
-    fileNode.append(`freeze_effect = Freeze(t=${effect.begin}, freeze_duration=${effect.frameSeconds})`)
+    if (end !== null) {
+        const duration = convertToSeconds(end) - convertToSeconds(begin);
+        fileNode.append(`freeze_effect = Freeze(t=${convertToSeconds(begin)}, freeze_duration=${duration})`)
+    } else if (effectDuration !== null) {
+        fileNode.append(`freeze_effect = Freeze(t=${ convertToSeconds(begin)}, freeze_duration=${convertToSeconds(effectDuration)})`)
+    }
     fileNode.appendNewLine()
     fileNode.append(`${clipVar} = freeze_effect.apply(${clipVar})`)
     fileNode.appendNewLine()
-
-}*/
+}
 
 
 function compileGrayscaleEffect(effect:GrayscaleEffect,clipVar:string,fileNode: CompositeGeneratorNode):void{
@@ -329,7 +328,7 @@ function compileGrayscaleEffect(effect:GrayscaleEffect,clipVar:string,fileNode: 
 }
 
 function cutClip(clip : LayerElement,clipCode:string) : string {
-    if (hasClipProperties(clip)&&( isSubtitleClip(clip) || isPathVideo(clip) || isTextVideo(clip))) { 
+    if (hasClipProperties(clip)&&( isSubtitleClip(clip) || isPathVideo(clip))) { 
         /*const begin = clip.properties.find(prop => prop.begin !== undefined)?.begin || 0;
         const end = clip.properties.find(prop => prop.end !== undefined)?.end || null;*/
         const begin = clip.properties.find(prop => prop.interval.begin !== undefined)?.interval.begin || '00:00:00';
@@ -396,7 +395,7 @@ function addSubtitleToClip(clip: SubtitleClip): string {
 }
 
 function generateProgramBody(clipVar: string,clip:LayerElement, fileNode:CompositeGeneratorNode,videoClipVar?:string):void {
-    const clipCode = compileClip(clip);
+    const clipCode = compileClip(clip,clipVar);
     fileNode.append(`${clipVar} = ${clipCode}`); 
     fileNode.appendNewLine();
    if(isVideoClip(clip)) clip.effects.forEach(effect => {
@@ -439,21 +438,16 @@ function compileFadeInEffect(effect: FadeInEffect, clipVar: string, fileNode: Co
     fileNode.appendNewLine();
 }
 
-function createCustomClip( customClip: TextVideo): string {
-    /*const text = customClip.text || "Intro Title";
-    const duration = customClip.duration || 10;  
-    const color = customClip.color || "white";
-    const bgColor = customClip.bg_color || "black";
-    const position = customClip.position || "center";
-    const fontSize = customClip.fontSize || 48;
-    const font = "Arial"*/
+function createCustomClip( customClip: TextVideo, clipVar : String): string {
 
     const text = customClip.TextProperties.find(prop => prop.text !== undefined)?.text || "Intro Title";
     const duration = customClip.TextProperties.find(prop => prop.duration !== undefined)?.duration || '00:00:10';
-    const color = customClip.TextProperties.find(prop => prop.color !== undefined)?.color || "white";
+    const color = customClip.TextProperties.find(prop => prop.color !== undefined)?.color || "#FFFFFF";
     const bgColor = customClip.TextProperties.find(prop => prop.bg_color !== undefined)?.bg_color || "black";
     const position = customClip.TextProperties.find(prop => prop.position !== undefined)?.position || "center";
     const fontSize = customClip.TextProperties.find(prop => prop.fontSize !== undefined)?.fontSize || 48;
+
+    const colorInRGB = colorConvert(bgColor);
 
     // Créer un TextClip avec un fond noir
     const introTitleClip = `TextClip(
@@ -462,8 +456,13 @@ function createCustomClip( customClip: TextVideo): string {
             font_size=${fontSize},
             color='${color}',
             bg_color='${bgColor}'
-        ) .with_duration(${duration}).with_position('${position}')`;
+        ) .with_duration(${convertToSeconds(duration)}).with_position('${position}')
+        
+bg_clip = ColorClip(size=(1300, 750) ,color=${colorInRGB}).with_duration(${convertToSeconds(duration)})
 
+${clipVar} = CompositeVideoClip([bg_clip,${clipVar}]).with_position('${position}')`;
+
+    
     // Ajouter ce clip d'introduction avant le clip existant
     return `${introTitleClip}`;
 }
