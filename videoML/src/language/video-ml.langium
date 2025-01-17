@@ -83,7 +83,8 @@ IntervalDuration:
     ',' 'duration:'duration=STRING;
 
 VolumeEffect:
-    'volume' '(' 'x:' volume=INT')';
+    'volume' '(' 'x' volume=INT (properties+=Intervall)* ')';
+
 
 LoopEffect:
     LoopDurationEffects | LoopNumberEffects ;
