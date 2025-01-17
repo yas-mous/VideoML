@@ -5,6 +5,7 @@ import VideoPreview from "./visualisations/videoPrevisualisation.tsx";
 import HelpButton from "./utils/help.tsx";
 import EyamotionLogo from "./logos/eyamotionLogo.tsx";
 import { TimelineVisualization } from "./timeline/timeline.tsx";
+import GenerationButton from "./generation/generateButton.tsx";
 
 import "../styles/styles.css";
 
@@ -14,6 +15,7 @@ const App: React.FC = () => {
       <div className="header">
         <HelpButton />
         <EyamotionLogo />
+        <GenerationButton />
       </div>
       <div className="grid-container">
         <div className="editor">
@@ -34,11 +36,7 @@ const App: React.FC = () => {
       </div>
       <footer>
         <p style={{ fontStyle: "italic" }}>Powered by</p>
-        <img
-          width="125"
-          src="https://langium.org/assets/langium_logo_w_nib.svg"
-          alt="Langium"
-        />
+        
       </footer>
     </div>
   );

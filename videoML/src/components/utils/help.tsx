@@ -1,5 +1,5 @@
 import React from "react";
-import "../../styles/helpButton.css";
+import "../../styles/button.css";
 
 const HelpButton: React.FC = () => {
   const handleClick = () => {

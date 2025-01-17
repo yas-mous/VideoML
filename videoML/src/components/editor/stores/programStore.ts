@@ -11,7 +11,7 @@ export interface ProgramStore {
     markAsSaved: () => void;
     resetCode: () => void;
     setAst: (ast: any) => void;
-    setPythonCode: (pythonCode: string) => void;
+    setPythonCode: (pythonCodeG: string) => void;
     setIsVideoMLValid: (isValid: boolean) => void;
 }
 
@@ -28,12 +28,16 @@ export const useProgramStore = create<ProgramStore>((set) => ({
                     isSaved: false,
                 })),
 
-            setPythonCode: (code) =>
-                set(() => ({
-                    code,
-                    isSaved: false,
-                })),
-
+                setPythonCode: (pythonCodeG) => {
+                    console.log("setttttttttttttttttttttttttttttt")
+                    console.log("Pjjjjjjjjjjjjjjjjjj:", pythonCodeG); 
+                    set(() => ({
+                        pythonCode:pythonCodeG,
+                        isSaved: false,
+                    }));
+                },
+                
+                
             markAsSaved: () =>
                 set(() => ({
                     isSaved: true,

@@ -15,7 +15,7 @@ export const setupConfigExtended = (): UserConfig => {
                 code: 
 `timeline myVideo {
     ---@Layer1
-    |Video @V1 'video2.mp4' 
+    |Video @V1 'video2.mp4'
     ---@Layer2
     |Audio @Audio1 'video1.mp4'
 }`,

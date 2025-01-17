@@ -32,8 +32,11 @@ shared.workspace.DocumentBuilder.onBuildPhase(DocumentState.Validated, documents
        
         if(document.diagnostics === undefined  || document.diagnostics.filter((i) => i.severity === 1).length === 0) {
             pythonCode = generatePythonProgram(model);
+            console.log("mainBrowser valiiiiiiiiiid");
             (model as unknown as {$isValid: boolean}).$isValid = true;
         } else {
+            console.log("mainBrowser nooooooooooooooooooo");
+
             (model as unknown as {$isValid: boolean}).$isValid = false;
         }
 
