@@ -1,0 +1,7 @@
+timeline groupVideo & mp4 output'../generatedVideos'{
+    --- @layer1
+    |Video @v1 'videos/video1.mp4'
+    |Video @v2 'videos/video2.mp4'
+    --- @layer2
+    |Audio @a1 'audios/audio1.mp3'
+}

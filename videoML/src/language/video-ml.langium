@@ -32,7 +32,7 @@ VideoClip:
 TextVideo:
     '|TextVideo' '@' clipName=ID '{' NL
         TextProperties+=TextProperties 
-        '}' ('~' effects+=VideoEffect)*NL;
+        '}' (('~' effects+=VideoEffect)*)?NL;
 
 PathVideo:
     '|Video' '@' clipName=ID sourceFile=STRING
@@ -51,7 +51,7 @@ TextProperties:
 
 
 AudioClip:
-    '|Audios' '@' clipName=ID sourceFile=STRING (',' properties+=ClipProperty)* ('~' effects+=AudioEffect)*;
+    '|Audio' '@' clipName=ID sourceFile=STRING (',' properties+=ClipProperty)? (('~' effects+=AudioEffect)*)? NL;
 
 
 VideoEffect:
@@ -64,7 +64,7 @@ FreezingEffect:
     'freeze' (intervall=Intervall);
 
 GrayscaleEffect:
-    'grayscale' ( intervall=Intervall)*;
+    'grayscale' ( intervall=Intervall);
 
 FadeInEffect:
     'fadein' ('duration:' duration=STRING);
@@ -90,7 +90,7 @@ LoopEffect:
     LoopDurationEffects | LoopNumberEffects ;
 
 LoopDurationEffects:
-    'loop' duration= Time;
+    'loop' duration= STRING;
 
 LoopNumberEffects:
     'loop' x_times=INT;
@@ -100,10 +100,9 @@ hidden terminal WS: /\s+/;
 terminal ID: /[_a-zA-Z][\w_]*/;
 terminal INT returns number: /[0-9]+/;
 terminal NL: /\r?\n/;
-terminal DOUBLE returns number: INT '.' INT;
-terminal FLOAT returns number: /[0-9]+(\.[0-9]+)?/;
+//terminal DOUBLE returns number: INT '.' INT;
+//terminal FLOAT returns number: /[0-9]+(\.[0-9]+)?/;
 //terminal EXTENSION: 'mp4' | 'avi' | 'mkv' | 'mov' | 'flv' | 'webm';
 terminal STRING: /'(\\.|[^'\\])*'|'(\\.|[^'\\])*'/;
 terminal COLOR: /#[0-9a-fA-F]{6}/;
-terminal Time : /[0-9]{2}:[0-9]{2}:[0-9]{2}/;
 //terminal PATH: /([a-zA-Z]:[\\/]|[\\/])?[a-zA-Z0-9\-_\\\/. ]+/;
