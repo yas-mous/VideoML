@@ -1,5 +1,5 @@
 import React from "react";
-import { LayerElement } from "../../../cli/models/models.js";
+import { LayerElement } from "videoML/src/cli/models/models.js";
 
 export const ClipUI: React.FC<{ clip: LayerElement; width: number }> = ({ clip, width }) => {
   const color:string =clip.$type === "AudioClip" ? "#ffbb33" : "#6699ff";

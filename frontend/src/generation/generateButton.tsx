@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useProgramStore } from "../editor/stores/programStore.js";
 
-import "../../styles/button.css";
+import "../styles/button.css";
 
 
 const GenerationButton: React.FC = () => {

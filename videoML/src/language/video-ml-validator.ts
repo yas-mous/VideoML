@@ -17,7 +17,7 @@ export function registerValidationChecks(services: VideoMlServices) {
             validator.checkRequiredArgument,
             validator.checkValidVideoExtension,
             validator.checkUniqueNames,
-            validator.validateSubtitleTiming,
+            //validator.validateSubtitleTiming,
             validator.validateStackingVideos
         ],
         LayerElement:validator.checkClipProperties,
@@ -216,7 +216,7 @@ export class VideoMlValidator {
     validateSubtitleTiming(timeline: TimeLine, accept: ValidationAcceptor): void {
         const allLayers: Layer[] = timeline.layers;
         allLayers.forEach(layer => {
-            if (!layer.layerName.startsWith('subtitles')) {
+            if (layer && !layer.layerName.startsWith('subtitles')) {
                 return; // Ne valide que les layers de sous-titres
             }
             // Récupérer tous les clips sous-titres dans ce layer

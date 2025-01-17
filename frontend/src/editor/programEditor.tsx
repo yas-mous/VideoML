@@ -1,6 +1,6 @@
 import React from "react";
 import { useProgramStore } from "./stores/programStore.js";
-import { useMonacoEditor } from "./hooks/useMonacoEditor";
+import { useMonacoEditor } from "./hooks/useMonacoEditor.js";
 
 export const ProgramEditor = () => {
     const setCode = useProgramStore((state) => state.setCode);

@@ -1,7 +1,7 @@
 import React from "react";
 //import { useProgramStore } from "../../editor/stores/programStore.ts";
 import { ClipUI } from "../clips/clip";
-import { Layer } from "../../../cli/models/models.js";
+import { Layer } from "videoML/src/cli/models/models.js";
 import { TransitionUI } from "../transition/transition";
 import { MdMusicVideo } from "react-icons/md";
 import { FaVideo } from "react-icons/fa";

@@ -1,0 +1,19 @@
+.video-preview-container {
+    text-align: center;
+  }
+  
+  .video-preview-container h2 {
+    margin-bottom: 16px;
+  }
+  
+  .video-upload-input {
+    margin-top: 16px;
+  }
+  
+  .video-preview-container video {
+    max-width: 70%; 
+    max-height: 300px; 
+    margin: 0 auto; 
+    display: block; 
+    border: 2px solid #444; 
+}

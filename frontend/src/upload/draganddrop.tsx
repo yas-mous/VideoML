@@ -1,7 +1,7 @@
 import React, { useCallback } from "react";
-import DragAndDropZone from "./utils/dragDropZone";
-import FileList from "./utils/fileList";
-import Modal from "./utils/modal";
+import DragAndDropZone from "./utils/dragDropZone.js";
+import FileList from "./utils/fileList.js";
+import Modal from "./utils/modal.js";
 import { useVideoStore } from "./stores/videoStore.js";
 import { useAudioStore } from "./stores/audioStore.js";
 

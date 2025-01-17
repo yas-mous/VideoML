@@ -1,5 +1,5 @@
-import { AST, CustomClip, LayerElement, AudioClip, SubtitleClip, VideoClip } from "../../../cli/models/models.js";
-import { Layer } from "../../../language/generated/ast.js";
+import { AST, CustomClip, LayerElement, AudioClip, SubtitleClip, VideoClip } from "videoML/src/cli/models/models.js";
+import { Layer } from "videoML/src/language/generated/ast.js";
 import { useProgramStore } from "../stores/programStore.js";
 
 

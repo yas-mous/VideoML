@@ -1,6 +1,6 @@
 import React from "react";
 import { useMappedTimeline } from "../editor/hooks/useMappedTimeline";
-import { AST } from "../../cli/models/models.js";
+import { AST } from "videoML/src/cli/models/models";
 import { LayerUI } from "./layers/layer";
 
 

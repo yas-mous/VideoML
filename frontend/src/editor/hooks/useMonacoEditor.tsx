@@ -1,14 +1,14 @@
 import { useEffect, useRef } from "react";
 import { MonacoEditorLanguageClientWrapper } from "monaco-editor-wrapper";
-import { setupConfigExtended } from "../../../setupExtended.js";
-import { configureMonacoWorkers } from "../../../setupCommon.js";
+import { setupConfigClassic } from "videoML/src/setupClassic.js";   
+import { configureMonacoWorkers } from "videoML/src/setupCommon.js";
 import { useProgramStore } from "../stores/programStore.js";
 
 export const useMonacoEditor = (setCode: (code: string) => void) => {
     const refHtml = useRef<HTMLDivElement>(null!);
     const initialized = useRef(false);
     const wrapper = useRef(new MonacoEditorLanguageClientWrapper());
-    const userConfig = setupConfigExtended();
+    const userConfig = setupConfigClassic();
     const setAst = useProgramStore((state) => state.setAst);
     const setPythonCode = useProgramStore((state) => state.setPythonCode);
     const setIsVideoMLValid = useProgramStore((state) => state.setIsVideoMLValid);

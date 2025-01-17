@@ -7,7 +7,7 @@ import EyamotionLogo from "./logos/eyamotionLogo";
 import { TimelineVisualization } from "./timeline/timeline";
 import GenerationButton from "./generation/generateButton";
 
-import "../styles/styles.css";
+import "./styles/styles.css";
 
 const App: React.FC = () => {
   return (

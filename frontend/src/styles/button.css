@@ -1,0 +1,42 @@
+.help-button {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: #618642;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.help-button:hover {
+    background-color: #555;
+}
+
+.help-button:active {
+    background-color: #666;
+}
+
+.generation-button {
+    position: relative; 
+    margin: 20px 0;     
+    background-color: #424786;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.generation-button:hover {
+    background-color: #555;
+}
+
+.generation-button:active {
+    background-color: #666;
+}
