@@ -1,8 +1,8 @@
 from moviepy import *
 from moviepy.video.fx import *
 
-v1 = VideoFileClip("videos/video1.mp4")
-v2 = VideoFileClip("videos/video2.mp4").subclipped(0, 5)
+v1 = VideoFileClip("videos/video1.mp4").subclipped(1, 5)
+v2 = VideoFileClip("videos/video2.mp4").subclipped(0, 3)
 layer_0 = concatenate_videoclips([
     v1,
     v2,

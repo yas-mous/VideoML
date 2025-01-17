@@ -3,7 +3,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { extractDestinationAndName } from './cli-util.js';
 import { TimeLine, Layer, isVideoClip, PathVideo,FadeOutEffect ,FadeInEffect , isFadeOutEffect , isFadeInEffect, isGrayscaleEffect, 
-         GrayscaleEffect,isAudioClip, AudioClip,isSubtitleClip,SubtitleClip, LayerElement, TextVideo, isCustomClip, isPathVideo , 
+         GrayscaleEffect,isAudioClip, AudioClip,isSubtitleClip,SubtitleClip, LayerElement, TextVideo, isPathVideo , 
          isTextVideo, VideoEffect, isIntervalDuration, isIntervalFrom} from '../language/generated/ast.js';
 import { generateOutputFilePath, hasClipProperties, convertToSeconds} from './utils.js';
 
@@ -77,12 +77,11 @@ function compileLayer(layer: Layer, layerIndex: number, fileNode: CompositeGener
             clipVar = clip.clipName;
             generateProgramBody(clipVar,clip,fileNode,videoVar)
             if ( isVideoClip(clip)) {
-                if (layerIndex > 0 && hasClipProperties(clip)) {
-
-                    //const after = clip.properties.find(prop => prop.after !== undefined)?.after;
+                if (layerIndex > 0 ) {
                     let position = clip.position;
-                    const size = clip.size|| 100;
-    
+                    const size = clip.size|| 100;    
+                    const after = clip.properties.find(prop => prop.positionInTimeline !== undefined)?.positionInTimeline;
+
                     if (position == "bottom-left" || position == "left-bottom") {
                         position = "'left', 'bottom'";
                     }else if (position == "bottom-right" || position == "right-bottom") {
@@ -95,10 +94,10 @@ function compileLayer(layer: Layer, layerIndex: number, fileNode: CompositeGener
                         position = "'center', 'center'";
                     }
                     
-                    /*if (after !== undefined) {
-                        fileNode.append(`${clipVar} = ${clipVar}.with_start(${after})`);
+                    if (after !== undefined) {
+                        fileNode.append(`${clipVar} = ${clipVar}.with_start(${convertToSeconds(after)})`);
                         fileNode.appendNewLine();
-                    }*/
+                    }
                     
                     if (position !== undefined) {
                         fileNode.append(`${clipVar} = ${clipVar}.with_position((${position}))`);
@@ -109,17 +108,6 @@ function compileLayer(layer: Layer, layerIndex: number, fileNode: CompositeGener
                         fileNode.append(`${clipVar} = ${clipVar}.resized(${size/100})`);
                         fileNode.appendNewLine();
                     }
-
-    
-                    /*if (width !== undefined) {
-                        fileNode.append(`${clipVar} = ${clipVar}.resized(width=${width})`);
-                        fileNode.appendNewLine();
-                    }
-    
-                    if (height !== undefined) {
-                        fileNode.append(`${clipVar} = ${clipVar}.resized(height=${height})`);
-                        fileNode.appendNewLine();
-                    }*/
                 }
             }
             /*if(isAudioClip(clip)){
@@ -132,7 +120,7 @@ function compileLayer(layer: Layer, layerIndex: number, fileNode: CompositeGener
     if (videoClips.length === 1) {
         return compileSingleClip(videoClips[0], fileNode);
     } else {
-        return compileMultipleClip(videoClips, layerIndex, fileNode);
+        return compileMultipleClip(videoClips,layer, layerIndex, fileNode);
     }
 }
 
@@ -157,7 +145,7 @@ function compileSingleClip(clipCode: string, fileNode: CompositeGeneratorNode): 
     return clipCode; 
 }
 
-function compileMultipleClip(clips: string[], layerIndex: number, fileNode: CompositeGeneratorNode): string {
+function compileMultipleClip(clips: string[], layer: Layer , layerIndex: number, fileNode: CompositeGeneratorNode): string {
     const layerVar = `layer_${layerIndex}`;
 
     fileNode.append(`${layerVar} = concatenate_videoclips([`);
@@ -169,6 +157,9 @@ function compileMultipleClip(clips: string[], layerIndex: number, fileNode: Comp
     });
 
     fileNode.append(`], method="compose")`);
+    if(layer.elements.length > 0 && isSubtitleClip(layer.elements[0])){
+        fileNode.append(`.with_position( 'bottom')`);
+    }
     fileNode.appendNewLine();
 
     fileNode.appendNewLine();
@@ -190,7 +181,7 @@ function compileClip(clip: LayerElement): string {
             clipCode = cutClip(clip, clipCode);
             return clipCode;
         }
-        if (isCustomClip(clip)) {
+        if (isTextVideo(clip)) {
             let clipCode = createCustomClip(clip);
             return clipCode;
         }
@@ -341,16 +332,18 @@ function cutClip(clip : LayerElement,clipCode:string) : string {
     if (hasClipProperties(clip)&&( isSubtitleClip(clip) || isPathVideo(clip) || isTextVideo(clip))) { 
         /*const begin = clip.properties.find(prop => prop.begin !== undefined)?.begin || 0;
         const end = clip.properties.find(prop => prop.end !== undefined)?.end || null;*/
-        const begin = clip.properties.find(prop => prop.interval.begin !== undefined)?.interval.begin || 0;
+        const begin = clip.properties.find(prop => prop.interval.begin !== undefined)?.interval.begin || '00:00:00';
         const end = clip.properties.find(prop => prop.interval.end !== undefined)?.interval.end || null;
-
-
+        const convertedsBegin = convertToSeconds(begin);
+        
         if (begin !== null && end !== null) {
-            clipCode += `.subclipped(${begin}, ${end})`;
+            const convertedsEnd = convertToSeconds(end);
+            clipCode += `.subclipped(${convertedsBegin}, ${convertedsEnd})`;
         } else if (begin !== null && end == null) {
-            clipCode += `.subclipped(${begin})`;
+            clipCode += `.subclipped(${convertedsBegin})`;
         } else if (end !== null) {
-            clipCode += `.subclipped(0, ${end})`;
+            const convertedsEnd = convertToSeconds(end);
+            clipCode += `.subclipped(0, ${convertedsEnd})`;
         }
     }
 
@@ -385,7 +378,14 @@ function addSubtitleToClip(clip: SubtitleClip): string {
     
     const startimeinsecond = convertToSeconds(start);
     const durationinsecond = convertToSeconds(duration);
-
+    if (bg_color === null) {
+        return `TextClip(
+            text="${text}",
+            font="font/font.ttf",
+            font_size=24,
+            color='${color}'
+        ).with_start(${startimeinsecond}).with_duration(${durationinsecond}).with_position('${position}')`;
+    }
     return `TextClip(
         text="${text}",
         font="font/font.ttf",
@@ -430,12 +430,12 @@ function generateProgramBody(clipVar: string,clip:LayerElement, fileNode:Composi
 }*/
 
 function compileFadeOutEffect(effect: FadeOutEffect, clipVar: string, fileNode: CompositeGeneratorNode): void {
-    fileNode.append(`${clipVar} = ${clipVar}.with_effects([vfx.CrossFadeOut(${effect.duration})])`);
+    fileNode.append(`${clipVar} = ${clipVar}.with_effects([vfx.CrossFadeOut(${convertToSeconds(effect.duration)})])`);
     fileNode.appendNewLine();
 }
 
 function compileFadeInEffect(effect: FadeInEffect, clipVar: string, fileNode: CompositeGeneratorNode): void {
-    fileNode.append(`${clipVar} = ${clipVar}.with_effects([vfx.CrossFadeIn(${effect.duration})])`);
+    fileNode.append(`${clipVar} = ${clipVar}.with_effects([vfx.CrossFadeIn(${convertToSeconds(effect.duration)})])`);
     fileNode.appendNewLine();
 }
 

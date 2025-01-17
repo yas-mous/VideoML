@@ -1,5 +1,5 @@
 timeline myVideo {
     ---@layer1
-    |Video @v1 'videos/video1.mp4'
-    |Video @v2  'videos/video2.mp4',to 5
+    |Video @v1 'videos/video1.mp4' , from: '00:00:01', to: '00:00:05'
+    |Video @v2  'videos/video2.mp4', from: '00:00:00', to: '00:00:03'
 }

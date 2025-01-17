@@ -14,7 +14,7 @@ LayerElement:
 
 
 ClipProperty:
-    'start' positionInTimeline= Time ','
+    (',' 'start:' positionInTimeline= STRING )?
     interval = IntervalFrom;
     
 
@@ -22,8 +22,8 @@ ClipProperty:
 SubtitleClip:
     '|Subtitle' '@' clipName=ID '{' NL
         TextProperties+=TextProperties 
-        (',' properties+=ClipProperty)*
-    '}'NL;
+        (properties+=ClipProperty)?
+    '}' NL;
 
 VideoClip:
     PathVideo | TextVideo;
@@ -38,16 +38,16 @@ TextVideo:
 
 PathVideo:
     '|Video' '@' clipName=ID sourceFile=STRING
-        ('size' size=INT ','
-        'position' position=STRING)
-        ((',' properties+=ClipProperty)*)?
-    ( ('~' effects+=VideoEffect)*)?;
+        (',' 'size:' size=INT ','
+        'position:' position=STRING)?
+        (properties+=ClipProperty)?
+    ( ('~' effects+=VideoEffect)*)? NL;
 
 TextProperties:
     'text:' text=STRING ',' 
-    'duration:' duration= Time
-    (',' 'color:' color=STRING)?
-    (',' 'bg_color:' bg_color=STRING)?
+    'duration:' duration= STRING
+    (',' 'color:' color=COLOR)?
+    (',' 'bg_color:' bg_color=COLOR)?
     (',' 'position:' position=STRING)?
     (',' 'font_size:' fontSize=INT)? NL;
 
@@ -57,7 +57,7 @@ TextProperties:
 AudioClip:
     '|Audios' '@' clipName=ID sourceFile=STRING (',' properties+=ClipProperty)* ('~' effects+=AudioEffect)*;
 
-CustomClip:
+/*CustomClip:
     '|CustomClip' '@' clipName=ID '{' NL
         'text:' text=STRING ',' 
         'duration:' duration=Time
@@ -65,7 +65,7 @@ CustomClip:
         (',' 'bg_color:' bg_color=STRING)?
         (',' 'position:' position=STRING)?
         (',' 'font_size:' fontSize=INT)?
-    '}'NL;
+    '}'NL;*/
 
 
 
@@ -84,25 +84,24 @@ GrayscaleEffect:
     'grayscale' (',' intervall+=Intervall)*;
 
 FadeInEffect:
-    'fadein' ('duration:' duration=Time);
+    'fadein' ('duration:' duration=STRING);
 
 FadeOutEffect:
-    'fadeout' ('duration:' duration=Time);
+    'fadeout' ('duration:' duration=STRING);
 
 Intervall:
     IntervalFrom |  IntervalDuration;
 
 
 IntervalFrom:
-    'from'begin=Time| 
-    'to'end=Time;
+    (',' 'from:' begin=STRING)? (',' 'to:' end=STRING)?;
 
 IntervalDuration:
-    'from'begin=Time |
-    'duration'duration=Time;
+    'from:'begin=Time |
+    'duration:'duration=Time;
 
 VolumeEffect:
-    'volume' '(' 'x' volume=INT')';
+    'volume' '(' 'x:' volume=INT')';
 
 LoopEffect:
     LoopDurationEffects | LoopNumberEffects ;

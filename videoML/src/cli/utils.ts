@@ -1,11 +1,12 @@
 import path from "path";
-import { LayerElement,TimeLine,isVideoClip, isAudioClip, isCustomClip, isTextVideo, isPathVideo } from "../language/generated/ast.js";
+import { LayerElement,TimeLine,isVideoClip, isAudioClip, isTextVideo, isPathVideo } from "../language/generated/ast.js";
 
 export function hasClipProperties(clip: LayerElement): boolean {
     //return clip..length > 0;
-    if (((isVideoClip(clip) && (isPathVideo(clip)||isTextVideo(clip))) || isAudioClip(clip) || isCustomClip(clip))) {
+    if (((isVideoClip(clip) && (isPathVideo(clip)||isTextVideo(clip))) || isAudioClip(clip))) {
         return clip.properties.length > 0;
     }
+    
     return false;
 }
 /*
@@ -37,9 +38,9 @@ export function generateOutputFilePath(timeline: TimeLine): string {
 
 export function convertToSeconds(time: string): number {
     const timeArray = time.split(':');
-    return parseInt(timeArray[0]) * 60 * 60 + parseInt(timeArray[1])* 60 +parseInt(timeArray[1]);
+    return parseInt(timeArray[0]) * 60 * 60 + parseInt(timeArray[1])* 60 + parseInt(timeArray[2]);
 }
 
 export function isClipType(clip: LayerElement): boolean {
-    return ((isVideoClip(clip) && (isPathVideo(clip)||isTextVideo(clip))) || isAudioClip(clip) || isCustomClip(clip));
+    return ((isVideoClip(clip) && (isPathVideo(clip)||isTextVideo(clip))) || isAudioClip(clip));
 }
