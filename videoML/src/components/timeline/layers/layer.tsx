@@ -21,8 +21,8 @@ export const LayerUI: React.FC<{ layer: Layer }> = ({ layer }) => {
             padding:"5px",
           }}
         > 
-        {layer.elements[0].$type === "AudioClip" && (<span style={{marginRight:"20px"}}><MdMusicVideo /></span> )}
-        {layer.elements[0].$type !== "AudioClip" && (<span style={{marginRight:"20px"}}> <FaVideo /> </span>)        }
+        {layer.elements[0]?.$type === "AudioClip" && (<span style={{marginRight:"20px"}}><MdMusicVideo /></span> )}
+        {layer.elements[0]?.$type !== "AudioClip" && (<span style={{marginRight:"20px"}}> <FaVideo /> </span>)        }
           {layer.elements.map((element: any, idx: number) => {
             const width = 100; 
             return (
