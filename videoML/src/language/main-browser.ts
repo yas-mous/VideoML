@@ -2,7 +2,7 @@ import { DocumentState, EmptyFileSystem } from 'langium';
 import { startLanguageServer } from 'langium/lsp';
 import { BrowserMessageReader, BrowserMessageWriter, createConnection, Diagnostic, NotificationType } from 'vscode-languageserver/browser.js';
 import { createVideoMlServices } from './video-ml-module.js';
-import { generatePythonProgram } from '../cli/generator.ts';
+import { generatePythonProgram } from '../cli/generator.js';
 import { TimeLine } from './generated/ast.js';
 
 declare const self: DedicatedWorkerGlobalScope;

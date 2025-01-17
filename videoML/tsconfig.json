@@ -1,15 +1,11 @@
 {
     "compilerOptions": {
-        "jsx": "react",
-        "allowImportingTsExtensions": true,
         "target": "ES2017",
         "module": "Node16",
         "lib": [
             "ESNext",
             "DOM",
             "WebWorker",
-            "DOM.Iterable",
-            "dom"
         ],
         "sourceMap": true,
         "outDir": "out",
@@ -22,16 +18,14 @@
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
         "rootDir": ".",
-        "declaration": true,
-        "emitDeclarationOnly": true
-
+        "noEmit": true
     },
     "include": [
-        "src/**/*.ts",
-        "test/**/*.ts", 
-        "src/**/*.tsx"
+        "src/**/*.ts"
     ],
     "exclude": [
+        "out",
+        "public",
         "node_modules"
     ]
 }
