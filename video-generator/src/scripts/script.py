@@ -1,13 +1,10 @@
-import sys
+from moviepy import *
+from moviepy.video.fx import *
 
-if len(sys.argv) < 3:
-    print("Usage: python script.py <arg1> <arg2>")
-    sys.exit(1)
+V1 = VideoFileClip("C:/Users/annad/Documents/semestre2/DSL/test/VideoML/video-generator/uploads/video1.mp4")
+Audio1 = AudioFileClip("C:/Users/annad/Documents/semestre2/DSL/test/VideoML/video-generator/uploads/audio1.mp3")
+Audio1 = Audio1.with_effects([])
+V1 = V1.with_audio(Audio1)
 
-arg1 = sys.argv[1]
-arg2 = sys.argv[2]
-
-# Simuler un traitement, par exemple concaténer les arguments
-result = f"Processed: {arg1} {arg2}"
-
-print(result)  # La sortie sera capturée par le processus Node.js
+final_video = V1
+final_video.write_videofile("./myVideo.mp4", fps=24)

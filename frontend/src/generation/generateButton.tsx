@@ -23,7 +23,7 @@ const GenerationButton: React.FC = () => {
         formData.append("audios", file);
       });
       const pythonBlob = new Blob([storePythonCode], { type: "text/plain" });
-      formData.append("pythonScript", pythonBlob, "script.py"); // Nom du fichier : script.py
+      formData.append("pythonScript", pythonBlob, "script.py"); 
       console.log("formData:", formData);
       const response2 = await fetch("http://localhost:3000/run-python", {
         method: "POST",
@@ -32,13 +32,7 @@ const GenerationButton: React.FC = () => {
       console.log("response2:", response2);
       if (!response2.ok) throw new Error("Erreur lors de l'exécution du script Python");
 
-      // Appel à la route /run-python via GET
-      /*const response = await fetch("http://localhost:3000/run-python", {
-        method: "GET", 
-      });
-
-      if (!response.ok) throw new Error("Erreur lors de l'exécution du script Python");
-*/
+ 
       const data = await response2.json();
       console.log("Vidéo générée avec succès :", data);
 
@@ -50,13 +44,25 @@ const GenerationButton: React.FC = () => {
   };
 
   return (
-    <button
-      className="generation-button"
-      onClick={handleClick}
-      disabled={loading}
-    >
-      {loading ? "Loading..." : "Generate Video"}
-    </button>
+    <div>
+      <button
+        className="generation-button"
+        onClick={handleClick}
+        disabled={loading}
+      >
+        Generate Video
+      </button>
+
+      {/* Popup modal */}
+      {loading && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="spinner-circle"></div>
+            <p>Generating your video, please wait...</p>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
