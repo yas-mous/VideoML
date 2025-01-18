@@ -2,6 +2,7 @@ import React from "react";
 import { useMappedTimeline } from "../editor/hooks/useMappedTimeline";
 import { AST } from "videoML/src/cli/models/models";
 import { LayerUI } from "./layers/layer";
+import TimeRuler from "./timeRuler";
 
 
 
@@ -57,6 +58,7 @@ console.log("layers",mappedAst.layers);
             }
           `}
         </style>
+        <TimeRuler duration={20} step={2}></TimeRuler>
         {mappedAst.layers.map((layer: any, index: number) => (
           <LayerUI key={index} layer={layer} />
         ))}
