@@ -257,6 +257,10 @@ function compileVideoClip(clip: PathVideo): string {
 }
 function compileAudioClip(clip: AudioClip): string {
     const source = clip.sourceFile;
+    const positionInTimeline = clip.properties.find(prop => prop.positionInTimeline !== undefined)?.positionInTimeline;
+    if(positionInTimeline !== undefined){
+        return `AudioFileClip("${source}").with_start(`+processPositionTimeline(positionInTimeline)+")";
+    }
     return `AudioFileClip("${source}")`;
 }
 // FUNCTIONS TO IMPLEMENT (commented because of compilation errors : empty functions)
@@ -528,7 +532,8 @@ function createCustomClip( customClip: TextVideo, clipVar : String): string {
     const fontSize = customClip.TextProperties.find(prop => prop.fontSize !== undefined)?.fontSize || 48;
 
     const colorInRGB = colorConvert(bgColor);
-
+    const positionInTimeline = customClip.properties.find(prop => prop.positionInTimeline !== undefined)?.positionInTimeline;
+    const  positionInTimelineString=(positionInTimeline !== undefined)?processPositionTimeline(positionInTimeline):"0";
     // Créer un TextClip avec un fond noir
     const introTitleClip = `TextClip(
             font="font/font.ttf",
@@ -536,7 +541,7 @@ function createCustomClip( customClip: TextVideo, clipVar : String): string {
             font_size=${fontSize},
             color='${color}',
             bg_color='${bgColor}'
-        ) .with_duration(${convertToSeconds(duration)}).with_position('${position}')
+        ) .with_start(${positionInTimelineString}).with_duration(${convertToSeconds(duration)}).with_position('${position}')
         
 bg_clip = ColorClip(size=(1300, 750) ,color=${colorInRGB}).with_duration(${convertToSeconds(duration)})
 
