@@ -27,9 +27,12 @@ export function hasEnd(clip: LayerElement): boolean {
 export function generateOutputFilePath(timeline: TimeLine): string {
     const extension = timeline.extension || 'mp4';  
     const outputPath = timeline.outputPath || './';  
+    console.log(timeline);
+    console.log(outputPath);
     const normalizedOutputPath = outputPath.endsWith('/') ? outputPath : `${outputPath}/`;
-
+    console.log(normalizedOutputPath);
     let outputFilePath = `${normalizedOutputPath}${timeline.name}.${extension}`;
+    console.log(outputFilePath);
 
     outputFilePath = outputFilePath.replace(/\\/g, '/');
 

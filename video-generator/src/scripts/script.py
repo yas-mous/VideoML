@@ -7,4 +7,4 @@ Audio1 = Audio1.with_effects([])
 V1 = V1.with_audio(Audio1)
 
 final_video = V1
-final_video.write_videofile("./myVideo.mp4", fps=24)
+final_video.write_videofile("C:/Users/annad/Documents/semestre2/DSL/VideoML/demo/generated/videos/myVideo.mp4", fps=24)
