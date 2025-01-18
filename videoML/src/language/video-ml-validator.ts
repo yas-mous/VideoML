@@ -22,7 +22,8 @@ export function registerValidationChecks(services: VideoMlServices) {
             validator.checkRequiredArgument,
             validator.checkValidVideoExtension,
             validator.checkUniqueNames,
-            validator.validateSubtitleTiming        ],
+            validator.validateSubtitleTiming
+        ],
         LayerElement:validator.checkClipProperties,
         VideoClip: validator.checkVideoClipEffects,
         SubtitleClip: validator.validateSubtitleClip,
