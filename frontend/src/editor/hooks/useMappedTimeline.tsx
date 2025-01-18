@@ -1,11 +1,10 @@
-import { AST, CustomClip, LayerElement, AudioClip, SubtitleClip, VideoClip } from "videoML/src/cli/models/models.js";
-import { Layer } from "videoML/src/language/generated/ast.js";
+import { AST, LayerElement, AudioClip, SubtitleClip, PathVideo, TextVideo, Layer } from "videoML/src/cli/models/models.js";
 import { useProgramStore } from "../stores/programStore.js";
 
 
 export const useMappedTimeline = () => {
   const ast = useProgramStore((state) => state.ast);
-
+  console.log("-------------------AST---------------------------",ast);
 
   if (!ast || !ast.layers) {
     return [];
@@ -16,9 +15,9 @@ export const useMappedTimeline = () => {
       $type: 'Layer',
       layerName: layer.layerName,
       elements: layer.elements.map((element: any) => {
-        if (element.$type === 'VideoClip') {
+        if (element.$type === 'PathVideo') {
           return {
-            $type: 'VideoClip',
+            $type: 'PathVideo',
             clipName: element.clipName,
             sourceFile: element.sourceFile,
             effects: element.effects.map((effect: any) => ({
@@ -26,7 +25,7 @@ export const useMappedTimeline = () => {
               ...effect, 
             })),
             properties: element.properties,
-          } as VideoClip; 
+          } as PathVideo; 
         } else if (element.$type === 'AudioClip') {
           return {
             $type: 'AudioClip',
@@ -45,10 +44,10 @@ export const useMappedTimeline = () => {
             bg_color: element.bg_color,
             color: element.color,
           } as SubtitleClip; 
-        } else if (element.$type === 'CustomClip') {
+        } else if (element.$type === 'TextVideo') {
 
           return {
-            $type: 'CustomClip',
+            $type: 'TextVideo',
             clipName: element.clipName,
             text: element.text,
             duration: element.duration,
@@ -56,7 +55,7 @@ export const useMappedTimeline = () => {
             position: element.position,
             bg_color: element.bg_color,
             color: element.color,
-          } as CustomClip; 
+          } as TextVideo; 
         }
         
         return null;

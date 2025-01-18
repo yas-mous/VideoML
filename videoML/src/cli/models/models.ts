@@ -12,12 +12,13 @@ export interface Layer{
    layerName: string;
 }
 
-export type LayerElement = VideoClip | AudioClip | SubtitleClip | CustomClip;
+export type LayerElement = VideoClip | AudioClip | SubtitleClip;
+export type VideoClip =  PathVideo | TextVideo;
 export type Effect = CropEffect | FadeInEffect | FadeOutEffect | FreezingEffect | GrayscaleEffect;
 
 
-export interface VideoClip {
-    $type: 'VideoClip';
+export interface PathVideo {
+    $type: 'PathVideo';
    clipName: string;
    properties: Array<ClipProperty>;
    sourceFile: string;
@@ -45,8 +46,8 @@ export interface SubtitleClip{
    effects: Array<Effect>;
 }
 
-export interface CustomClip
- {  $type: 'CustomClip';
+export interface TextVideo
+ {  $type: 'TextVideo';
     bg_color?: string;
     clipName: string;
     color?: string;
