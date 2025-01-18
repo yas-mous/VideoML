@@ -33,7 +33,7 @@ const Modal: React.FC<ModalProps> = ({ selectedFile, onClose }) => {
           textAlign: "center",
         }}
       >
-        <h3>Vidéo sélectionnée :</h3>
+        <h3>Selected Video</h3>
         <video width="100%" controls>
           <source src={URL.createObjectURL(selectedFile)} type={selectedFile.type} />
           Votre navigateur ne supporte pas la lecture de vidéos.
