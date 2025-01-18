@@ -9,7 +9,10 @@
   ],
   "scripts": {
     "build": "npm run build --workspace videoML && npm run build --workspace frontend",
-    "test": "npm test --workspace frontend && npm test --workspace videoML"
+    "test": "npm test --workspace frontend && npm test --workspace videoML",
+    "frontend": "npm run dev --workspace frontend",
+    "grammar": "npm run langium:generate --workspace videoML"
+    
   },
   "dependencies": {
         "@codingame/monaco-vscode-editor-service-override": "~3.2.3",
