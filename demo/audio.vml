@@ -4,5 +4,5 @@ timeline groupVideo & mp4 output'../generatedVideos'{
     |Video @v2 'videos/video2.mp4'
     --- @layer2
     |Audio @a1 'audios/audio1.mp3' , from: '00:00:00' , to: '00:00:10' ~volume(x 2, from: '00:00:02' ,to: '00:00:04')
-    |Audio @a2 'audios/audio2.mp3',from: '00:00:05', to: '00:00:10' ~loop  '00:00:05'
+    |Audio @a2 'audios/audio2.mp3',from: '00:00:05', to: '00:00:10' ~loop  '00:00:15'
 }

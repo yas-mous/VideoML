@@ -91,7 +91,7 @@ function compileLayer(layer: Layer, layerIndex: number, fileNode: CompositeGener
         }
         else{*/
             generateProgramBody(clipVar,clip,fileNode,videoVar)
-            if ( isVideoClip(clip)&& isPathVideo(clip)) {
+            if ( isVideoClip(clip)&&(isPathVideo(clip) || isTextVideo(clip))) {
                 if (layerIndex > 0 ) {
                     let position = clip.position;
                     const size = clip.size|| 100;

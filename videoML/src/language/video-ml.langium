@@ -30,8 +30,8 @@ VideoClip:
 
 TextVideo:
     '|TextVideo' '@' clipName=ID '{' NL
-        TextProperties+=TextProperties 
-        '}' (('~' effects+=VideoEffect)*)?NL;
+     (TextProperties+=TextProperties)
+        '}' ( 'size:' size=INT ',' 'position:' position=STRING)? (',' properties+=ClipProperty)? (('~' effects+=VideoEffect)*)? NL;
 
 PathVideo:
     '|Video' '@' clipName=ID sourceFile=STRING
