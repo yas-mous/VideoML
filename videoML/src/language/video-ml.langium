@@ -13,16 +13,17 @@ LayerElement:
     VideoClip | AudioClip | SubtitleClip;
 
 ClipProperty:
-    (',' 'start:' positionInTimeline= STRING )?
-    interval = IntervalFrom;
+    ( 'start:' positionInTimeline= PositionInTimeline )?
+    (interval = IntervalFrom)?;
 
-
+PositionInTimeline:
+    time=STRING
+        (',' ('after:' after='@' clipName=ID | 'before:' before='@' clipName=ID ) )?;
 
 SubtitleClip:
     '|Subtitle' '@' clipName=ID '{' NL
-        TextProperties+=TextProperties
-        (properties+=ClipProperty)?
-    '}' NL;
+     (TextProperties+=TextProperties)
+    '}' ( properties+=ClipProperty)? NL;
 
 VideoClip:
     PathVideo | TextVideo;

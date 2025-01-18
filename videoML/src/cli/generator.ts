@@ -2,10 +2,40 @@ import { CompositeGeneratorNode, toString } from 'langium/generate';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { extractDestinationAndName } from './cli-util.js';
-import { TimeLine, Layer, isVideoClip, PathVideo,FadeOutEffect ,FadeInEffect , isFadeOutEffect , isFadeInEffect, isGrayscaleEffect,
-         GrayscaleEffect,isAudioClip, AudioClip,isSubtitleClip,SubtitleClip, LayerElement, TextVideo, isPathVideo ,FreezingEffect,
-         isTextVideo, VideoEffect, isIntervalDuration, isIntervalFrom, isFreezingEffect,AudioEffect, isVolumeEffect, isLoopDurationEffects
-         ,isLoopEffect, LoopEffect, isLoopNumberEffects,VolumeEffect} from '../language/generated/ast.js';
+import {
+    TimeLine,
+    Layer,
+    isVideoClip,
+    PathVideo,
+    FadeOutEffect,
+    FadeInEffect,
+    isFadeOutEffect,
+    isFadeInEffect,
+    isGrayscaleEffect,
+    GrayscaleEffect,
+    isAudioClip,
+    AudioClip,
+    isSubtitleClip,
+    SubtitleClip,
+    LayerElement,
+    TextVideo,
+    isPathVideo,
+    FreezingEffect,
+    isTextVideo,
+    VideoEffect,
+    isIntervalDuration,
+    isIntervalFrom,
+    isFreezingEffect,
+    AudioEffect,
+    isVolumeEffect,
+    isLoopDurationEffects
+    ,
+    isLoopEffect,
+    LoopEffect,
+    isLoopNumberEffects,
+    VolumeEffect,
+    PositionInTimeline
+} from '../language/generated/ast.js';
 import { generateOutputFilePath, hasClipProperties, convertToSeconds, colorConvert} from './utils.js';
 
 interface ILayer    {
@@ -74,15 +104,20 @@ function compileMultipleLayers(layerClips: string[], fileNode: CompositeGenerato
     fileNode.appendNewLine();
 }
 
+
 function compileLayer(layer: Layer, layerIndex: number, fileNode: CompositeGeneratorNode): ILayer {
     const videoClips: string[] = [];
     const audioClips: string[] = [];
+    const subtitleClips: string[] = [];
 
     let videoVar = "";
     layer.elements.forEach((clip) => {
         const clipVar = clip.clipName;
         if(isAudioClip(clip)){
             audioClips.push(clipVar);
+        }
+        if(isSubtitleClip(clip)){
+            subtitleClips.push(clipVar);
         }
        /* if(isAudioClip(clip)){
             const clipVar = clip.clipName;
@@ -95,7 +130,6 @@ function compileLayer(layer: Layer, layerIndex: number, fileNode: CompositeGener
                 if (layerIndex > 0 ) {
                     let position = clip.position;
                     const size = clip.size|| 100;
-                    const after = clip.properties.find(prop => prop.positionInTimeline !== undefined)?.positionInTimeline;
 
                     if (position == "bottom-left" || position == "left-bottom") {
                         position = "'left', 'bottom'";
@@ -107,11 +141,6 @@ function compileLayer(layer: Layer, layerIndex: number, fileNode: CompositeGener
                         position = "'right', 'top'";
                     }else if (position == "center") {
                         position = "'center', 'center'";
-                    }
-                    
-                    if (after !== undefined) {
-                        fileNode.append(`${clipVar} = ${clipVar}.with_start(${convertToSeconds(after)})`);
-                        fileNode.appendNewLine();
                     }
                     
                     if (position !== undefined) {
@@ -150,6 +179,13 @@ function compileLayer(layer: Layer, layerIndex: number, fileNode: CompositeGener
         if(layer.elements.length === audioClips.length)
         return {layerName:compileAudiosCLip(audioClips, layer.layerName, fileNode) ,isAudioLayer:true};
     }
+    if(subtitleClips.length === 1){
+        return {layerName:subtitleClips[0],isAudioLayer:false};
+    }
+    else if(subtitleClips.length > 1){
+        return {layerName:subtitleClips.join(','),isAudioLayer:false};
+    }
+
 
     return {layerName:"Invalid layer type",isAudioLayer:false};
 
@@ -213,6 +249,10 @@ function compileClip(clip: LayerElement,clipVar : String): string {
 
 function compileVideoClip(clip: PathVideo): string {
     const source = clip.sourceFile;
+    const positionInTimeline = clip.properties.find(prop => prop.positionInTimeline !== undefined)?.positionInTimeline;
+    if(positionInTimeline !== undefined){
+            return `VideoFileClip("${source}").with_start(`+processPositionTimeline(positionInTimeline)+")";
+    }
     return `VideoFileClip("${source}")`;
 }
 function compileAudioClip(clip: AudioClip): string {
@@ -356,8 +396,8 @@ function compileGrayscaleEffect(effect:GrayscaleEffect,clipVar:string,fileNode: 
 function cutClip(clip : LayerElement,clipCode:string) : string {
     if (hasClipProperties(clip)&&( isSubtitleClip(clip) || isPathVideo(clip)||isAudioClip(clip))) {
         
-        const begin = clip.properties.find(prop => prop.interval.begin !== undefined)?.interval.begin || '00:00:00';
-        const end = clip.properties.find(prop => prop.interval.end !== undefined)?.interval.end || null;
+        const begin = clip.properties.find(prop => prop.interval?.begin !== undefined)?.interval?.begin || '00:00:00';
+        const end = clip.properties.find(prop => prop.interval?.end !== undefined)?.interval?.end || null;
         const convertedsBegin = convertToSeconds(begin);
         
         if (begin !== null && end !== null) {
@@ -395,12 +435,14 @@ fileNode.appendNewLine()
 function addSubtitleToClip(clip: SubtitleClip): string {
     const text = clip.TextProperties.find(prop => prop.text !== undefined)?.text || "Subtitle";
     const duration = clip.TextProperties.find(prop => prop.duration !== undefined)?.duration || '00:00:00';
-    const start = clip.properties.find(prop => prop.interval.begin !== undefined)?.interval.begin || '00:00:00';
+  //  const start = clip.properties.find(prop => prop.interval?.begin !== undefined)?.interval?.begin || '00:00:00';
     const color = clip.TextProperties.find(prop => prop.color !== undefined)?.color || "black";
     const bg_color = clip.TextProperties.find(prop => prop.bg_color !== undefined)?.bg_color || null;
     const position = clip.TextProperties.find(prop => prop.position !== undefined)?.position || "bottom";
+const positionInTimeline = clip.properties.find(prop => prop.positionInTimeline !== undefined)?.positionInTimeline;
+   const  positionInTimelineString=(positionInTimeline !== undefined)?processPositionTimeline(positionInTimeline):"0";
     
-    const startimeinsecond = convertToSeconds(start);
+   // const startimeinsecond = convertToSeconds(start);
     const durationinsecond = convertToSeconds(duration);
     if (bg_color === null) {
         return `TextClip(
@@ -408,7 +450,7 @@ function addSubtitleToClip(clip: SubtitleClip): string {
             font="font/font.ttf",
             font_size=24,
             color='${color}'
-        ).with_start(${startimeinsecond}).with_duration(${durationinsecond}).with_position('${position}')`;
+        ).with_start(${positionInTimelineString}).with_duration(${durationinsecond}).with_position('${position}')`;
     }
     return `TextClip(
         text="${text}",
@@ -416,8 +458,21 @@ function addSubtitleToClip(clip: SubtitleClip): string {
         font_size=24,
         color='${color}',
         bg_color='${bg_color}'
-    ).with_start(${startimeinsecond}).with_duration(${durationinsecond}).with_position('${position}')`;
+    ).with_start(${positionInTimelineString}).with_duration(${durationinsecond}).with_position('${position}')`;
 }
+function processPositionTimeline(positionInTimeline: PositionInTimeline) :string{
+
+        if (positionInTimeline.after === undefined && positionInTimeline.before === undefined)
+            return convertToSeconds(positionInTimeline.time)+""
+        else if (positionInTimeline.before !== undefined) {
+
+            return positionInTimeline.clipName+".start - "+convertToSeconds(positionInTimeline.time);
+        } else {
+            return positionInTimeline.clipName+".start + "+positionInTimeline.clipName+".duration+ "+convertToSeconds(positionInTimeline.time)
+        }
+
+}
+
 
 function generateProgramBody(clipVar: string,clip:LayerElement, fileNode:CompositeGeneratorNode,videoClipVar?:string):void {
     const clipCode = compileClip(clip,clipVar);
