@@ -23,28 +23,25 @@ const jsonSerializer = VideoMl.serializer.JsonSerializer;
 shared.workspace.DocumentBuilder.onBuildPhase(DocumentState.Validated, documents => {
 
     for (const document of documents) {
-        const model = document.parseResult.value as TimeLine;
-        const serializedAst = jsonSerializer.serialize(model, {
-            sourceText: true, 
-            textRegions: true, 
-        });
+        const timeline = document.parseResult.value as TimeLine;
+       
         let pythonCode: string = "";
        
         if(document.diagnostics === undefined  || document.diagnostics.filter((i) => i.severity === 1).length === 0) {
-            pythonCode = generatePythonProgram(model);
-            console.log("mainBrowser valiiiiiiiiiid");
-            (model as unknown as {$isValid: boolean}).$isValid = true;
+            pythonCode = generatePythonProgram(timeline);
+            (timeline as unknown as {$isValid: boolean}).$isValid = true;
         } else {
-            console.log("mainBrowser nooooooooooooooooooo");
 
-            (model as unknown as {$isValid: boolean}).$isValid = false;
+            (timeline as unknown as {$isValid: boolean}).$isValid = false;
         }
 
-        (model as unknown as {$pythonCode: string}).$pythonCode = pythonCode;
+        (timeline as unknown as {$pythonCode: string}).$pythonCode = pythonCode;
+        
+        
         connection.sendNotification(documentChangeNotification, {
             uri: document.uri.toString(),
-            content: serializedAst,
-            diagnostics: document.diagnostics ?? []
+            content: jsonSerializer.serialize(timeline, { sourceText: true, textRegions: true }),
+            diagnostics: document.diagnostics ?? [],
         });
     }
 });
