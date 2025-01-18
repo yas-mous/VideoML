@@ -9,7 +9,6 @@ import type { VideoMlServices } from './video-ml-module.js';
 import { convertToSeconds,hasEnd, hasFrom } from '../cli/utils.js';
 
 
-
 /**
  * Register custom validation checks.
  */
@@ -344,7 +343,8 @@ export class VideoMlValidator {
             });
         });
     }
-    /*validateStackingVideos(timeline: TimeLine, accept: ValidationAcceptor): void {
+
+    validateStackingVideos(timeline: TimeLine, accept: ValidationAcceptor): void {
         const layers = timeline.layers;
         layers.forEach((layer, index) => {
             layer.elements.forEach((element) => {
@@ -354,24 +354,22 @@ export class VideoMlValidator {
 
                         if (baseLayer) {
                             const baseVideo = baseLayer.elements.find(e => isPathVideo(e));
-                            if (baseVideo) {
-                                const
-                                const baseVideoBegin = baseVideo.properties.find(p => p.interval.begin) || 0;
-                                if ()
-                                const baseVideoEnd = baseVideo.properties.find(p => p.interval.end);
+                            if (baseVideo && isPathVideo(baseVideo)) {
+                                const baseVideoBegin = baseVideo.properties.find(p => p.interval.begin)?.interval.begin || '00:00:00';
                                 let baseVideoDuration;
+                                const baseVideoEnd = baseVideo.properties.find(p => p.interval.end)?.interval.end;
                                 if (baseVideoEnd !== undefined) {
-                                    baseVideoDuration = baseVideoEnd - baseVideoBegin;
+                                    baseVideoDuration = convertToSeconds(baseVideoEnd) - convertToSeconds(baseVideoBegin);
                                 }else{
                                     baseVideoDuration = Infinity;
                                 }
+                                const afterTime = element.properties.find(e => e.positionInTimeline)?.positionInTimeline || '00:00:00';
+                                const elementEnd = element.properties.find(e => e.interval.end)?.interval.end || 'Infinity';
+                                const ElementStart = element.properties.find(e => e.interval.begin)?.interval.begin || '00:00:00';
+                                let elementDuration = convertToSeconds(elementEnd) - convertToSeconds(ElementStart);
+                                
 
-                                const afterTime = element.properties.find(e => e.after)?.after || 0;
-                                const elementEnd = element.properties.find(e => e.end)?.end || Infinity;
-                                const ElementStart = element.properties.find(e => e.begin)?.begin || 0;
-                                const elementDuration = elementEnd - ElementStart;
-
-                                if ( baseVideoDuration!=Infinity && baseVideoDuration!=Infinity   && baseVideoDuration <= elementDuration + afterTime) {
+                                if ( baseVideoDuration!=Infinity && baseVideoDuration!=Infinity  && baseVideoDuration <=elementDuration +  convertToSeconds(afterTime)) {
                                     accept('error', `Base layer duration is too short ${baseVideoDuration} to accommodate the video with position starting after ${afterTime} with duration ${elementDuration}.`, {
                                         node: element
                                     });
@@ -386,5 +384,20 @@ export class VideoMlValidator {
                 }
             });
         });
-    }*/
+    }
+
+    validateLayersClipTypes(timeline: TimeLine, accept: ValidationAcceptor): void {
+        timeline.layers.forEach(layer => {
+            layer.elements.forEach(element => {
+                let elements =[];
+                elements.push(element);
+                
+                if ( ( (elements[0].$type!== 'PathVideo' && element.$type !== 'TextVideo') || (elements[0].$type!== 'TextVideo' && element.$type !== 'PathVideo')) && element.$type !== elements[0].$type) {
+                    accept('error', `Clip type ${element.$type} is not allowed in layer ${layer.layerName}.`, { node: element });
+                }
+            });
+        });
+    }
 }
+
+
