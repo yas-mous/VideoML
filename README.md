@@ -32,6 +32,7 @@ npm run cli ..\demo\test2.vml
 **optionnel :**
 - & mp4 : pour modifier l extension (validation a faire pour accepter que les extensions videos)
 - output'../generatedVideos' : pour specifier un chemin, par defaut meme repertoire que le fichier .vml
+    - **with / : "C:/videos/myVideo.mp4"**
 
 ```bash
 timeline myVideo & mp4 output'../generatedVideos'{
