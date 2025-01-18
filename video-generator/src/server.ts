@@ -1,9 +1,11 @@
 import express, { Request, Response } from 'express';
 import { exec } from 'child_process';
 import path from 'path';
+import cors from 'cors';
 
 const app = express();
 const port = 3000;
+app.use(cors({ origin: 'http://localhost:5173' }));
 
 app.get('/run-python', (req: Request, res: Response) => {
     const arg1 = 'Hello';

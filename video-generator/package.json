@@ -21,5 +21,8 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "sever for movie generation with python script"
+  "description": "sever for movie generation with python script",
+  "devDependencies": {
+    "@types/cors": "^2.8.17"
+  }
 }
