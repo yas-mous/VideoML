@@ -207,7 +207,6 @@ export class VideoMlValidator {
     extractIntervalValues(interval: Intervall): { begin: number | undefined, end: number | undefined } {
         let begin: number | undefined = undefined;
         let end: number | undefined = undefined;
-
         if (interval.begin !== undefined) {
             begin = convertToSeconds(interval.begin);
         }
@@ -216,7 +215,6 @@ export class VideoMlValidator {
         }else if (isIntervalDuration(interval) && interval.duration !== undefined) {
             end = begin !== undefined ? begin + convertToSeconds(interval.duration) : undefined;
         }
-
         return { begin, end };
     }
 
@@ -240,9 +238,10 @@ export class VideoMlValidator {
         if (position && !TextPositions.includes(position)) {
             accept('error', `Invalid subtitle position: ${position}.`, { node: subtitle });
         }
-
     }
 
+
+    
 
     validateIntervalProperty(interval: Intervall, accept: ValidationAcceptor): void {
         if (isIntervalDuration(interval)) {
