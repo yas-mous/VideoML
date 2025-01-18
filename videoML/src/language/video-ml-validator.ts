@@ -1,9 +1,13 @@
-//import type { ValidationAcceptor, ValidationChecks } from 'langium';
-//import Clip
+import type { ValidationAcceptor, ValidationChecks } from 'langium';
+import type {VideoMlAstType, TimeLine, LayerElement} from './generated/ast.js';
+import {isAudioClip, isPathVideo ,isSubtitleClip, isIntervalFrom, isIntervalDuration, VideoClip,isVideoEffect, Intervall,SubtitleClip , Layer,ClipProperty, isTextVideo
+        ,isVideoClip
+} from './generated/ast.js';
 //import type {VideoMlAstType, TimeLine,LayerElement, VideoClip,SubtitleClip, ClipProperty, Layer} from './generated/ast.js';
 //import {isAudioClip, isVideoClip, isVideoEffect, isSubtitleClip } from './generated/ast.js';
 import type { VideoMlServices } from './video-ml-module.js';
-//import { hasEnd, hasFrom } from '../cli/utils.js';
+import { convertToSeconds,hasEnd, hasFrom } from '../cli/utils.js';
+
 
 
 /**
@@ -11,7 +15,7 @@ import type { VideoMlServices } from './video-ml-module.js';
  */
 
 export function registerValidationChecks(services: VideoMlServices) {
-    /*const registry = services.validation.ValidationRegistry;
+    const registry = services.validation.ValidationRegistry;
     const validator = services.validation.VideoMlValidator;
     const checks: ValidationChecks<VideoMlAstType> = {
         TimeLine: [
@@ -26,15 +30,16 @@ export function registerValidationChecks(services: VideoMlServices) {
         SubtitleClip: validator.validateSubtitleClip,
         ClipProperty: validator.validateClipProperty,
     };
-    registry.register(checks, validator);*/
+    registry.register(checks, validator);
 }
 
 /**
  * Implementation of custom validations.
  */
 export class VideoMlValidator {
-    /*
+    
     private supportedExtensions: string[] = ['mp4', 'avi', 'mkv', 'mov', 'flv', 'webm'];
+    private timepattern = new RegExp('([0-9]{2}):([0-9]{2}):([0-9]{2})');
 
 
     checkRequiredArgument(timeline: TimeLine, accept: ValidationAcceptor): void {
@@ -66,37 +71,74 @@ export class VideoMlValidator {
                 if(globalNameSet.has(element.clipName)){
                     accept('error', `Duplicate element name: ${element.clipName}`, { node: element, property: 'clipName' });
                 }
-            })
+                globalNameSet.add(element.clipName);
+            }) 
         })
     }
 
-    checkClipProperties(clip: LayerElement, accept: ValidationAcceptor): void {
-        if ((isVideoClip(clip)||isAudioClip(clip)) && clip.properties && Array.isArray(clip.properties)) {
-            let beginValue: number | undefined = undefined;
-            let endValue: number | undefined = undefined;
+    async checkClipProperties(clip: LayerElement, accept: ValidationAcceptor): Promise<void> {
+        if ((isPathVideo(clip)||isAudioClip(clip) || isSubtitleClip(clip) ) && clip.properties && Array.isArray(clip.properties)) {
+            let beginValue: string | undefined = undefined;
+            let endValue: string | undefined = undefined;
+            let positionValue: string | undefined = undefined;
+            let duration: string | undefined = undefined;
+            
+            if (isIntervalFrom(clip.properties)) {
     
-            clip.properties.forEach(prop => {
-                if (prop.begin !== undefined) {
-                    beginValue = prop.begin;  
+                clip.properties.forEach(prop => {
+                    if (prop.interval.begin !== undefined) {
+                        beginValue = prop.interval.begin;  
+                    }
+                    if (prop.interval.end !== undefined) {
+                        endValue = prop.interval.end; 
+                    }
+                    if (prop.positionInTimeline !== undefined) {
+                        positionValue = prop.positionInTimeline;
+                    }
+                });
+            }else if (isIntervalDuration(clip.properties)) {
+                if (clip.properties.begin !== undefined) {
+                    beginValue = clip.properties.begin;
                 }
-                if (prop.end !== undefined) {
-                    endValue = prop.end; 
+
+                if (clip.properties.duration !== undefined) {
+                    duration = clip.properties.duration;
                 }
-            });
+            }
+
+            if (positionValue !== undefined) {
+                if (!this.timepattern.test(positionValue)) {
+                    accept('error', `Clip property 'positionInTimeline':${positionValue} must be in the format HH:MM:SS.`, { node: clip, property: 'properties' });
+                }
+            }
     
             if (beginValue !== undefined && endValue !== undefined) {
-                if (beginValue >= endValue) {
+                if (convertToSeconds(beginValue) >= convertToSeconds(endValue)) {
                     accept('error', `Clip property 'from':${beginValue} must be less than 'to':${endValue}.`, { node: clip, property: 'properties' });
                 }
-            } 
-        } 
+                
+                /*if (convertToSeconds(beginValue) < 0 || ( (isAudioClip(clip)||isPathVideo(clip) )  && (await getMediaDuration((clip.sourceFile))) < convertToSeconds(endValue))) {
+                    accept('error', `Clip property 'from' and 'to' must be non-negative integers.`, { node: clip, property: 'properties' });
+                }*/
+                if (!this.timepattern.test(beginValue) || !this.timepattern.test(endValue)) {
+                    accept('error', `Clip property 'from' and 'to' must be in the format HH:MM:SS.`, { node: clip, property: 'properties' });
+                }
+            }
+
+            if (duration !== undefined) {
+                if (!this.timepattern.test(duration)) {
+                    accept('error', `Clip property 'duration':${duration} must be in the format HH:MM:SS.`, { node: clip, property: 'properties' });
+                }
+            }
+            
+
+        }
     }
 
     checkVideoClipEffects(clip: VideoClip, accept: ValidationAcceptor): void {
-        if (isVideoClip(clip) && clip.effects && Array.isArray(clip.effects)) {
-            const endProperty = clip.properties.find(prop => prop.end !== undefined);
-            const beginProperty = clip.properties.find(prop => prop.begin !== undefined);
-
+        if ( (isPathVideo(clip)) && clip.effects && Array.isArray(clip.effects)) {
+            const endProperty = clip.properties.find(prop => prop.interval.end !== undefined);
+            const beginProperty = clip.properties.find(prop => prop.interval.begin !== undefined);
             if (hasFrom(clip) && hasEnd(clip)) {
                 const videoDuration = this.getVideoDuration(beginProperty, endProperty);
 
@@ -125,7 +167,7 @@ export class VideoMlValidator {
 
             else if (hasEnd(clip) && !hasFrom(clip)) {
                 console.log('hasEnd && !hasFrom');
-                const videoDuration = endProperty?.end !== undefined && beginProperty?.begin !== undefined ? endProperty.end - beginProperty.begin : undefined;
+                const videoDuration = endProperty?.interval.end !== undefined && beginProperty?.interval.begin !== undefined ? convertToSeconds(endProperty.interval.end) - convertToSeconds(beginProperty.interval.begin) : undefined;
 
                 clip.effects.forEach(effect => {
                     if (isVideoEffect(effect) ) {
@@ -136,15 +178,15 @@ export class VideoMlValidator {
                                 console.log('begin',begin);
                                 console.log('end',end);
                                 if (begin === undefined && end !== undefined) {
-                                    if (end < 0 || (endProperty?.end !== undefined && end > endProperty.end)) {
-                                        if (endProperty?.end !== undefined) {
-                                            accept('error', `Effect 'to':${end} is out of bounds (0 to ${endProperty.end}).`, { node: effect, property: 'intervall' });
+                                    if (end < 0 || (endProperty?.interval.end !== undefined && end > convertToSeconds(endProperty.interval.end))) {
+                                        if (endProperty?.interval.end !== undefined) {
+                                            accept('error', `Effect 'to':${end} is out of bounds (0 to ${endProperty.interval.end}).`, { node: effect, property: 'intervall' });
                                         }
                                     }
                                 }
 
-                                else if (end !== undefined && endProperty?.end !== undefined && (end < 0 || end > endProperty.end)) {
-                                    accept('error', `Effect 'to':${end} is out of bounds (0 to ${ endProperty.end}).`, { node: effect, property: 'intervall' });
+                                else if (end !== undefined && endProperty?.interval.end !== undefined && (end < 0 || end > convertToSeconds(endProperty.interval.end))) {
+                                    accept('error', `Effect 'to':${end} is out of bounds (0 to ${ endProperty.interval.end}).`, { node: effect, property: 'intervall' });
                                 }
 
                                 else if (begin !== undefined && end !== undefined && begin >= end) {
@@ -164,15 +206,17 @@ export class VideoMlValidator {
             : undefined;
     }
 
-    extractIntervalValues(interval: any): { begin: number | undefined, end: number | undefined } {
+    extractIntervalValues(interval: Intervall): { begin: number | undefined, end: number | undefined } {
         let begin: number | undefined = undefined;
         let end: number | undefined = undefined;
 
         if (interval.begin !== undefined) {
-            begin = interval.begin;
+            begin = convertToSeconds(interval.begin);
         }
-        if (interval.end !== undefined) {
-            end = interval.end;
+        if ( isIntervalFrom(interval) && interval.end !== undefined) {
+            end = convertToSeconds(interval.end);
+        }else if (isIntervalDuration(interval) && interval.duration !== undefined) {
+            end = begin !== undefined ? begin + convertToSeconds(interval.duration) : undefined;
         }
 
         return { begin, end };
@@ -180,45 +224,70 @@ export class VideoMlValidator {
 
 
     validateSubtitleClip(subtitle: SubtitleClip, accept: ValidationAcceptor): void {
-      
+        const TextPositions: string[] = ['top-left','top-right','bottom-left','bottom-right', 'center', 'top', 'bottom', 'left', 'right']
+        const text = subtitle.TextProperties.find(prop => prop.text !== undefined)?.text;
+        const start = subtitle.properties.find(prop => prop.interval.begin !== undefined)?.interval.begin;
+        const duration = subtitle.TextProperties.find(prop => prop.duration !== undefined)?.duration;
+        const position = subtitle.TextProperties.find(prop => prop.position !== undefined)?.position;
 
-        if (!subtitle.text || subtitle.text.trim() === '') {
-            accept('error', 'Subtitle text is missing.', { node: subtitle, property: 'text' });
+        if (!text || text.trim() === '') {
+            accept('error', 'Subtitle text is missing.', { node: subtitle});
         }
-        if (subtitle.start === undefined || subtitle.start < 0) {
-            accept('error', 'Subtitle start time must be a non-negative integer.', { node: subtitle, property: 'start' });
+        if (start === undefined || convertToSeconds(start) < 0) {
+            accept('error', 'Subtitle start time must be a non-negative integer.', { node: subtitle });
         }
-        if (subtitle.duration === undefined || subtitle.duration <= 0) {
-            accept('error', 'Subtitle duration must be a positive integer.', { node: subtitle, property: 'duration' });
+        if ( duration === undefined || convertToSeconds(duration) <= 0) {
+            accept('error', 'Subtitle duration must be a positive integer.', { node: subtitle });
+        }
+        if (position && !TextPositions.includes(position)) {
+            accept('error', `Invalid subtitle position: ${position}.`, { node: subtitle });
+        }
+        
+    }
+
+
+    validateIntervalProperty(interval: Intervall, accept: ValidationAcceptor): void {
+        if (isIntervalDuration(interval)) {
+        
+            if (interval.duration !== undefined && convertToSeconds(interval.duration) <= 0) {
+                accept('error', 'Interval property "duration" must be a positive integer.', { node: interval, property: 'duration' });
+            }
+            if (interval.duration !== undefined && !this.timepattern.test(interval.duration)) {
+                accept('error', 'Interval property "duration" must be in the format HH:MM:SS.', { node: interval, property: 'duration' });
+            }
+            if  (interval.begin !== undefined && convertToSeconds(interval.begin) >= 0) {
+                accept('error', 'Interval property "from" must be a negative integer.', { node: interval, property: 'begin' });
+            }
+            if (interval.begin !== undefined && !this.timepattern.test(interval.begin)) {
+                accept('error', 'Interval property "from" must be in the format HH:MM:SS.', { node: interval, property: 'begin' });
+            }
+        }
+
+        if (isIntervalFrom(interval)) {
+            if (interval.begin !== undefined && convertToSeconds(interval.begin) < 0) {
+                accept('error', 'Interval property "from" must be a non-negative integer.', { node: interval, property: 'begin' });
+            }
+            if (interval.end !== undefined && convertToSeconds(interval.end) < 0) {
+                accept('error', 'Interval property "to" must be a non-negative integer.', { node: interval, property: 'end' });
+            }
+            if (interval.begin !== undefined && !this.timepattern.test(interval.begin)) {
+                accept('error', 'Interval property "from" must be in the format HH:MM:SS.', { node: interval, property: 'begin' });
+            }
+            if (interval.end !== undefined && !this.timepattern.test(interval.end)) {
+                accept('error', 'Interval property "to" must be in the format HH:MM:SS.', { node: interval, property: 'end' });
+            }
         }
     }
+        
 
 
     validateClipProperty(property: ClipProperty, accept: ValidationAcceptor): void {
-        const Videopositions: string[] = ['top-left','top-right','bottom-left','bottom-right']
-
-        if (property.begin !== undefined && (!Number.isInteger(property.begin) || property.begin < 0)) {
-            accept('error', 'Clip property "from" must be a non-negative integer.', { node: property, property: 'begin' });
-        }
-        if (property.end !== undefined && (!Number.isInteger(property.end) || property.end < 0)) {
-            accept('error', 'Clip property "to" must be a non-negative integer.', { node: property, property: 'end' });
-        }
-        if (property.positionInTimeline !== undefined && (!Number.isInteger(property.positionInTimeline) || property.positionInTimeline < 0)) {
+        if (property.positionInTimeline !== undefined && (!Number.isInteger(property.positionInTimeline) || convertToSeconds(property.positionInTimeline )< 0)) {
             accept('error', 'Clip property "start" must be a non-negative integer.', { node: property, property: 'positionInTimeline' });
         }
-        if (property.after !== undefined && (!Number.isInteger(property.after) || property.after < 0)) {
-            accept('error', 'Clip property "after" must be a non-negative integer.', { node: property, property: 'after' });
-        }
-        if (property.position && !Videopositions.includes(property.position)) {
-            accept('error', `Invalid subtitle position: ${property.position}.`, { node: property, property: 'position' });
-        }
-        if (property.width !== undefined && (!Number.isInteger(property.width) || property.width <= 0)) {
-            accept('error', 'Clip property "width" must be a positive integer.', { node: property, property: 'width' });
-        }
-        if (property.height !== undefined && (!Number.isInteger(property.height) || property.height <= 0)) {
-            accept('error', 'Clip property "height" must be a positive integer.', { node: property, property: 'height' });
-        }
     }
+
+
     validateSubtitleTiming(timeline: TimeLine, accept: ValidationAcceptor): void {
         const allLayers: Layer[] = timeline.layers;
         allLayers.forEach(layer => {
@@ -234,7 +303,7 @@ export class VideoMlValidator {
                     accept(
                         'error',
                         `Subtitle layer "${layer.layerName}" has no corresponding video layers to overlay.`,
-                        { node: subtitle, property: 'start' }
+                        { node: subtitle }
                     );
                 });
                 return;
@@ -242,48 +311,55 @@ export class VideoMlValidator {
             // Calculer les plages horaires cumulées des vidéos dans chaque layer vidéo
             const videoDurations = videoLayers.map(videoLayer => {
                 return videoLayer.elements
-                    .filter(isVideoClip)
+                    .filter(isPathVideo || isTextVideo)
                     .reduce((totalDuration, video) => {
                         if (!video.properties) return totalDuration;
                         let start = 0;
                         let end = 0;
                         video.properties.forEach(prop => {
-                            if (prop.begin !== undefined) start += prop.begin;
-                            if (prop.end !== undefined) end += prop.end;
+                            if (prop.interval.begin !== undefined) start += convertToSeconds(prop.interval.begin) || 0;
+                            if (prop.interval.end !== undefined) end += convertToSeconds(prop.interval.end) || 0;
                         });
                         return totalDuration + Math.max(0, end - start);
                     }, 0);
             });
             // Valider chaque sous-titre
             subtitleClips.forEach(subtitle => {
-                const subtitleEnd = subtitle.start + subtitle.duration;
-                // Vérifier si le sous-titre peut être aligné avec au moins un layer vidéo
+                const subtitleStart = subtitle.properties.find(prop => prop.interval.begin !== undefined)?.interval.begin;
+                const subtileDuration = subtitle.TextProperties.find(prop => prop.duration !== undefined)?.duration;
+                if (subtitleStart === undefined || subtileDuration === undefined) {
+                    accept('error', 'Subtitle timing is missing.', { node: subtitle });
+                    return;
+                }
+                const subtitleEnd = convertToSeconds(subtitleStart) + convertToSeconds(subtileDuration);
                 const isWithinAnyVideoLayer = videoDurations.some(videoDuration => {
-                    return subtitle.start >= 0 && subtitleEnd <= videoDuration;
+                    return convertToSeconds(subtitleStart) >= 0 && subtitleEnd <= videoDuration;
                 });
                 if (!isWithinAnyVideoLayer) {
                     accept(
                         'error',
-                        `Subtitle timing (${subtitle.start}-${subtitleEnd}) does not match the duration of any video layer.`,
-                        { node: subtitle, property: 'start' }
+                        `Subtitle timing (${convertToSeconds(subtitleStart)}-${subtitleEnd}) does not match the duration of any video layer.`,
+                        { node: subtitle }
                     );
                 }
             });
         });
     }
-    validateStackingVideos(timeline: TimeLine, accept: ValidationAcceptor): void {
+    /*validateStackingVideos(timeline: TimeLine, accept: ValidationAcceptor): void {
         const layers = timeline.layers;
         layers.forEach((layer, index) => {
             layer.elements.forEach((element) => {
-                if (isVideoClip(element)) {
-                    if (element.properties.some(p => p.position)) {
-                        const baseLayer = layers.find((l, i) => i !== index && l.elements.some(e => isVideoClip(e) && !e.properties.some(p => p.position)));
+                if (isPathVideo(element)) {
+                    if (element.properties) {
+                        const baseLayer = layers.find((l, i) => i !== index && l.elements.some(e => isPathVideo(e) && !e.position));
 
                         if (baseLayer) {
-                            const baseVideo = baseLayer.elements.find(e => isVideoClip(e) && !e.properties.some(p => p.position));
-                            if (isVideoClip(baseVideo)) {
-                                const baseVideoBegin = baseVideo.properties.find(p => p.begin)?.begin || 0;
-                                const baseVideoEnd = baseVideo.properties.find(p => p.end)?.end;
+                            const baseVideo = baseLayer.elements.find(e => isPathVideo(e));
+                            if (baseVideo) {
+                                const 
+                                const baseVideoBegin = baseVideo.properties.find(p => p.interval.begin) || 0;
+                                if ()
+                                const baseVideoEnd = baseVideo.properties.find(p => p.interval.end);
                                 let baseVideoDuration;
                                 if (baseVideoEnd !== undefined) {
                                     baseVideoDuration = baseVideoEnd - baseVideoBegin;
@@ -311,6 +387,5 @@ export class VideoMlValidator {
                 }
             });
         });
-    }
-        */
+    }*/
 }
