@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { useProgramStore } from "../editor/stores/programStore.js";
+import { useVideoStore } from "../upload/stores/videoStore.js";
+import { useAudioStore } from "../upload/stores/audioStore.js";
 
 import "../styles/button.css";
 
@@ -7,35 +9,44 @@ import "../styles/button.css";
 const GenerationButton: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const storePythonCode = useProgramStore((state) => state.pythonCode);
+  const audioFiles = useAudioStore((state) => state.audioFiles);
+  const videoFiles = useVideoStore((state) => state.videoFiles);
 
 
   const handleClick = async () => {
     setLoading(true);
-
-
+  
     try {
-      console.log("Génération du code Python en cours...");
-      console.log("++++++++++++++++++++++++++++++++++++++++++")
-      console.log(storePythonCode);
-      
-      /*const response = await fetch('/api/generate-python', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ /* Données nécessaires pour générer le code  })
+      const formData = new FormData();
+  
+      videoFiles.forEach((file) => {
+        formData.append("videos", file);
       });
-
-      const result = await response.json();*/
-      console.log('Code Python généré:');
-      // Gérer la suite après la génération, par exemple en mettant à jour l'UI
-
+  
+      audioFiles.forEach((file) => {
+        formData.append("audios", file);
+      });
+  
+      formData.append("pythonScript", new Blob([storePythonCode], { type: "text/plain" }));
+  
+      const response = await fetch("http://localhost:3000/api/generate-video", {
+        method: "POST",
+        body: formData,
+      });
+  
+      if (!response.ok) throw new Error("Erreur lors de la génération de la vidéo");
+  
+      const data = await response.json();
+      console.log("Vidéo générée avec succès :", data);
+      window.location.href = data.outputUrl;
+  
     } catch (error) {
-      console.error("Erreur lors de la génération:", error);
+      console.error("Erreur :", error);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
+  
 
   return (
     <button
@@ -43,7 +54,7 @@ const GenerationButton: React.FC = () => {
       onClick={handleClick}
       disabled={loading}
     >
-      {loading ? "Génération en cours..." : "Générer la vidéo"}
+      {loading ? "Loading..." : "Generate Video"}
     </button>
   );
 };
