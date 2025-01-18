@@ -15,24 +15,31 @@ const GenerationButton: React.FC = () => {
     setLoading(true);
 
     try {
-      // Optionnel : Si vous devez envoyer des fichiers ou des informations supplémentaires, vous pouvez adapter ici
-      // const formData = new FormData();
-      // videoFiles.forEach((file) => {
-      //   formData.append("videos", file);
-      // });
-      // audioFiles.forEach((file) => {
-      //   formData.append("audios", file);
-      // });
-      // formData.append("pythonScript", new Blob([storePythonCode], { type: "text/plain" }));
+      const formData = new FormData();
+      videoFiles.forEach((file) => {
+         formData.append("videos", file);
+      });
+      audioFiles.forEach((file) => {
+        formData.append("audios", file);
+      });
+      const pythonBlob = new Blob([storePythonCode], { type: "text/plain" });
+      formData.append("pythonScript", pythonBlob, "script.py"); // Nom du fichier : script.py
+      console.log("formData:", formData);
+      const response2 = await fetch("http://localhost:3000/run-python", {
+        method: "POST",
+        body: formData,
+      });
+      console.log("response2:", response2);
+      if (!response2.ok) throw new Error("Erreur lors de l'exécution du script Python");
 
       // Appel à la route /run-python via GET
-      const response = await fetch("http://localhost:3000/run-python", {
+      /*const response = await fetch("http://localhost:3000/run-python", {
         method: "GET", 
       });
 
       if (!response.ok) throw new Error("Erreur lors de l'exécution du script Python");
-
-      const data = await response.json();
+*/
+      const data = await response2.json();
       console.log("Vidéo générée avec succès :", data);
 
     } catch (error) {
