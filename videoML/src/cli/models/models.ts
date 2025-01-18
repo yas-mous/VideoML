@@ -13,12 +13,15 @@ export interface Layer{
 }
 
 export type LayerElement = VideoClip | AudioClip | SubtitleClip | CustomClip;
+export type Effect = CropEffect | FadeInEffect | FadeOutEffect | FreezingEffect | GrayscaleEffect;
+
 
 export interface VideoClip {
     $type: 'VideoClip';
    clipName: string;
    properties: Array<ClipProperty>;
    sourceFile: string;
+   effects: Array<Effect>;
 }
 
 export interface AudioClip   {
@@ -26,6 +29,8 @@ export interface AudioClip   {
     clipName: string;
     properties: Array<ClipProperty>;
     sourceFile: string;
+    effects: Array<Effect>;
+    
 }
 
 export interface SubtitleClip{
@@ -37,6 +42,7 @@ export interface SubtitleClip{
    position?: string;
    start: number;
    text: string;
+   effects: Array<Effect>;
 }
 
 export interface CustomClip
@@ -48,6 +54,8 @@ export interface CustomClip
     fontSize?: number;
     position?: string;
     text: string;
+    effects: Array<Effect>;
+
 }
 
 export interface ClipProperty  {
@@ -61,3 +69,23 @@ export interface ClipProperty  {
    width?: number;
 }
 
+export interface CropEffect {
+    $type:'CropEffect';
+}
+
+export interface FadeInEffect {
+    $type:'FadeInEffect';
+}
+
+
+export interface FadeOutEffect {
+    $type:'FadeOutEffect';
+}
+
+export interface FreezingEffect {
+    $type:'FreezingEffect';
+}
+
+export interface GrayscaleEffect {
+    $type:'GrayscaleEffect';
+}
