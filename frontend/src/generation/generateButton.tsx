@@ -50,7 +50,7 @@ const GenerationButton: React.FC = () => {
         onClick={handleClick}
         disabled={loading}
       >
-        Generate Video
+        Générer la vidéo
       </button>
 
       {/* Popup modal */}

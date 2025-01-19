@@ -8,7 +8,7 @@ const HelpButton: React.FC = () => {
 
   return (
     <button className="help-button" onClick={handleClick}>
-      Help
+      Aide?
     </button>
   );
 };

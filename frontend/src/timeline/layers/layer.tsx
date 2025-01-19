@@ -24,10 +24,9 @@ export const LayerUI: React.FC<{ layer: Layer }> = ({ layer }) => {
         {layer.elements[0]?.$type === "AudioClip" && (<span style={{marginRight:"20px"}}><MdMusicVideo /></span> )}
         {layer.elements[0]?.$type !== "AudioClip" && (<span style={{marginRight:"20px"}}> <FaVideo /> </span>)        }
         {layer.elements.map((element: any, idx: number) => {
-            const width = 100; 
             return (
             <div key={idx} style={{display:"flex", alignItems:"center"}}>
-              <ClipUI key={idx}  clip={element} width={width} />
+              <ClipUI key={idx}  clip={element}  />
               {idx < layer.elements.length - 1 && <TransitionUI />}
              </div>
             );

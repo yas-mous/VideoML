@@ -36,6 +36,7 @@ export interface AudioClip   {
 
 export interface SubtitleClip{
     $type: 'SubtitleClip';
+    properties: Array<ClipProperty>;
    bg_color?: string;
    clipName: string;
    color?: string;
@@ -48,6 +49,7 @@ export interface SubtitleClip{
 
 export interface TextVideo
  {  $type: 'TextVideo';
+    properties: Array<ClipProperty>;
     bg_color?: string;
     clipName: string;
     color?: string;
@@ -61,13 +63,7 @@ export interface TextVideo
 
 export interface ClipProperty  {
     $type: 'ClipProperty';
-   after?: number;
-   begin?: number;
-   end?: number;
-   height?: number;
-   position?: string;
-   positionInTimeline?: number;
-   width?: number;
+    interval:interval;
 }
 
 export interface CropEffect {
@@ -89,4 +85,9 @@ export interface FreezingEffect {
 
 export interface GrayscaleEffect {
     $type:'GrayscaleEffect';
+}
+
+export interface interval{
+    begin:string;
+    end:string;
 }
