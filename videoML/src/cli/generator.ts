@@ -80,8 +80,9 @@ function compileTimeline(timeline: TimeLine, fileNode: CompositeGeneratorNode): 
         iLayers.push({layerName:layerName,isAudioLayer:isAudioLayer});
         if(isAudioLayer){
             attachAudioToVideo(layerName,previousLayer,fileNode)
+        }else{
+            layers.push(layerName);
         }
-        layers.push(layerName);
         previousLayer = layerName;
     });
 

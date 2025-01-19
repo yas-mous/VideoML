@@ -47,21 +47,23 @@ layer1 = concatenate_videoclips([
 ], method="compose")
 
 sub1 = TextClip(
-            text="Hello World",
-            font="font/font.ttf",
-            font_size=24,
-            color='black'
-        ).with_start(6).with_duration(5).with_position('bottom')
+        text="Hello World",
+        font="font/font.ttf",
+        font_size=24,
+        color='black',
+        bg_color='#FFFFFF'
+    ).with_start(6).with_duration(5).with_position('bottom')
 sub2 = TextClip(
-            text="Hello fjeijirgjieg",
-            font="font/font.ttf",
-            font_size=24,
-            color='black'
-        ).with_start(11).with_duration(5).with_position('bottom')
+        text="Hello fjeijirgjieg",
+        font="font/font.ttf",
+        font_size=24,
+        color='black',
+        bg_color='#FFFFFF'
+    ).with_start(11).with_duration(5).with_position('bottom')
 subtitles = concatenate_videoclips([
     sub1,
     sub2,
-], method="compose").with_position( 'bottom')
+], method="compose").with_position( 'bottom').with_start(3)
 
 v3 = VideoFileClip("videos/video1.mp4")
 freeze_effect = Freeze(t=2, freeze_duration=1)
@@ -77,8 +79,6 @@ final_video = CompositeVideoClip([
     layer1,
     subtitles,
     v3,
-    a2
 ])
-
 final_video.write_videofile("../generatedVideos/myVideo.mp4", fps=24)
 >>>>>>> develop

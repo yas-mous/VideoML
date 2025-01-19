@@ -24,7 +24,7 @@ const DragAndDropZone: React.FC<DragAndDropZoneProps> = ({
       style={{
         padding: "20px",
         backgroundColor: dragOver ? "#ffffff" : "#4CAF50",
-        minHeight: "120px",
+        minHeight: "30px",
         textAlign: "center",
         border: dragOver ? "2px dashed #4CAF50" : "2px dashed #fff",
         marginTop: "20px",
@@ -33,7 +33,7 @@ const DragAndDropZone: React.FC<DragAndDropZoneProps> = ({
         transition: "all 0.3s ease",
       }}
     >
-      <p style={{ color: dragOver ? "#4CAF50" : "#fff", fontSize: "16px", fontWeight: "500" }}>
+      <p style={{ color: dragOver ? "#4CAF50" : "#fff", fontSize: "12px", fontWeight: "500" }}>
         Glissez vos fichiers vidéo ou audio ici
       </p>
     </div>
