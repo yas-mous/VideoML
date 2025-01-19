@@ -20,9 +20,14 @@ sub2 = TextClip(
             font_size=24,
             color='#FFFFFF'
         ).with_start(0).with_duration(10).with_position('bottom')
+subtitles = concatenate_videoclips([
+    sub1,
+    sub2,
+], method="compose").with_position( 'bottom')
+
 
 final_video = CompositeVideoClip([
     layer1,
-    Invalid layer type,
+    subtitles,
 ])
 final_video.write_videofile("./my_video.mp4", fps=24)

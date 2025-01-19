@@ -99,8 +99,9 @@ function compileLayer(layer: Layer, layerIndex: number, fileNode: CompositeGener
         }
         else{*/
             generateProgramBody(clipVar,clip,fileNode,videoVar)
-            if ( isVideoClip(clip)&& isPathVideo(clip)) {
-                if (layerIndex > 0 ) {
+            if ( isVideoClip(clip)&& isPathVideo(clip) || isTextVideo(clip) || isSubtitleClip(clip)) {
+
+                if (layerIndex > 0 && isPathVideo(clip)) {
                     let position = clip.position;
                     const size = clip.size|| 100;
                     const after = clip.properties.find(prop => prop.positionInTimeline !== undefined)?.positionInTimeline;
@@ -495,7 +496,6 @@ function createCustomClip( customClip: TextVideo, clipVar : String): string {
 bg_clip = ColorClip(size=(1300, 750) ,color=${colorInRGB}).with_duration(${convertToSeconds(duration)})
 
 ${clipVar} = CompositeVideoClip([bg_clip,${clipVar}]).with_position('${position}')`;
-
 
     // Ajouter ce clip d'introduction avant le clip existant
     return `${introTitleClip}`;

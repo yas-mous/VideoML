@@ -24,6 +24,12 @@ outro = TextClip(
 bg_clip = ColorClip(size=(1300, 750) ,color=(255, 192, 203)).with_duration(5)
 
 outro = CompositeVideoClip([bg_clip,outro]).with_position('center')
+layer1 = concatenate_videoclips([
+    custom,
+    v1,
+    outro,
+], method="compose")
 
-final_video = v1
+
+final_video = layer1
 final_video.write_videofile("./my_video.mp4", fps=24)
