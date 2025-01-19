@@ -8,6 +8,8 @@ voir dans langium-quickstart.md
 cd video-generator
 npm install
 
+npm run build
+
 npm run start
 ```
 
