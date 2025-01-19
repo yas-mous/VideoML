@@ -10,11 +10,11 @@ timeline myVideo & mp4 output'../generatedVideos'{
         }
     ---@subtitles
     |Subtitle @sub1 {
-        text: 'Hello World', duration: '00:00:05'
-        , from: '00:00:06'}
+        text: 'Hello World', duration: '00:00:05', bg_color: #FFFFFF
+    }
     |Subtitle @sub2 {
-        text: 'Hello fjeijirgjieg', duration: '00:00:05'
-        , from: '00:00:011'}
+        text: 'Hello fjeijirgjieg', duration: '00:00:05', bg_color: #FFFFFF
+    }
     ---@layer2
     |Video @v3  'videos/video1.mp4' ,size: 20 ,position: 'bottom-left' ~freeze ,from: '00:00:02', duration: '00:00:01'
     ---@Audio

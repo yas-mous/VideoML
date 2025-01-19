@@ -13,7 +13,7 @@ sub1 = TextClip(
             font="font/font.ttf",
             font_size=24,
             color='black'
-        ).with_start(0).with_duration(5).with_position('bottom')
+        ).with_start(3).with_duration(5).with_position('bottom')
 sub2 = TextClip(
             text="Hello World",
             font="font/font.ttf",
@@ -23,7 +23,7 @@ sub2 = TextClip(
 subtitles = concatenate_videoclips([
     sub1,
     sub2,
-], method="compose").with_position( 'bottom')
+], method="compose").with_position( 'bottom').with_start(3)
 
 
 final_video = CompositeVideoClip([
