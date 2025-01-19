@@ -43,6 +43,14 @@ interface ILayer    {
     isAudioLayer: boolean;
 }
 
+export function generatePythonProgram(timeline: TimeLine): string {
+   
+    const fileNode = new CompositeGeneratorNode();
+    compileTimeline(timeline, fileNode)
+    console.log(toString(fileNode));
+    return toString(fileNode);
+}
+
 export function generatepython(timeline: TimeLine, filePath: string, destination: string | undefined): string {
     const data = extractDestinationAndName(filePath, destination);
     const generatedFilePath = `${path.join(data.destination, data.name)}.py`;
@@ -130,6 +138,8 @@ function compileLayer(layer: Layer, layerIndex: number, fileNode: CompositeGener
                 if (layerIndex > 0 ) {
                     let position = clip.position;
                     const size = clip.size|| 100;
+                   // const after = clip.properties.find(prop => prop.positionInTimeline !== undefined)?.positionInTimeline;
+
 
                     if (position == "bottom-left" || position == "left-bottom") {
                         position = "'left', 'bottom'";
@@ -390,12 +400,12 @@ function compileGrayscaleEffect(effect:GrayscaleEffect,clipVar:string,fileNode: 
             fileNode.appendNewLine();
             fileNode.append(`${clipVar}_after = ${clipVar}.subclipped(${to})`);
             fileNode.appendNewLine();
-    
-    
+
+
             fileNode.append(`${clipVar} = concatenate_videoclips([${clipVar}_before, ${clipVar}_gray, ${clipVar}_after], method="compose")`);
             fileNode.appendNewLine();
         } else {
-    
+
             fileNode.append(`${clipVar} = BlackAndWhite(RGB='CRT_phosphor', preserve_luminosity=True).apply(${clipVar})`);
             fileNode.appendNewLine();
         }

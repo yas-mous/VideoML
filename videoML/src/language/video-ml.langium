@@ -51,7 +51,7 @@ TextProperties:
 
 
 AudioClip:
-    '|Audio' '@' clipName=ID sourceFile=STRING (properties+=ClipProperty)? (('~' effects+=AudioEffect)*)? NL;
+    '|Audio' '@' clipName=ID sourceFile=STRING (properties+=ClipProperty)? (('~' effects+=AudioEffect)?)* NL;
 
 
 VideoEffect:

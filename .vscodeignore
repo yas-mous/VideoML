@@ -1,0 +1,13 @@
+# Ignorer les fichiers spécifiques à l'éditeur VSCode
+.vscode/
+
+# Ignorer les fichiers générés par les outils de build
+**/out/
+**/dist/
+
+# Ignorer les logs et fichiers temporaires
+*.log
+*.env
+
+# Ignorer les répertoires node_modules
+node_modules/

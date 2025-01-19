@@ -1,0 +1,17 @@
+# Ignorer les répertoires node_modules de tous les sous-projets
+node_modules/
+
+# Ignorer les fichiers de build de chaque projet
+**/out/
+**/dist/
+
+# Ignorer les fichiers générés
+**/*.log
+**/*.env
+
+# Ignorer les fichiers de configuration de l'éditeur (par exemple, VSCode)
+.vscode/
+.idea/
+
+# Ignorer les fichiers temporaires
+tmp/

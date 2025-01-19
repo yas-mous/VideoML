@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+      "baseUrl": "./",
+      "paths": {
+        "videoML/*": ["videoML/src/*"],
+        "frontend/*": ["frontend/src/*"]
+      }
+    },
+    "include": [
+      "videoML/src/**/*",
+      "frontend/src/**/*"
+    ]
+  }
+  

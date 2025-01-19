@@ -1,0 +1,122 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: Arial, sans-serif;
+    background-color: rgb(33, 33, 33);
+    color: white;
+}
+
+.app {
+    position: relative;
+}
+
+
+.grid-container {
+    display: grid;
+    grid-template-areas:
+        "editor video-preview drag-drop-download" /* Réorganiser les zones */
+        "visualization visualization visualization"; /* Garder la visualisation en bas */
+    grid-template-columns: 3fr 1.5fr 1.5fr; /* 2/6 pour l'éditeur, 3/6 pour la preview, 1/6 pour drag-and-drop */
+    grid-template-rows: 1fr 3fr; /* L'éditeur et la vidéo prennent plus de place sur la première ligne */
+    height: 100vh;
+    /*gap: 10px;
+    padding: 10px;*/
+    box-sizing: border-box;
+}
+
+
+.editor {
+    grid-area: editor;
+    background-color: #1e1e1e;
+    border: 1px solid #444;
+    overflow: hidden;
+    height: 100%;
+}
+
+.drag-drop-download {
+    grid-area: drag-drop-download;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 20px;
+}
+
+
+.download {
+    background-color: #333;
+    border: 1px solid #444;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 80%;
+}
+
+.video-preview {
+    grid-area: video-preview;
+    background-color: #222;
+    border: 1px solid #444;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.video-container {
+    width: 80%;
+    height: 80%;
+    background-color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid #444;
+}
+
+.visualization {
+    grid-area: visualization;
+    background-color: #222;
+    border: 1px solid #444;
+    padding: 10px;
+}
+
+@media (max-width: 768px) {
+    .grid-container {
+        grid-template-areas:
+            "editor"
+            "drag-drop-download"
+            "video-preview"
+            "visualization";
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+    }
+}
+
+h1 {
+    text-align: center;
+}
+
+footer {
+    text-align: center;
+    color: #444;
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+a:link {
+    color: gray;
+}
+
+a:visited {
+    color: lightskyblue;
+}
+
+.wrapper {
+    padding: 0 5%;
+}
+
+#monaco-editor-root {
+    height: calc(100vh - 7.5rem - 70px);
+}

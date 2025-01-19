@@ -3,6 +3,15 @@
 voir dans langium-quickstart.md
 ### Générer du code a partir d'un .vml
 
+**In root of project**
+```bash
+npm run grammar //=npm run langium:generate
+npm run build //build videoML & frontend
+npm run frontend //launch frontend
+```
+
+**In videoML**
+
 after any modif in the grammar 
 ```bash
 npm run langium:generate
@@ -23,6 +32,7 @@ npm run cli ..\demo\test2.vml
 **optionnel :**
 - & mp4 : pour modifier l extension (validation a faire pour accepter que les extensions videos)
 - output'../generatedVideos' : pour specifier un chemin, par defaut meme repertoire que le fichier .vml
+    - **with / : "C:/videos/myVideo.mp4"**
 
 ```bash
 timeline myVideo & mp4 output'../generatedVideos'{
