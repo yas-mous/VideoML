@@ -16,6 +16,8 @@ npm run start
 ```
 
 **Lancer le frontend**
+
+A la racine du projet
 ```bash
 npm install
 
