@@ -51,6 +51,7 @@ npm run cli ..\demo\test2.vml
 - & mp4 : pour modifier l extension (validation a faire pour accepter que les extensions videos)
 - output'../generatedVideos' : pour specifier un chemin, par defaut meme repertoire que le fichier .vml
     - **with / : "C:/videos/myVideo.mp4"**
+      
 Les scripts avec la dernière version de grammaire sont dans [le répertoire demo](https://github.com/yas-mous/VideoML/tree/main/demo)
 
 Exemples de [vidéos générés](https://github.com/yas-mous/VideoML/tree/main/demo/generatedVideos) 
