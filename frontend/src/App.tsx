@@ -12,10 +12,9 @@ import "./styles/styles.css";
 const App: React.FC = () => {
   return (
     <div className="app">
-      <div className="header">
+      <div className="header" >
         <HelpButton />
         <EyamotionLogo />
-        <GenerationButton />
       </div>
       <div className="grid-container">
         <div className="editor">
@@ -32,6 +31,7 @@ const App: React.FC = () => {
         </div>
         <div className="visualization">
           <TimelineVisualization />
+          <GenerationButton />
         </div>
       </div>
       <footer>

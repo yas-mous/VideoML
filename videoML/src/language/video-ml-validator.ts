@@ -231,10 +231,10 @@ export class VideoMlValidator {
         if (!text || text.trim() === '') {
             accept('error', 'Subtitle text is missing.', { node: subtitle});
         }
-        if (start === undefined || convertToSeconds(start) < 0) {
+        if (start !== undefined && convertToSeconds(start) < 0) {
             accept('error', 'Subtitle start time must be a non-negative integer.', { node: subtitle });
         }
-        if ( duration === undefined || convertToSeconds(duration) <= 0) {
+        if ( duration !== undefined && convertToSeconds(duration) <= 0) {
             accept('error', 'Subtitle duration must be a positive integer.', { node: subtitle });
         }
         if (position && !TextPositions.includes(position)) {
@@ -254,8 +254,8 @@ export class VideoMlValidator {
             if (interval.duration !== undefined && !this.timepattern.test(interval.duration)) {
                 accept('error', 'Interval property "duration" must be in the format HH:MM:SS.', { node: interval, property: 'duration' });
             }
-            if  (interval.begin !== undefined && convertToSeconds(interval.begin) >= 0) {
-                accept('error', 'Interval property "from" must be a negative integer.', { node: interval, property: 'begin' });
+            if  (interval.begin !== undefined && convertToSeconds(interval.begin) < 0) {
+                accept('error', 'Interval property "from" must be a positive integer.', { node: interval, property: 'begin' });
             }
             if (interval.begin !== undefined && !this.timepattern.test(interval.begin)) {
                 accept('error', 'Interval property "from" must be in the format HH:MM:SS.', { node: interval, property: 'begin' });
@@ -332,20 +332,22 @@ export class VideoMlValidator {
             subtitleClips.forEach(subtitle => {
                 const subtitleStart = subtitle.properties.find(prop => prop.interval?.begin !== undefined)?.interval?.begin;
                 const subtileDuration = subtitle.TextProperties.find(prop => prop.duration !== undefined)?.duration;
-                if (subtitleStart === undefined || subtileDuration === undefined) {
+                if (subtitleStart === undefined && subtileDuration === undefined) {
                     accept('error', 'Subtitle timing is missing.', { node: subtitle });
                     return;
                 }
-                const subtitleEnd = convertToSeconds(subtitleStart) + convertToSeconds(subtileDuration);
-                const isWithinAnyVideoLayer = videoDurations.some(videoDuration => {
-                    return convertToSeconds(subtitleStart) >= 0 && subtitleEnd <= videoDuration;
-                });
-                if (!isWithinAnyVideoLayer) {
-                    accept(
-                        'error',
-                        `Subtitle timing (${convertToSeconds(subtitleStart)}-${subtitleEnd}) does not match the duration of any video layer.`,
-                        { node: subtitle }
-                    );
+                if (subtitleStart !== undefined && subtileDuration !== undefined) {
+                    const subtitleEnd = convertToSeconds(subtitleStart) + convertToSeconds(subtileDuration);
+                    const isWithinAnyVideoLayer = videoDurations.some(videoDuration => {
+                        return convertToSeconds(subtitleStart) >= 0 && subtitleEnd <= videoDuration;
+                    });
+                    if (!isWithinAnyVideoLayer) {
+                        accept(
+                            'error',
+                            `Subtitle timing (${convertToSeconds(subtitleStart)}-${subtitleEnd}) does not match the duration of any video layer.`,
+                            { node: subtitle }
+                        );
+                    }
                 }
             });
         });

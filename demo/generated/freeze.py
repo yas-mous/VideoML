@@ -7,11 +7,11 @@ V1 = freeze_effect.apply(V1)
 v2 = VideoFileClip("videos/video2.mp4").subclipped(10, 14)
 freeze_effect = Freeze(t=1, freeze_duration=2)
 v2 = freeze_effect.apply(v2)
-layer_0 = concatenate_videoclips([
+layer1 = concatenate_videoclips([
     V1,
     v2,
 ], method="compose")
 
 
-final_video = layer_0
-final_video.write_videofile("myVideo.mp4", fps=24)
+final_video = layer1
+final_video.write_videofile("./myVideo.mp4", fps=24)

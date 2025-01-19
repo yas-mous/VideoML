@@ -27,7 +27,7 @@ console.log("layers",mappedAst.layers);
   //sinon
   return (
     <div style={{ padding: "1rem", backgroundColor: "#1e1e1e", color: "#fff" }}>
-      <h2>Timeline: {mappedAst.name || "Unnamed"} Visualization</h2>
+      <h2>Timeline {mappedAst.name || "Unnamed"}</h2>
       <div
         style={{
           maxHeight: "300px",
@@ -58,7 +58,7 @@ console.log("layers",mappedAst.layers);
             }
           `}
         </style>
-        <TimeRuler duration={20} step={2}></TimeRuler>
+        <TimeRuler duration={20} step={1}></TimeRuler>
         {mappedAst.layers.map((layer: any, index: number) => (
           <LayerUI key={index} layer={layer} />
         ))}

@@ -134,8 +134,9 @@ function compileLayer(layer: Layer, layerIndex: number, fileNode: CompositeGener
         }
         else{*/
             generateProgramBody(clipVar,clip,fileNode,videoVar)
-            if ( isVideoClip(clip)&&(isPathVideo(clip) || isTextVideo(clip))) {
-                if (layerIndex > 0 ) {
+            if ( isVideoClip(clip)&& isPathVideo(clip) || isTextVideo(clip) || isSubtitleClip(clip)) {
+
+                if (layerIndex > 0 && (isPathVideo(clip)||isTextVideo(clip))) {
                     let position = clip.position;
                     const size = clip.size|| 100;
                    // const after = clip.properties.find(prop => prop.positionInTimeline !== undefined)?.positionInTimeline;

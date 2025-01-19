@@ -19,4 +19,7 @@ timeline my_video {
     |TextVideo @custom {
             text: 'Good bye guys !', duration: '00:00:05', color:#FFFFFF  , bg_color: #FFC0CB , position: 'left'
             } ,start: '00:00:00' after: @clip1b
+    ---@layer4
+    |Audio @a1 'audios/audio1.mp3' , from: '00:00:00' , to: '00:00:10' ~volume(x 2, from: '00:00:02' ,to: '00:00:04')
+    |Audio @a2 'audios/audio2.mp3',from: '00:00:05', to: '00:00:10' ~loop  '00:00:05'     
 }

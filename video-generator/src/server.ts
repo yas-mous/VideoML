@@ -19,8 +19,7 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage });
-
-app.post('/run-python', upload.fields([{ name: 'videos' }, { name: 'audios' }, { name: 'pythonScript' }]), async (req: Request, res: Response) => {
+app.post('/run-python', upload.fields([{ name: 'videos' }, { name: 'audios' }, { name: 'pythonScript' }]), async (req: Request, res: Response): Promise<void> => {
     try {
         console.log("Requête POST reçue sur /run-python");
         const files = req.files as { [fieldname: string]: Express.Multer.File[] };
@@ -30,6 +29,8 @@ app.post('/run-python', upload.fields([{ name: 'videos' }, { name: 'audios' }, {
 
         if (!pythonScript || pythonScript.length === 0) {
             console.error("Le fichier pythonScript est manquant.");
+            res.status(400).json({ error: 'Fichier pythonScript manquant.' });
+            return;
         }
 
         const scriptPath = path.join(__dirname, '../uploads', pythonScript[0].filename);
@@ -45,8 +46,6 @@ app.post('/run-python', upload.fields([{ name: 'videos' }, { name: 'audios' }, {
                 const regex = new RegExp(`VideoFileClip\\("${videoOriginalName}"\\)`, 'g');
                 scriptContent = scriptContent.replace(regex, `VideoFileClip("${videoPath}")`);
             });
-        } else {
-            console.log("Aucun fichier vidéo fourni.");
         }
 
         if (audios.length > 0) {
@@ -56,9 +55,8 @@ app.post('/run-python', upload.fields([{ name: 'videos' }, { name: 'audios' }, {
                 const regex = new RegExp(`AudioFileClip\\("${audioOriginalName}"\\)`, 'g');
                 scriptContent = scriptContent.replace(regex, `AudioFileClip("${audioPath}")`);
             });
-        } else {
-            console.log("Aucun fichier audio fourni.");
         }
+
         console.log("scriptContent après modification:\n", scriptContent);
 
         const scriptPathModified = path.join(__dirname, './scripts', 'script.py');
@@ -67,15 +65,33 @@ app.post('/run-python', upload.fields([{ name: 'videos' }, { name: 'audios' }, {
         exec(`python3 ${scriptPathModified}`, (error, stdout, stderr) => {
             console.log("Exécution du script Python...");
             if (error) {
-                console.error(`exec error: ${error}`);
-                return res.status(500).json({ error: 'Erreur lors de l\'exécution du script Python' });
+                console.error(`Erreur d'exécution : ${error}`);
+                res.status(500).json({ error: 'Erreur lors de l\'exécution du script Python' });
+                return;
             }
             if (stderr) {
-                console.warn(`Avertissement : ${stderr}`); // Loggez les warnings sans renvoyer une erreur
+                console.warn(`Avertissement : ${stderr}`);
             }
 
             console.log(`stdout: ${stdout}`);
-            res.status(200).json({ outputUrl: '/uploads/myVideo.mp4' });
+
+            const regex = /final_video\.write_videofile\(["'](.+?)["']/;
+            const match = scriptContent.match(regex);
+            const outputPath = match ? match[1] : null;
+
+            if (outputPath && fs.existsSync(outputPath)) {
+                console.log("Envoi de la vidéo générée :", outputPath);
+
+                // Utilisez un stream pour envoyer directement la vidéo
+                res.setHeader('Content-Type', 'video/mp4');
+                res.setHeader('Content-Disposition', 'attachment; filename="generated_video.mp4"');
+
+                const videoStream = fs.createReadStream(outputPath);
+                videoStream.pipe(res);
+            } else {
+                console.error("Fichier vidéo non trouvé :", outputPath);
+                res.status(404).json({ error: 'Fichier vidéo non trouvé.' });
+            }
         });
     } catch (error) {
         console.error("Erreur lors du traitement des fichiers :", error);

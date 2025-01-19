@@ -14,10 +14,9 @@ export const setupConfigExtended = (): UserConfig => {
                 languageId: 'video-ml',
                 code: 
 `timeline myVideo {
-    ---@Layer1
-    |Video @V1 'video2.mp4'
-    ---@Layer2
-    |Audio @Audio1 'video1.mp4'
+    ---@layer1
+    |Video @v1 'video1.mp4' , from: '00:00:01', to: '00:00:05'
+    |Video @v2  'video2.mp4', from: '00:00:00', to: '00:00:03'
 }`,
                 useDiffEditor: false,
                 extensions: [{

@@ -29,8 +29,7 @@ export const useProgramStore = create<ProgramStore>((set) => ({
                 })),
 
                 setPythonCode: (pythonCodeG) => {
-                    console.log("setttttttttttttttttttttttttttttt")
-                    console.log("Pjjjjjjjjjjjjjjjjjj:", pythonCodeG); 
+               
                     set(() => ({
                         pythonCode:pythonCodeG,
                         isSaved: false,

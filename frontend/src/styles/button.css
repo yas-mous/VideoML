@@ -23,7 +23,7 @@
 .generation-button {
     position: relative; 
     margin: 20px 0;     
-    background-color: #424786;
+    background-color: #618642;
     color: white;
     border: none;
     border-radius: 5px;
@@ -40,6 +40,77 @@
 .generation-button:active {
     background-color: #666;
 }
+
+.modal-overlay-video {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content_video {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 90%;
+  max-height: 90%;
+  overflow: hidden;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+video {
+  max-width: 100%;
+  max-height: 80vh;  
+  width: auto;
+  height: auto;
+  border-radius: 10px;
+}
+
+.video-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: rgba(255, 255, 255, 0.7); /* Fond semi-transparent pour un meilleur contraste */
+  color: #333; /* Couleur du texte (icon) */
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  font-size: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  z-index: 1100; /* Assurez-vous que ce bouton est au-dessus de la vidéo */
+}
+
+.video-button:hover {
+  background-color: rgba(255, 255, 255, 0.9); /* Fond un peu plus opaque au survol */
+  transform: scale(1.1); /* Légère augmentation de la taille au survol */
+}
+
+.video-button:active {
+  background-color: rgba(255, 255, 255, 0.6); /* Fond plus transparent au clic */
+  transform: scale(1.05); /* Réduction légère au clic */
+}
+
+.video-button:focus {
+  outline: none; /* Retirer l'encadrement par défaut */
+  box-shadow: 0 0 0 3px rgba(97, 134, 66, 0.5); /* Contour lors du focus pour l'accessibilité */
+}
+
+
+
 
 /* Modale overlay (fond semi-transparent) */
 .modal-overlay {

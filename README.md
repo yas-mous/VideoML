@@ -3,12 +3,27 @@
 voir dans langium-quickstart.md
 ### Générer du code a partir d'un .vml
 
-**In root of project**
+**Lancer le serveur video-generator**
 ```bash
+cd video-generator
+npm install
+
+npm run build
+
+npm run start
+```
+
+**A la racine du projet**
+```bash
+npm install
+
 npm run grammar //=npm run langium:generate
 npm run build //build videoML & frontend
 npm run frontend //launch frontend
 ```
+
+
+
 
 **In videoML**
 
