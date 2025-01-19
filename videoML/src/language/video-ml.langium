@@ -94,15 +94,14 @@ LoopDurationEffects:
 LoopNumberEffects:
     'loop' x_times=INT;
 
-
 hidden terminal WS: /\s+/;
 terminal ID: /[_a-zA-Z][\w_]*/;
 terminal INT returns number: /[0-9]+/;
 terminal NL: /\r?\n/;
+terminal STRING: /'(\\.|[^'\\])*'|'(\\.|[^'\\])*'/;
+terminal COLOR: /#[0-9a-fA-F]{6}/;
+//terminal Time : /[0-9]{2}:[0-9]{2}:[0-9]{2}/;
+//terminal PATH: /([a-zA-Z]:[\\/]|[\\/])?[a-zA-Z0-9\-_\\\/. ]+/;
 //terminal DOUBLE returns number: INT '.' INT;
 //terminal FLOAT returns number: /[0-9]+(\.[0-9]+)?/;
 //terminal EXTENSION: 'mp4' | 'avi' | 'mkv' | 'mov' | 'flv' | 'webm';
-terminal STRING: /'(\\.|[^'\\])*'|'(\\.|[^'\\])*'/;
-terminal COLOR: /#[0-9a-fA-F]{6}/;
-terminal Time : /[0-9]{2}:[0-9]{2}:[0-9]{2}/;
-//terminal PATH: /([a-zA-Z]:[\\/]|[\\/])?[a-zA-Z0-9\-_\\\/. ]+/;
