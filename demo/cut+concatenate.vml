@@ -10,6 +10,6 @@ timeline myVideo & mp4 output'../generatedVideos'{
         }
     ---@subtitles
     |Subtitle @sub1 {
-        text: 'Hello World',duration: '00:00:05' , start: '00:00:06'
+        text: 'Hello World',start: '00:00:06', duration: '00:00:05' 
     }
 }

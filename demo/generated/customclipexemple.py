@@ -2,18 +2,28 @@ from moviepy import *
 from moviepy.video.fx import *
 
 custom = TextClip(
-            font="Arial",
+            font="font/font.ttf",
             text="Welcome to my video !",
             font_size=48,
-            color='white',
-            bg_color='pink'
+            color='#FFFFFF',
+            bg_color='#FFC0CB'
         ) .with_duration(5).with_position('left')
-Finn = VideoFileClip("../demo/generated/videos/video2.mp4")
-layer_0 = concatenate_videoclips([
-    custom,
-    Finn,
-], method="compose")
+        
+bg_clip = ColorClip(size=(1300, 750) ,color=(255, 192, 203)).with_duration(5)
 
+custom = CompositeVideoClip([bg_clip,custom]).with_position('left')
+v1 = VideoFileClip("videos/video2.mp4")
+outro = TextClip(
+            font="font/font.ttf",
+            text="Thank you!",
+            font_size=48,
+            color='#FFFFFF',
+            bg_color='#FFC0CB'
+        ) .with_duration(5).with_position('center')
+        
+bg_clip = ColorClip(size=(1300, 750) ,color=(255, 192, 203)).with_duration(5)
 
-final_video = layer_0
-final_video.write_videofile("my_video.mp4", fps=24)
+outro = CompositeVideoClip([bg_clip,outro]).with_position('center')
+
+final_video = v1
+final_video.write_videofile("./my_video.mp4", fps=24)
