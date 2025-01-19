@@ -2,9 +2,8 @@
 ### Prérequis
 - python3
 - moviepy (version 2.1.1)
-### Commandes 
-voir dans langium-quickstart.md
-### Générer du code a partir d'un .vml
+- 
+### Installation et lancement
 
 **Lancer le serveur video-generator**
 ```bash
@@ -16,7 +15,7 @@ npm run build
 npm run start
 ```
 
-**A la racine du projet**
+**Lancer le frontend**
 ```bash
 npm install
 
@@ -26,6 +25,7 @@ npm run frontend //launch frontend
 ```
 
 
+### Générer du code a partir d'un .vml
 
 
 **In videoML**
@@ -51,6 +51,9 @@ npm run cli ..\demo\test2.vml
 - & mp4 : pour modifier l extension (validation a faire pour accepter que les extensions videos)
 - output'../generatedVideos' : pour specifier un chemin, par defaut meme repertoire que le fichier .vml
     - **with / : "C:/videos/myVideo.mp4"**
+Les scripts avec la dernière version de grammaire sont dans [le répertoire demo](https://github.com/yas-mous/VideoML/tree/main/demo)
+Exemples de vidéos générés : [le répertoire demo](https://github.com/yas-mous/VideoML/tree/main/demo/generatedVideos) 
+
 
 ```bash
 timeline myVideo & mp4 output'../generatedVideos'{
@@ -113,7 +116,4 @@ timeline grayscaleVideo {
 ```
 
 
-### Generated videos
 
-Exemples de vidéos générés par le DSL
-`VideoML\demo\generatedVideos`
