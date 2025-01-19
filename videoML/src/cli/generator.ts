@@ -205,7 +205,14 @@ function compileSingleClip(clipCode: string, fileNode: CompositeGeneratorNode): 
 
 function compileMultipleClip(clips: string[], layer: Layer, fileNode: CompositeGeneratorNode): string {
     const layerVar = layer.layerName;
+fileNode.append(`${layerVar} = CompositeVideoClip([`);
+fileNode.appendNewLine();
+    let previousClip=clips.at(0);
 
+clips.slice(1,clips.length).forEach((clip) => {
+    fileNode.append(`    ${clip}.with_start(${previousClip}.end),`);
+    fileNode.appendNewLine();
+})/*
     fileNode.append(`${layerVar} = concatenate_videoclips([`);
     fileNode.appendNewLine();
 
@@ -213,8 +220,8 @@ function compileMultipleClip(clips: string[], layer: Layer, fileNode: CompositeG
         fileNode.append(`    ${clip},`);
         fileNode.appendNewLine();
     });
-
-    fileNode.append(`], method="compose")`);
+*/
+    fileNode.append(`])`);
     if(layer.elements.length > 0 && isSubtitleClip(layer.elements[0])){
         fileNode.append(`.with_position( 'bottom')`);
     }
@@ -540,7 +547,8 @@ function createCustomClip( customClip: TextVideo, clipVar : String): string {
             text="${text}",
             font_size=${fontSize},
             color='${color}',
-            bg_color='${bgColor}'
+            bg_color='${bgColor}',
+            size=(1300, 750)
         ) .with_start(${positionInTimelineString}).with_duration(${convertToSeconds(duration)}).with_position('${position}')
         
 bg_clip = ColorClip(size=(1300, 750) ,color=${colorInRGB}).with_duration(${convertToSeconds(duration)})
