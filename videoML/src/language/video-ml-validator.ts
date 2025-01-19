@@ -255,8 +255,8 @@ export class VideoMlValidator {
             if (interval.duration !== undefined && !this.timepattern.test(interval.duration)) {
                 accept('error', 'Interval property "duration" must be in the format HH:MM:SS.', { node: interval, property: 'duration' });
             }
-            if  (interval.begin !== undefined && convertToSeconds(interval.begin) >= 0) {
-                accept('error', 'Interval property "from" must be a negative integer.', { node: interval, property: 'begin' });
+            if  (interval.begin !== undefined && convertToSeconds(interval.begin) < 0) {
+                accept('error', 'Interval property "from" must be a positive integer.', { node: interval, property: 'begin' });
             }
             if (interval.begin !== undefined && !this.timepattern.test(interval.begin)) {
                 accept('error', 'Interval property "from" must be in the format HH:MM:SS.', { node: interval, property: 'begin' });
