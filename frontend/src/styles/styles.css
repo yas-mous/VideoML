@@ -43,7 +43,6 @@ body, html {
     gap: 20px;
 }
 
-
 .download {
     background-color: #333;
     border: 1px solid #444;
@@ -53,7 +52,11 @@ body, html {
     align-items: center;
     justify-content: center;
     width: 80%;
+    max-height: 300px; /* Hauteur maximale de la zone */
+    overflow-y: auto;  /* Ajout de la barre de défilement verticale */
+    padding-right: 10px;  /* Ajouter un peu d'espace pour que la scrollbar soit visible */
 }
+
 
 .video-preview {
     grid-area: video-preview;

@@ -24,7 +24,7 @@ const DragAndDropZone: React.FC<DragAndDropZoneProps> = ({
       style={{
         padding: "20px",
         backgroundColor: dragOver ? "#ffffff" : "#4CAF50",
-        minHeight: "120px",
+        minHeight: "70px",
         textAlign: "center",
         border: dragOver ? "2px dashed #4CAF50" : "2px dashed #fff",
         marginTop: "20px",
