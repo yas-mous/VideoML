@@ -1,5 +1,15 @@
-timeline myVideo {
+timeline myVideo & mp4 output'../generatedVideos'{
     ---@layer1
+    |TextVideo @custom {
+        text: 'Welcome to my video !', duration: '00:00:05', color:#FFFFFF  , bg_color: #FFC0CB , position: 'left'
+        }
     |Video @v1 'videos/video1.mp4' , from: '00:00:01', to: '00:00:05'
     |Video @v2  'videos/video2.mp4', from: '00:00:00', to: '00:00:03'
+    |TextVideo @outro {
+        text: 'Thank you!', duration: '00:00:05', color:#FFFFFF  , bg_color: #FFC0CB , position: 'center'
+        }
+    ---@subtitles
+    |Subtitle @sub1 {
+        text: 'Hello World',duration: '00:00:05' , start: '00:00:06'
+    }
 }
