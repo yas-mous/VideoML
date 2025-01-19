@@ -3,6 +3,7 @@ import { useProgramStore } from "../editor/stores/programStore.js";
 import { useVideoStore } from "../upload/stores/videoStore.js";
 import { useAudioStore } from "../upload/stores/audioStore.js";
 
+
 import "../styles/button.css";
 
 const GenerationButton: React.FC = () => {
