@@ -1,4 +1,7 @@
 # VideoML project
+### Prérequis
+- python3
+- moviepy (version 2.1.1)
 ### Commandes 
 voir dans langium-quickstart.md
 ### Générer du code a partir d'un .vml
@@ -109,9 +112,6 @@ timeline grayscaleVideo {
 }
 ```
 
-### Requirements
-
-Avoir la version **2.1.1** de **moviepy**
 
 ### Generated videos
 
