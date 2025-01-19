@@ -1,8 +1,7 @@
 import type { ValidationAcceptor, ValidationChecks } from 'langium';
 import type {VideoMlAstType, TimeLine, LayerElement} from './generated/ast.js';
-import {isAudioClip, isPathVideo ,isSubtitleClip, isIntervalFrom, isIntervalDuration, VideoClip,isVideoEffect, Intervall,SubtitleClip , Layer,ClipProperty, isTextVideo
-        
-} from './generated/ast.js';
+import {isAudioClip, isPathVideo ,isSubtitleClip, isIntervalFrom, isIntervalDuration, VideoClip,isVideoEffect, Intervall,SubtitleClip , Layer,ClipProperty, isTextVideo,
+     FadeInEffect , FadeOutEffect} from './generated/ast.js';
 //import type {VideoMlAstType, TimeLine,LayerElement, VideoClip,SubtitleClip, ClipProperty, Layer} from './generated/ast.js';
 //import {isAudioClip, isVideoClip, isVideoEffect, isSubtitleClip } from './generated/ast.js';
 import type { VideoMlServices } from './video-ml-module.js';
@@ -21,12 +20,16 @@ export function registerValidationChecks(services: VideoMlServices) {
             validator.checkRequiredArgument,
             validator.checkValidVideoExtension,
             validator.checkUniqueNames,
-            validator.validateSubtitleTiming
+            validator.validateSubtitleTiming,
+            validator.validateLayersClipTypes
         ],
-        LayerElement:validator.checkClipProperties,
+        LayerElement: [validator.checkClipProperties],
         VideoClip: validator.checkVideoClipEffects,
         SubtitleClip: validator.validateSubtitleClip,
         ClipProperty: validator.validateClipProperty,
+        Intervall: validator.validateIntervalProperty,
+        FadeInEffect : validator.validateFadein,
+        FadeOutEffect : validator.validateFadeout
     };
     registry.register(checks, validator);
 }
@@ -258,6 +261,9 @@ export class VideoMlValidator {
             if (interval.begin !== undefined && !this.timepattern.test(interval.begin)) {
                 accept('error', 'Interval property "from" must be in the format HH:MM:SS.', { node: interval, property: 'begin' });
             }
+            if (interval.begin !== undefined && interval.duration !== undefined && convertToSeconds(interval.duration) + convertToSeconds(interval.begin) < 0) {
+                accept('error', 'Interval property "from" and "duration" must be a non-negative integer.', { node: interval, property: 'begin' });
+            }
         }
 
         if (isIntervalFrom(interval)) {
@@ -272,6 +278,9 @@ export class VideoMlValidator {
             }
             if (interval.end !== undefined && !this.timepattern.test(interval.end)) {
                 accept('error', 'Interval property "to" must be in the format HH:MM:SS.', { node: interval, property: 'end' });
+            }
+            if (interval.begin !== undefined && interval.end !== undefined && convertToSeconds(interval.begin) >= convertToSeconds(interval.end)) {
+                accept('error', 'Interval property "from" must be less than "to".', { node: interval, property: 'begin' });
             }
         }
     }
@@ -385,18 +394,62 @@ export class VideoMlValidator {
         });
     }
 
+
+    validateFadein(effect: FadeInEffect, accept: ValidationAcceptor): void {
+        if (( effect.duration !== undefined)) {
+            if (convertToSeconds(effect.duration) <= 0) {
+                accept('error', 'duration must be a positive integer.', { node: effect });
+            }
+            if (!this.timepattern.test(effect.duration)) {
+                accept('error', 'duration must be in the format HH:MM:SS.', { node: effect });
+            }
+        }
+    }
+
+    validateFadeout(effect: FadeOutEffect, accept: ValidationAcceptor): void {
+        if ((effect.duration !== undefined)) {
+            if (convertToSeconds(effect.duration) <= 0) {
+                accept('error', 'duration must be a positive integer.', { node: effect });
+            }
+            if (!this.timepattern.test(effect.duration)) {
+                accept('error', 'duration must be in the format HH:MM:SS.', { node: effect });
+            }
+        }
+    }
+
+
     validateLayersClipTypes(timeline: TimeLine, accept: ValidationAcceptor): void {
         timeline.layers.forEach(layer => {
-            layer.elements.forEach(element => {
-                let elements =[];
-                elements.push(element);
-                
-                if ( ( (elements[0].$type!== 'PathVideo' && element.$type !== 'TextVideo') || (elements[0].$type!== 'TextVideo' && element.$type !== 'PathVideo')) && element.$type !== elements[0].$type) {
-                    accept('error', `Clip type ${element.$type} is not allowed in layer ${layer.layerName}.`, { node: element });
-                }
-            });
+            // Separate clips by type for better validation
+            const audioClips = layer.elements.filter(element => element.$type === 'AudioClip');
+            const subtitleClips = layer.elements.filter(element => element.$type === 'SubtitleClip');
+            const pathVideos = layer.elements.filter(element => element.$type === 'PathVideo');
+            const textVideos = layer.elements.filter(element => element.$type === 'TextVideo');
+            const otherClips = layer.elements.filter(element =>
+                !['AudioClip', 'SubtitleClip', 'PathVideo', 'TextVideo'].includes(element.$type)
+            );
+    
+            if (audioClips.length > 0 && (subtitleClips.length > 0 || pathVideos.length > 0 || textVideos.length > 0 || otherClips.length > 0)) {
+                accept('error', `Layer ${layer.layerName} cannot have AudioClip with other clip types.`, { node: layer });
+            }
+
+            if (subtitleClips.length > 0 && (audioClips.length > 0 || pathVideos.length > 0 || textVideos.length > 0 || otherClips.length > 0)) {
+                accept('error', `Layer ${layer.layerName} cannot have SubtitleClip with other clip types.`, { node: layer });
+            }
+    
+            if (
+                (pathVideos.length > 0 || textVideos.length > 0) &&
+                (audioClips.length > 0 || subtitleClips.length > 0 || otherClips.length > 0)
+            ) {
+                accept('error', `Layer ${layer.layerName} cannot have PathVideo or TextVideo with incompatible clip types.`, { node: layer });
+            }
+    
+            if (otherClips.length > 0 && (audioClips.length > 0 || subtitleClips.length > 0 || pathVideos.length > 0 || textVideos.length > 0)) {
+                accept('error', `Layer ${layer.layerName} has unsupported clip combinations.`, { node: layer });
+            }
         });
     }
+
 }
 
 

@@ -1,5 +1,5 @@
 timeline my_video {
     ---@layer1
-    |Video @v1 'videos/Video1.mp4' ~fadeout duration: 1
-    |Video @v2 'videos/Video2.mp4'~fadein duration: 1
+    |Video @v1 'videos/Video1.mp4' ~fadeout duration: '00:00:01'
+    |Video @v2 'videos/Video2.mp4'~fadein duration: '00:00:01'
 }

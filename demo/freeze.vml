@@ -1,5 +1,5 @@
 timeline myVideo {
     ---@layer1
-    |Video @V1 'videos/video1.mp4',from 5,to 8
-    |Video @v2 'videos/video2.mp4',from 10, to 14 ~freeze 2+3
+    |Video @V1 'videos/video1.mp4',from: '00:00:01',to: '00:00:08' ~freeze ,from: '00:00:02', duration: '00:00:01'
+    |Video @v2 'videos/video2.mp4',from: '00:00:10',to: '00:00:14' ~freeze ,from: '00:00:01', to: '00:00:03'
 }

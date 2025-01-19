@@ -1,10 +1,12 @@
 timeline my_video {
     ---@layer1
-    |Video @v1 'videos/Video2.mp4'
+    |Video @v1 'videos/Video2.mp4', from: '00:00:03', to: '00:00:10'
+    |Video @v2  'videos/video1.mp4', from: '00:00:00', to: '00:00:09'
     ---@subtitles
     |Subtitle @sub1 {
-        text: 'Hello World',
-        start: 0, 
-        duration: 5, color: 'white', position: 'bottom'
+        text: 'Hello World',duration: '00:00:05'
+    }
+    |Subtitle @sub2 {
+        text: 'Hello World',duration: '00:00:10',color: #FFFFFF
     }
 }

@@ -31,14 +31,14 @@ VideoClip:
 TextVideo:
     '|TextVideo' '@' clipName=ID '{' NL
         TextProperties+=TextProperties
-        '}' (('~' effects+=VideoEffect)*)?NL;
+        '}' (('~' effects+=VideoEffect)?)*NL;
 
 PathVideo:
     '|Video' '@' clipName=ID sourceFile=STRING
         (',' 'size:' size=INT ','
         'position:' position=STRING)?
         (properties+=ClipProperty)?
-    ( ('~' effects+=VideoEffect)*)? NL;
+    ( ('~' effects+=VideoEffect)?)* NL;
 
 TextProperties:
     'text:' text=STRING ','
@@ -50,7 +50,7 @@ TextProperties:
 
 
 AudioClip:
-    '|Audio' '@' clipName=ID sourceFile=STRING (properties+=ClipProperty)? (('~' effects+=AudioEffect)*)? NL;
+    '|Audio' '@' clipName=ID sourceFile=STRING (properties+=ClipProperty)? (('~' effects+=AudioEffect)?)* NL;
 
 
 VideoEffect:
