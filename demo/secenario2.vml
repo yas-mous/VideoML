@@ -11,12 +11,12 @@ timeline my_video {
         } start:'00:00:00'
     |Subtitle @s2 {
         text: 'Hello World2',duration: '00:00:5',color: #FFFFFF
-    } start:'00:00:4',after: @s1
+    } start:'00:00:4' after: @s1
     |Subtitle @s3 {
         text: 'Hello World3',duration: '00:00:2',color: #FFFFFF
-    } start: '00:0:02', before: @clip1b
+    } start: '00:0:02' before: @clip1b
     ---@layer3
     |TextVideo @custom {
             text: 'Good bye guys !', duration: '00:00:05', color:#FFFFFF  , bg_color: #FFC0CB , position: 'left'
-            } ,start: '00:00:00', after: @clip1b
+            } ,start: '00:00:00' after: @clip1b
 }

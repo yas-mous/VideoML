@@ -18,7 +18,7 @@ ClipProperty:
 
 PositionInTimeline:
     time=STRING
-        (',' ('after:' after='@' clipName=ID | 'before:' before='@' clipName=ID ) )?;
+        ( ('after:' after='@' clipName=ID | 'before:' before='@' clipName=ID )? );
 
 SubtitleClip:
     '|Subtitle' '@' clipName=ID '{' NL
