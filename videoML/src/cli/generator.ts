@@ -36,7 +36,7 @@ import {
     VolumeEffect,
     PositionInTimeline
 } from '../language/generated/ast.js';
-import { generateOutputFilePath, hasClipProperties, convertToSeconds, colorConvert} from './utils.js';
+import { generateOutputFilePath, hasClipProperties, convertToSeconds} from './utils.js';
 
 interface ILayer    {
     layerName: string;
@@ -215,14 +215,19 @@ function compileSingleClip(clipCode: string, fileNode: CompositeGeneratorNode): 
 
 function compileMultipleClip(clips: string[], layer: Layer, fileNode: CompositeGeneratorNode): string {
     const layerVar = layer.layerName;
-fileNode.append(`${layerVar} = CompositeVideoClip([`);
 fileNode.appendNewLine();
     let previousClip=clips.at(0);
-
+  
 clips.slice(1,clips.length).forEach((clip) => {
-    fileNode.append(`    ${clip}.with_start(${previousClip}.end),`);
+    fileNode.append(`${clip}=${clip}.with_start(${previousClip}.end)`);
+    previousClip=clip;
     fileNode.appendNewLine();
-})/*
+})
+fileNode.append(`${layerVar} = CompositeVideoClip([${clips.join(',')}`);
+fileNode.append(`])`);
+fileNode.appendNewLine();
+
+/*
     fileNode.append(`${layerVar} = concatenate_videoclips([`);
     fileNode.appendNewLine();
 
@@ -231,11 +236,9 @@ clips.slice(1,clips.length).forEach((clip) => {
         fileNode.appendNewLine();
     });
 */
-    fileNode.append(`])`);
     if(layer.elements.length > 0 && isSubtitleClip(layer.elements[0])){
         fileNode.append(`.with_position( 'bottom')`);
     }
-    fileNode.appendNewLine();
 
     fileNode.appendNewLine();
     return layerVar;
@@ -489,7 +492,7 @@ function processPositionTimeline(positionInTimeline: PositionInTimeline) :string
 
             return positionInTimeline.clipName+".start - "+convertToSeconds(positionInTimeline.time);
         } else {
-            return positionInTimeline.clipName+".start + "+positionInTimeline.clipName+".duration+ "+convertToSeconds(positionInTimeline.time)
+            return positionInTimeline.clipName+".end +"+convertToSeconds(positionInTimeline.time)
         }
 
 }
@@ -548,7 +551,6 @@ function createCustomClip( customClip: TextVideo, clipVar : String): string {
     const position = customClip.TextProperties.find(prop => prop.position !== undefined)?.position || "center";
     const fontSize = customClip.TextProperties.find(prop => prop.fontSize !== undefined)?.fontSize || 48;
 
-    const colorInRGB = colorConvert(bgColor);
     const positionInTimeline = customClip.properties.find(prop => prop.positionInTimeline !== undefined)?.positionInTimeline;
     const  positionInTimelineString=(positionInTimeline !== undefined)?processPositionTimeline(positionInTimeline):"0";
     // Créer un TextClip avec un fond noir
@@ -561,9 +563,7 @@ function createCustomClip( customClip: TextVideo, clipVar : String): string {
             size=(1300, 750)
         ) .with_start(${positionInTimelineString}).with_duration(${convertToSeconds(duration)}).with_position('${position}')
         
-bg_clip = ColorClip(size=(1300, 750) ,color=${colorInRGB}).with_duration(${convertToSeconds(duration)})
-
-${clipVar} = CompositeVideoClip([bg_clip,${clipVar}]).with_position('${position}')`;
+${clipVar} = CompositeVideoClip([${clipVar}]).with_position('${position}')`;
 
     
     // Ajouter ce clip d'introduction avant le clip existant
