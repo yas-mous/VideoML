@@ -288,7 +288,7 @@ export class VideoMlValidator {
 
 
     validateClipProperty(property: ClipProperty, accept: ValidationAcceptor): void {
-        if (property.positionInTimeline !== undefined && (!Number.isInteger(property.positionInTimeline) || convertToSeconds(property.positionInTimeline )< 0)) {
+        if (property.positionInTimeline !== undefined  && convertToSeconds(property.positionInTimeline )< 0) {
             accept('error', 'Clip property "start" must be a non-negative integer.', { node: property, property: 'positionInTimeline' });
         }
     }
