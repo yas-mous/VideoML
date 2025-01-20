@@ -1,25 +1,25 @@
-import { LayerElement,TimeLine,isVideoClip, isAudioClip, isTextVideo, isPathVideo } from "../language/generated/ast.js";
-//const fs = require('fs');
+
+import { LayerElement,TimeLine,isVideoClip, isAudioClip, isTextVideo, isPathVideo, isSubtitleClip } from "../language/generated/ast.js";
 
 export function hasClipProperties(clip: LayerElement): boolean {
     //return clip..length > 0;
     if ((isVideoClip(clip) && (isPathVideo(clip)) || isAudioClip(clip))) {
         return clip.properties.length > 0;
     }
-
+    
     return false;
 }
 
 export function hasFrom(clip: LayerElement): boolean {
-    if (isPathVideo(clip) || isAudioClip(clip)) {
-        return clip.properties.some(prop => prop.interval.begin !== undefined);
+    if (isPathVideo(clip) ||isTextVideo(clip)|| isAudioClip(clip)||isSubtitleClip(clip)) {
+        return clip.properties.some(prop => prop.interval?.begin !== undefined);
     }
     return false;
 }
 
 export function hasEnd(clip: LayerElement): boolean {
-    if(isPathVideo(clip) || isAudioClip(clip)) {
-        return clip.properties.some(prop => prop.interval.begin !== undefined);
+    if(isPathVideo(clip) || isTextVideo(clip)||isAudioClip(clip)||isSubtitleClip(clip)) {
+        return clip.properties.some(prop => prop.interval?.begin !== undefined);
     }
     return false;
 }
@@ -51,7 +51,7 @@ export function isClipType(clip: LayerElement): boolean {
 export function colorConvert(color: string): string {
     const hex = color.replace("#", "");
 
-    const fullHex = hex.length === 3
+    const fullHex = hex.length === 3 
         ? hex.split("").map(char => char + char).join("")
         : hex;
 

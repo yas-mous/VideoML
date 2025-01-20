@@ -1,0 +1,25 @@
+timeline my_video {
+    ---@layer1
+     |TextVideo @custom {
+                text: 'Welcome to my video !', duration: '00:00:10', color:#FFFFFF  , bg_color: #FFC0CB, position: 'center'
+                }
+    |Video @clip1a 'videos/video3.mp4', from:'00:00:00', to:'00:00:23'
+    |Video @clip1b 'videos/video2.mp4', from:'00:00:01', to:'00:00:13'
+    ---@layer2
+    |Subtitle @s1 {
+            text: 'Hello World',duration: '00:00:4',color: #FFFFFF
+        } start:'00:00:00'
+    |Subtitle @s2 {
+        text: 'Hello World2',duration: '00:00:5',color: #FFFFFF
+    } start:'00:00:4' after: @s1
+    |Subtitle @s3 {
+        text: 'Hello World3',duration: '00:00:2',color: #FFFFFF
+    } start: '00:0:02' before: @clip1b
+    ---@layer3
+    |TextVideo @custom {
+            text: 'Good bye guys !', duration: '00:00:05', color:#FFFFFF  , bg_color: #FFC0CB , position: 'left'
+            } ,start: '00:00:00' after: @clip1b
+    ---@layer4
+    |Audio @a1 'audios/audio1.mp3' , from: '00:00:00' , to: '00:00:10' ~volume(x 2, from: '00:00:02' ,to: '00:00:04')
+    |Audio @a2 'audios/audio2.mp3',from: '00:00:05', to: '00:00:10' ~loop  '00:00:05'     
+}

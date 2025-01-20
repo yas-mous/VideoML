@@ -1,6 +1,18 @@
 from moviepy import *
 from moviepy.video.fx import *
 
+<<<<<<< HEAD
+v1 = VideoFileClip("videos/video1.mp4").subclipped(1, 5)
+v2 = VideoFileClip("videos/video2.mp4").subclipped(0, 3)
+layer1 = concatenate_videoclips([
+    v1,
+    v2,
+], method="compose")
+
+
+final_video = layer1
+final_video.write_videofile("myVideo.mp4", fps=24)
+=======
 custom = TextClip(
             font="font/font.ttf",
             text="Welcome to my video !",
@@ -69,3 +81,4 @@ final_video = CompositeVideoClip([
     v3,
 ])
 final_video.write_videofile("../generatedVideos/myVideo.mp4", fps=24)
+>>>>>>> develop
